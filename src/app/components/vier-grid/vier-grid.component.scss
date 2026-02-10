@@ -1,0 +1,54 @@
+/* app-four-grid.component.scss */
+.grid4 {
+  display: grid;
+  height: 100vh;            // Vollbild
+  grid-template-columns: 1fr 5fr;
+  grid-template-rows: 1fr 5fr;
+  //gap: 1px;                // Abstand zwischen Containern
+  padding: 1px;
+  box-sizing: border-box;
+}
+
+.cell {
+  background: #f6f8fa;
+  border: 1px solid #d0d7de;
+  //border-radius: 8px;
+  overflow: auto;           // Scrollt bei viel Inhalt
+  padding: 12px;
+}
+
+/* Optional: unterschiedliche Hintergründe, um Bereiche zu unterscheiden */
+.a { 
+  background: #fff; 
+  font-size: xx-large;
+  /* Inhalt zentrieren */
+  display: flex;
+  align-items: center;      // vertikal
+  //justify-content: center;  // horizontal
+  text-align: center;
+}
+.b { background: #168396;
+    display: flex;
+    align-items: center;      
+}
+.c { 
+    background: #cbcbcc; 
+    padding-left: 32px;
+}
+.d { background: #f4f5f3; }
+
+/* Responsiv: unter 768px zwei Spalten, unter 480px eine Spalte */
+@media (max-width: 768px) {
+  .grid4 {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto auto;
+    height: auto;           // bei kleinen Bildschirmen nicht erzwingen
+  }
+}
+
+@media (max-width: 480px) {
+  .grid4 {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+  }
+}

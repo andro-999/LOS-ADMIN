@@ -1,0 +1,21 @@
+<div class="page">
+
+    <!--app-ges-logo class="logo-area"></app-ges-logo-->
+    <app-header class="header-area" style="display: flex; align-items: center; height: 90px;">{{bereichText}}
+    </app-header>
+
+    <div class="content-row">
+        <aside class="sidebar-wrap">
+            <app-sidebar [showNav]="showNav"></app-sidebar>
+        </aside>
+
+        <div class="right-column">
+
+            <app-bereiche [bereichText]="bereichText" style="margin-left: -20px;"></app-bereiche>
+            <main class="main-content">
+                <ng-content></ng-content>
+                <!-- oder <router-outlet></router-outlet> für Kindrouten -->
+            </main>
+        </div>
+    </div>
+</div>

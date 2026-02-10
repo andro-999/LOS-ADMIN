@@ -1,0 +1,18 @@
+.header-row {
+  //display: flex;
+  //flex-direction: row;
+  align-items: center;
+  gap: 12px; // optional spacing between left and right
+  width: 100%;
+}
+
+.header-row > div:first-child {
+  flex: 0 0 auto; // logo block keeps natural width
+}
+
+.header-right {
+  flex: 1 1 auto; // take remaining space
+  height: 80px;
+  background-color: #0da2bd; // default; overridable by [ngStyle]
+  width: auto; // avoid fixed 100% that forces wrapping
+}

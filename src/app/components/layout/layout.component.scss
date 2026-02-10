@@ -1,0 +1,64 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.header-area {
+  grid-row: 1;
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+  min-height: 90px;
+}
+.header-area app-header{
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.header-area app-header .header-row {
+  display: flex;
+  align-items: center;   // falls die Klasse verwendet wird
+}
+
+.content-row {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  gap: 0;
+}
+
+.sidebar-wrap {
+  flex: 0 0 260px; /* feste Breite */
+  width: 260px;
+  overflow: auto;
+  margin: 0;
+}
+
+
+.right-column {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+}
+
+/* Optional: Bereiche-Leiste fix oben im rechten Bereich */
+app-bereiche, .bereiche {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f3f4f6;
+  height: 36px;
+  font-size: 22px;
+  line-height: 36px;
+  padding-left: 12px;
+}
+
+.no-sidebar .sidebar {
+  display: none;
+}
+.no-sidebar .content {
+  margin-left: 0; // ggf. Sidebar-Breite zurücksetzen
+}

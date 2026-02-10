@@ -1,0 +1,78 @@
+<app-layout [showNav]="true" [bereichText]="'Adminverwaltung'">
+
+    <div>
+
+        <div class="content-container mt-10">
+            <div class="main-content">
+                <div class="flex flex-col">
+                    <!-- Fester Tabellenbereich -->
+                    <div class="h-[500px]" style="overflow-y: auto; border: 1px solid #eee; border-radius: 4px;">
+                        <table style="width: 100%; border-collapse: collapse; ">
+                            <thead style="position: sticky; top: 0; background: white; z-index: 1; ">
+                                <tr>
+                                    <th style="width: 3%;  text-align: left; ">Nr.</th>
+                                    <th style="width: 3%;"></th>
+                                    <th style="width: 30px;"></th>
+                                    <th style="width: 150px;  text-align: left; ">Benutzer</th>
+                                    <th style="width: 550px;  text-align: left; ">Rollen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngIf="pagedUsers.length === 0">
+                                    <td colspan="5" style="padding: 16px; text-align: center; color: #666;">
+                                        Keine Benutzer gefunden.
+                                    </td>
+                                </tr>
+                                <tr *ngFor="let user of pagedUsers; let i = index">
+                                    <!-- Absolute Nummer über alle Seiten -->
+                                    <td>{{ (currentPage - 1) * pageSize + i + 1 }}</td>
+                                    <td>
+                                        <button (click)="editUser(user)" class="btn-edit">
+                                            <mat-icon>edit</mat-icon>
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <button (click)="deleteUser(user)" class="btn-delete">
+                                            <mat-icon>delete</mat-icon>
+                                        </button>
+                                    </td>
+                                    <td>{{ user.name }}</td>
+                                    <td>{{ user.rolle }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination" style="margin-top: 12px; display: flex; align-items: center; gap: 8px;">
+                        <button (click)="prevPage()" [disabled]="currentPage === 1">« Zurück</button>
+                        <ng-container *ngFor="let p of pages">
+                            <button (click)="goToPage(p)" [class.active]="currentPage === p">{{ p }}</button>
+                        </ng-container>
+                        <button (click)="nextPage()" [disabled]="currentPage === totalPages">Weiter »</button>
+                        <span style="margin-left: 8px;">Seite {{ currentPage }} von {{ totalPages }}</span>
+                    </div>
+
+                    <!-- Neu-Button -->
+                    <div class="add-user mt-8 mb-40" style="margin-top: 8px; margin-bottom: 40px;">
+                        <button (click)="addUser()" class="btn-add-user"><mat-icon>add</mat-icon> neu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-40">
+            <button (click)="logout()" class="shadow-[0_0px_3px_0px_gray] mt-10"
+                style="cursor: pointer; font-size: 18px;">
+                logout</button>
+        </div>
+
+
+    </div>
+
+</app-layout>
+<div class="mt-40">
+    <ng-container>
+        <p>XXXXXXXXXXXXXXXXXXXXXXXXXXXX</p>
+    </ng-container>
+</div>

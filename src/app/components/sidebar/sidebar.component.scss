@@ -1,0 +1,108 @@
+/* filepath: c:\projects\los-admin\src\app\components\sidebar\sidebar.component.scss */
+.login-container {
+  display: flex;
+  height: 100vh; /* Die gesamte Höhe des Viewports */
+}
+
+.sidebar {
+  width: 250px; /* Feste Breite der Sidebar */
+  background-color: #dfe5e7;
+  color: white;
+  padding: 20px 0;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  position: fixed; /* Sidebar bleibt fixiert */
+  top: 90px; /* Startet oben */
+  bottom: 0; /* Reicht bis zum unteren Rand */
+  left: 0; /* Positioniert sich links */
+  z-index: 1000; /* Stellt sicher, dass die Sidebar über anderen Elementen liegt */
+}
+
+.sidebar-header {
+  padding: 0 20px 20px;
+  //border-bottom: 1px solid #34495e;
+
+  h3 {
+    margin: 0;
+    font-size:15px;// 1.5rem;
+    color: gray;// #119abd;
+  }
+}
+
+.sidebar-nav {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0;
+
+  li {
+    margin: 0;
+
+    .nav-link {
+      display: block;
+      padding: 15px 20px;
+      color: #136d83;
+      font-size: 18px;
+      text-decoration: none;
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: #34495e;
+        color: red;//white;
+      }
+    }
+  }
+}
+
+.main-content {
+  margin-left: 250px; /* Platz für die Sidebar */
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f8f9fa;
+  min-height: 100vh; /* Stellt sicher, dass der Inhalt die gesamte Höhe einnimmt */
+}
+/* filepath: c:\projects\los-admin\src\app\components\sidebar\sidebar.component.scss */
+.nav-link {
+  display: block;
+  padding: 15px 20px;
+  color: green;// #119abd;
+  text-decoration: none;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: red;// #34495e;
+    color: white;
+  }
+}
+
+.nav-link.active {
+  background-color: #c7cbcc; /* Hintergrundfarbe für den aktiven Menüpunkt */
+  color:red; // white; /* Textfarbe für den aktiven Menüpunkt */
+  font-weight: bold; /* Optional: Fettgedruckt für bessere Sichtbarkeit */
+}
+.sub-nav .nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px; /* Abstand zwischen Icon und Text */
+}
+
+.sub-nav .nav-link mat-icon {
+  line-height: 1;
+  font-size: 18px; /* optional: Icon etwas kleiner */
+  position: relative;
+  top: 2px; /* tiefer platzieren; bei Bedarf 1–3px anpassen */
+}
+
+
+.sidebar-nav .nav-link{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px; /* Abstand zwischen Text und Icon */
+}
+
+.sidebar-nav .nav-link mat-icon{
+  line-height: 1;
+  font-size: 18px;     /* optional */
+  position: relative;
+  top: 10px;            /* Icon etwas tiefer; bei Bedarf anpassen */
+}

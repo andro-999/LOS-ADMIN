@@ -1,0 +1,115 @@
+<p>vier-grid works!</p>
+
+<!-- app-four-grid.component.html -->
+<div class="grid4">
+    <div class="cell a">
+        <!-- Inhalt/Komponente A -->
+        <p>AAAAA<br>AAAAAA</p>
+
+    </div>
+    <div class="cell b">
+        <h1>BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB</h1>
+    </div>
+    <div class="cell c ">
+        <div>
+            <nav>
+                <li>
+                    <a routerLink="/wartung" routerLinkActive="active" class="nav-link">Wartung</a>
+                </li>
+                <li>
+                    <a routerLink="/prozessmanager" routerLinkActive="active" class="nav-link">Prozess Manager</a>
+                </li>
+                <li>
+                    <a routerLink="/tracking" routerLinkActive="active" class="nav-link">Tracking</a>
+                </li>
+                <!-- Verwaltung as collapsible parent -->
+                <li class="has-children">
+                    <button type="button" class="nav-link toggle" (click)="toggleVerwaltung()">
+                        Verwaltung
+                        <span class="chevron" [class.open]="verwaltungOpen">▼</span>
+                    </button>
+                    <ul class="sub-nav" *ngIf="verwaltungOpen">
+                        <li>
+                            <a routerLink="/mailverwaltung" routerLinkActive="active" class="nav-link">Mail
+                                Verwaltung</a>
+                        </li>
+                        <li>
+                            <a routerLink="/adminverwaltung" routerLinkActive="active"
+                                class="nav-link">Adminverwaltung</a>
+                        </li>
+                        <li>
+                            <a routerLink="/benutzerverwaltung" routerLinkActive="active"
+                                class="nav-link">Benutzerverwaltung</a>
+                        </li>
+                        <li>
+                            <a routerLink="/stellplatzverwaltung" routerLinkActive="active"
+                                class="nav-link">Stellplatzverwaltung</a>
+                        </li>
+                        <li>
+                            <a routerLink="/kardex-verwaltung" routerLinkActive="active" class="nav-link">Kardex
+                                Verwaltung</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a routerLink="/auftragsübersicht" routerLinkActive="active" class="nav-link">Auftragsübersicht</a>
+                </li>
+                <li>
+                    <a routerLink="/paletten" routerLinkActive="active" class="nav-link">Paletten</a>
+                </li>
+                <li>
+                    <a routerLink="/nve" routerLinkActive="active" class="nav-link">NVE</a>
+                </li>
+                <li>
+                    <a routerLink="/rollkarte-abschliessen" routerLinkActive="active" class="nav-link">Rollkarte
+                        abschließen</a>
+                </li>
+                <li>
+                    <a routerLink="/wareneingang" routerLinkActive="active" class="nav-link">Wareneingang</a>
+                </li>
+                <li>
+                    <a routerLink="/vier-grid" routerLinkActive="active" class="nav-link">Inventur</a>
+                </li>
+                <li>
+                    <a routerLink="/konfiguration" routerLinkActive="active" class="nav-link">Konfiguration </a>
+                </li>
+            </nav>
+        </div>
+    </div>
+    <div class="cell d">
+        <p><br>DDDDDDDDDDDDDDDDDDDDD<br>DDDDDDDDDDDDDDDDDDDDDDDDD</p>
+
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead style="position: sticky; top: 0; background: white; z-index: 1;">
+                <tr>
+                    <th style="width: 3%;">Nr.</th>
+                    <th style="width: 3%; border: 1px ; text-align: left; "></th>
+                    <th style="width: 30px; border: 1px  black; text-align: left;"></th>
+                    <th style="width: 150px; border: 1px  black; text-align: left;">Benutzer</th>
+                    <th style="width: 550px; border: 1px  black; text-align: left;">Rollen</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let us of us; let i = index">
+                    <!-- Absolute Nummer über alle Seiten -->
+                    <td style="width: 3%;">{{ i + 1 }}</td>
+
+                    <td style="width: 130px;">
+                        <button (click)="editUser(us)" class="btn-edit">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                    </td>
+                    <td style="width: 130px;">
+                        <button (click)="deleteUser(us)" class="btn-delete">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </td>
+                    <td style="width: 150px;"> popo</td>
+                    <td style="width: 550px;"> admin</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</div>

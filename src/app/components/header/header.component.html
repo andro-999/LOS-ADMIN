@@ -1,0 +1,24 @@
+<!-- <header>
+    <div class="header-container">
+        <ng-content></ng-content>
+        <div>
+            <app-ges-logo></app-ges-logo>
+        </div>
+    </div>
+
+
+</header> -->
+
+<header class="header-row" style="display: flex; align-items: center; height: 90px;">
+    <div class="flex flex-row items-center" style="height: 70px;">
+        <app-ges-logo></app-ges-logo>
+    </div>
+
+    <div class="text-white rounded-r-md w-11/12 flex items-center justify-start mr-5 " [ngStyle]="{ 'background-color': showBackground ? '#168396' : 'transparent','font-size': showBackground ? '20px' : '16px',
+       'padding-left': '12px','items-center': 'center'}"
+        style="width: 100%; background-color: #0da2bd; height: 90px; display: flex; align-items: center;">
+        <p class="w-38" style="color: white; margin: 0; font-size: 12px;">version 1.1.1</p>
+
+    </div>
+
+</header>

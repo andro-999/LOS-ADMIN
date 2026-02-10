@@ -1,0 +1,84 @@
+.nav-btn {
+  padding: 10px 20px;
+  background-color: #0da2bd;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 300;
+  transition: all 0.3s ease;
+  height: 80px;
+  width: 120px;
+
+  &:hover {
+    background-color: #168396;
+  }
+
+  &.active {
+    background-color: #168396;
+    box-shadow: 0 2px 8px rgba(13, 162, 189, 0.3);
+    height: 120px;
+    width: 200px;
+    font-size: 26px;
+    font-weight: 600;
+  }
+}
+
+.hr-separator {
+  height: 2px;
+  background-color: white;
+  border: none;
+  margin: 8px 0;
+  width: 100%;
+}
+
+.nav-btn.active .hr-separator {
+  background-color: rgba(12, 243, 23, 0.904);
+}
+
+.pagination-btn {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+
+  &:hover:not(:disabled) {
+    background-color: #f5f5f5;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &.active {
+    background-color: #0da2bd;
+    color: white;
+    border-color: #0da2bd;
+  }
+}
+
+.btn-delete {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: #c82333;
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}

@@ -1,0 +1,46 @@
+<app-layout [showNav]="true" [bereichText]="'Benutzerverwaltung'">
+
+    <div class="layout-container">
+        <!--div class="sidebar-container">
+        <app-header></app-header>
+        <app-sidebar></app-sidebar>
+    </div>
+
+        <div class="content-container"-->
+        <div class="main-content">
+
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 3%;"></th>
+                        <th style="width: 30px;"></th>
+                        <th style="width: 150px;">Benutzer</th>
+                        <th style="width: 550px;">Rollen</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let user of users">
+                        <td>
+                            <button (click)="editUser(user)" class="btn-edit">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+
+                        </td>
+                        <td>
+
+                            <button (click)="deleteUser(user)" class="btn-delete"><mat-icon>delete</mat-icon></button>
+                        </td>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.rolle }}</td>
+
+                    </tr>
+                </tbody>
+            </table>
+            <div class="add-user">
+                <button (click)="addUser()" class="btn-add-user"><mat-icon>add</mat-icon> neu</button>
+            </div>
+        </div>
+    </div>
+    <!--/div-->
+</app-layout>

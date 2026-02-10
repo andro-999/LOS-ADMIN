@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { GesLogoComponent } from './components/ges-logo/ges-logo.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet,
+    //  GesLogoComponent
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

@@ -1,0 +1,99 @@
+/* filepath: c:\projects\los-admin\src\app\pages\benutzerverwaltung\benutzerverwaltung.component.scss */
+
+/* Container für das gesamte Layout */
+.layout-container {
+  display: flex;
+  height: 100vh; /* Die gesamte Höhe des Viewports */
+}
+
+/* Sidebar und Header auf der linken Seite */
+.sidebar-container {
+  width: 250px; /* Feste Breite für Sidebar und Header */
+  display: flex;
+  flex-direction: column;
+  position: fixed; /* Fixiert die Sidebar und das Header-Logo */
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background-color: #dfe5e7; /* Hintergrundfarbe der Sidebar */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* Stellt sicher, dass die Sidebar über anderen Elementen liegt */
+}
+
+/* Hauptinhalt rechts von der Sidebar */
+.content-container {
+  margin-left: 250px; /* Platz für die Sidebar */
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto; /* Ermöglicht Scrollen, wenn der Inhalt zu groß ist */
+  background-color: #f8f9fa; /* Hintergrundfarbe für den Hauptinhalt */
+}
+
+/* Tabelle */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+table thead {
+  border-bottom: 2px solid #0da2bd; /* Blauer Strich unter dem Kopfbereich */
+}
+table tbody {
+  border-bottom: 2px solid #0da2bd; /* Blauer Strich unter dem Kopfbereich */
+}
+th {
+  border: none;
+  padding: 0;
+  text-align: left;
+}
+td {
+  border: none;
+  padding: 0;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #f4f4f4;
+}
+
+/* Buttons */
+.btn-add-user {
+  background-color: #7b7d7e;
+  color: rgb(39, 38, 38);
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.btn-add-user:hover {
+  background-color: #f8fafc;
+}
+
+.btn-edit {
+  background-color: #f8f8f7;
+  color: rgb(46, 44, 44);
+  border: none;
+  padding: 0x;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-edit:hover {
+  background-color: #e67e22;
+}
+
+.btn-delete {
+  background-color: #f8f8f7;
+  color: rgb(46, 44, 44);
+  border: none;
+  padding: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-delete:hover {
+  background-color: #c0392b;
+}

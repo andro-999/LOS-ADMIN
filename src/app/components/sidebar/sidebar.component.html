@@ -1,0 +1,112 @@
+<div>
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h3>Menü Filter</h3>
+        </div>
+        <ul class="sidebar-nav" *ngIf="showNav===true && !verwaltungOpen && !leitstandOpen">
+            <li>
+                <a routerLink="/wartung" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+                    class="nav-link">Wartung</a>
+            </li>
+            <!--li>
+                <a class="nav-link" [class.active]="leitstandOpen" (click)="openLeitstand()">Leitstand
+                    <mat-icon>arrow_right</mat-icon>
+                </a>
+            </li-->
+            <li>
+                <a routerLink="/leitstand" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+                    class="nav-link">Leitstand</a>
+            </li>
+            <li>
+                <a routerLink="/prozessmanager" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+                    class="nav-link">Prozess Manager</a>
+            </li>
+            <li>
+                <a routerLink="/tracking" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+                    class="nav-link">Tracking</a>
+            </li>
+            <!-- Verwaltung as collapsible parent -->
+            <!--li>
+                <a class="nav-link" [class.active]="verwaltungOpen" (click)="openVerwaltung()">Verwaltung
+                    <mat-icon>arrow_right</mat-icon></a>
+
+            </li-->
+            <li>
+                <a routerLink="/auftragsübersicht" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+                    class="nav-link">Auftragsübersicht</a>
+            </li>
+            <li>
+                <a routerLink="/paletten" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+                    class="nav-link">Paletten</a>
+            </li>
+            <li>
+                <a routerLink="/nve" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+                    class="nav-link">NVE</a>
+            </li>
+            <li>
+                <a routerLink="/rollkarte-abschliessen" routerLinkActive="active"
+                    [routerLinkActiveOptions]="{ exact: true }" class="nav-link">Rollkarte abschließen</a>
+            </li>
+            <li>
+                <a routerLink="/wareneingang" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+                    class="nav-link">Wareneingang</a>
+            </li>
+            <li>
+                <a routerLink="/vier-grid" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+                    class="nav-link">Inventur</a>
+            </li>
+            <li>
+                <a routerLink="/konfiguration" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+                    class="nav-link">Konfiguration </a>
+            </li>
+        </ul>
+        <ul class="sub-nav" *ngIf="showNav===true && verwaltungOpen">
+            <li>
+                <a class="nav-link" (click)="closeVerwaltung()"><mat-icon class="mt-110">arrow_left</mat-icon>
+                    Verwaltung</a>
+            </li>
+            <li>
+                <a routerLink="/mailverwaltung" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+                    class="nav-link">Mail Verwaltung</a>
+            </li>
+            <li>
+                <a routerLink="/adminverwaltung" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+                    class="nav-link">Adminverwaltung</a>
+            </li>
+            <li>
+                <a routerLink="/benutzerverwaltung" routerLinkActive="active"
+                    [routerLinkActiveOptions]="{ exact: true }" class="nav-link">Benutzerverwaltung</a>
+            </li>
+            <li>
+                <a routerLink="/stellplatzverwaltung" routerLinkActive="active"
+                    [routerLinkActiveOptions]="{ exact: true }" class="nav-link">Stellplatzverwaltung</a>
+            </li>
+            <li>
+                <a routerLink="/kardex-verwaltung" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+                    class="nav-link">Kardex Verwaltung</a>
+            </li>
+        </ul>
+        <!--ul class="sub-nav" *ngIf="showNav===true && leitstandOpen">
+            <li>
+                <a class="nav-link" (click)="closeLeitstand()"><mat-icon class="mt-110">arrow_left</mat-icon>
+                    Leitstand</a>
+            </li>
+            <li>
+                <a routerLink="/leitstand/auftrag-loeschen" routerLinkActive="active"
+                    [routerLinkActiveOptions]="{ exact: true }" class="nav-link">Auftrag löschen</a>
+            </li>
+            <li>
+                <a routerLink="/leitstand/position-loeschen" routerLinkActive="active"
+                    [routerLinkActiveOptions]="{ exact: true }" class="nav-link">Position löschen</a>
+            </li>
+            <li>
+                <a routerLink="/leitstand/prioritaet-aendern" routerLinkActive="active"
+                    [routerLinkActiveOptions]="{ exact: true }" class="nav-link">Priorität ändern</a>
+            </li>
+            <li>
+                <a routerLink="/leitstand/auftrag-blockieren" routerLinkActive="active"
+                    [routerLinkActiveOptions]="{ exact: true }" class="nav-link">Auftrag blockieren</a>
+            </li>
+        </ul-->
+    </nav>
+</div>

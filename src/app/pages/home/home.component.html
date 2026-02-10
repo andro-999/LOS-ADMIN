@@ -1,0 +1,30 @@
+<!-- <app-sidebar></app-sidebar>
+<app-header></app-header>
+<div class="main-content">
+
+    <div class="container ">
+        <div class="row">
+
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+
+                <button (click)="logout()" class="shadow-[0_0px_3px_0px_gray]" style="background: rgb(240, 233, 233); border: none; color: white;
+ cursor: pointer; font-size: 18px;"> logout
+
+                </button>
+            </div>
+        </div>
+    </div>
+</div> -->
+
+<app-layout [showNav]="true" [bereichText]="'Home'">
+    <div class="home-content">
+        <h1>Willkommen auf der Startseite!</h1>
+        <p>Dies ist der Hauptbereich der Anwendung.</p>
+        <button (click)="logout()" class="shadow-[0_0px_3px_0px_gray]" style="background: rgb(240, 233, 233); border: none; color: white;
+ cursor: pointer; font-size: 18px;"> logout
+
+        </button>
+    </div>
+</app-layout>
