@@ -1,0 +1,340 @@
+.content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  overflow: hidden;
+  margin-top: 20px;
+}
+
+// Zeile 1: Buttons und Suche
+.row-1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 15px;
+  flex-shrink: 0;
+}
+
+.left-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.right-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+
+  &.primary {
+    background-color: #168396;
+    color: white;
+
+    &:hover {
+      background-color: #0d6a7a;
+    }
+  }
+
+  &.secondary {
+    background-color: #6c757d;
+    color: white;
+
+    &:hover {
+      background-color: #545b62;
+    }
+  }
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #e9ecef;
+  }
+
+  mat-icon {
+    color: #168396;
+  }
+}
+
+.search-field {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  min-width: 200px;
+
+  &:focus {
+    outline: none;
+    border-color: #168396;
+  }
+}
+
+// Zeile 2: Filter (nicht mehr verwendet - Filter sind jetzt in Tabelle integriert)
+
+.table-divider {
+  height: 2px;
+  background-color: #168396;
+  border: none;
+  margin: 10px 0;
+  flex-shrink: 0;
+}
+
+// Tabelle
+.table-container {
+  flex: 1;
+  overflow: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px 4px 0 0;
+  border-bottom: none;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+
+    // Filter Zeile
+    tr.filter-row {
+      background-color: #f0f0f0;
+
+      th {
+        padding: 6px 4px;
+        background-color: #f0f0f0;
+        border-bottom: 1px solid #ddd;
+      }
+    }
+
+    // Header Zeile (nicht filter-row)
+    tr:not(.filter-row) {
+      background-color: #168396;
+      color: white;
+
+      th {
+        padding: 10px 8px;
+        text-align: left;
+        font-weight: 500;
+        white-space: nowrap;
+        border-right: 1px solid rgba(255, 255, 255, 0.2);
+
+        &:last-child {
+          border-right: none;
+        }
+
+        &.action-col {
+          text-align: center;
+          width: 60px;
+        }
+
+        &.narrow-col {
+          width: 45px;
+          min-width: 45px;
+          max-width: 45px;
+          text-align: center;
+        }
+
+        &.tiny-col {
+          width: 35px;
+          min-width: 35px;
+          max-width: 35px;
+          text-align: center;
+        }
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      &:nth-child(even) {
+        background-color: #f8f9fa;
+      }
+
+      &:hover {
+        background-color: #e9ecef;
+      }
+    }
+
+    td {
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+      white-space: nowrap;
+
+      &.action-col {
+        text-align: center;
+      }
+
+      &.narrow-col, &.tiny-col {
+        text-align: center;
+      }
+    }
+  }
+}
+
+// Boolean Icons (Ja/Nein)
+.bool-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  cursor: default;
+
+  &.yes {
+    color: #28a745;
+  }
+
+  &.no {
+    color: #dc3545;
+  }
+}
+
+.table-icon-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 4px;
+  background-color: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #d0d0d0;
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #168396;
+  }
+}
+
+// Filter Input in Tabelle
+.filter-input {
+  width: 100%;
+  padding: 5px 6px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 12px;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: #168396;
+    box-shadow: 0 0 3px rgba(22, 131, 150, 0.3);
+  }
+
+  &::placeholder {
+    color: #999;
+    font-size: 11px;
+  }
+}
+
+// Pagination
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  flex-shrink: 0;
+}
+
+.pagination-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #333;
+}
+
+.page-size-select {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: #168396;
+  }
+}
+
+.pagination-total {
+  color: #666;
+  margin-left: 10px;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagination-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+
+  &:hover:not(:disabled) {
+    background-color: #e9ecef;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  mat-icon {
+    color: #168396;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.page-info {
+  font-size: 14px;
+  color: #333;
+  padding: 0 12px;
+}

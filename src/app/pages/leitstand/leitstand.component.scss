@@ -1,42 +1,4 @@
-.nav-btn {
-  padding: 10px 20px;
-  background-color: #0da2bd;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 300;
-  transition: all 0.3s ease;
-  height: 80px;
-  width: 120px;
-
-  &:hover {
-    background-color: #168396;
-  }
-
-  &.active {
-    background-color: #168396;
-    box-shadow: 0 2px 8px rgba(13, 162, 189, 0.3);
-    height: 120px;
-    width: 200px;
-    font-size: 26px;
-    font-weight: 600;
-  }
-}
-
-.hr-separator {
-  height: 2px;
-  background-color: white;
-  border: none;
-  margin: 8px 0;
-  width: 100%;
-}
-
-.nav-btn.active .hr-separator {
-  background-color: rgba(12, 243, 23, 0.904);
-}
-
+// Pagination und Button Styles
 .pagination-btn {
   padding: 6px 12px;
   border: 1px solid #ddd;

@@ -1,0 +1,8 @@
+<!-- 01100001 01101110 01100100 01110010 01101111 -->
+
+<!-- Navigation Buttons -->
+<div style="display: flex; gap: 12px; flex-wrap: wrap; flex: 1;">
+    <app-nav-btn *ngFor="let button of buttons" [label]="button.label" [count]="button.count"
+        [isActive]="button.isActive" [showCount]="button.showCount !== false" (clicked)="onButtonClick(button)">
+    </app-nav-btn>
+</div>

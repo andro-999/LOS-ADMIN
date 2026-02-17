@@ -1,0 +1,10 @@
+<!-- 01100001 01101110 01100100 01110010 01101111 -->
+<div style="display: flex; flex-direction: column; align-items: center;">
+    <button (click)="onClick()" [class.active]="isActive" class="nav-btn">
+        <div style="text-align: center; width: 100%; margin-left: -5px;"> {{ label }}</div>
+        <hr class="hr-separator" />
+        <span *ngIf="showCount" style="color: white; font-size: 14px; font-weight: 500;">
+            <h1 style="font-size: xx-large; margin: 0;">{{ count }}</h1>
+        </span>
+    </button>
+</div>

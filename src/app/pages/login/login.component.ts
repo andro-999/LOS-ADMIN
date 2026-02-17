@@ -46,8 +46,8 @@ export class LoginComponent implements OnInit {
     // FIX: Nur prüfen ob bereits eingeloggt, nicht ausloggen
     const jsessionid = localStorage.getItem('JSESSIONID');
     if (jsessionid) {
-      console.log('Bereits eingeloggt, umleiten zu /home');
-      this.router.navigate(['/home']);
+      console.log('Bereits eingeloggt, umleiten zu /leitstand');
+      this.router.navigate(['/leitstand']);
     } else {
       console.log('Nicht eingeloggt, auf Login-Seite bleiben');
     }
@@ -80,7 +80,7 @@ export class LoginComponent implements OnInit {
           userDetails.JSESSIONID = response.data?.JSESSIONID || '';
           localStorage.setItem('JSESSIONID', userDetails.JSESSIONID);
           localStorage.setItem('username', userDetails.username);
-          this.router.navigate(["/home"]);
+          this.router.navigate(["/leitstand"]);
         } else {
           alert('Login fehlgeschlagen: ' + response.text);
           this.loginForm.reset();

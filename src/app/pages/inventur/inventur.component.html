@@ -1,0 +1,235 @@
+<!-- 01100001 01101110 01100100 01110010 01101111 -->
+<div style="margin-left: 5%; width: 90%; height: 100vh; display: flex; flex-direction: column; overflow: hidden;">
+    <app-header class="header-area" style="display: flex; align-items: center; height: 90px; flex-shrink: 0;">
+    </app-header>
+    <div style="margin-bottom: -20px; flex-shrink: 0;">
+        <hr
+            style="height: 4px;background-color: #168396;border: none;margin-bottom: 0px; margin-top: 0px; width: 100%; margin-left: 0;" />
+        <h1 style="padding-left: 15px; background-color: #dad8d8;min-height: 40px;">INVENTUR</h1>
+        <hr
+            style="height: 4px;background-color: #0da2bd;border: none;margin-bottom: 80px; margin-top: -20px; width: 100%; margin-left: 0;" />
+    </div>
+
+    <div class="navigation-buttons"
+        style="display: flex; margin-top: -40px; gap: 12px; flex-wrap: wrap;  justify-content: space-between; flex-shrink: 0;">
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; flex: 1;">
+            <!-- Navigation Block -->
+            <app-nav-block [buttons]="navButtons" [showSearch]="false">
+            </app-nav-block>
+
+        </div>
+    </div>
+
+    <!-- Bereich-Navigation Links -->
+    <div style="margin-top: 40px; flex-shrink: 0;">
+        <app-bereich-nav [items]="bereichNavItems" [currentView]="currentView"
+            (viewChanged)="navigateToView($any($event))">
+        </app-bereich-nav>
+    </div>
+
+    <!-- Content Container -->
+    <div class="content-container"
+        style="flex: 1; overflow-y: auto; margin-top: 20px;  margin-right: 5%; display: flex; flex-direction: column;">
+
+        <!-- KardexInventur Bereich (Standard) -->
+        <div *ngIf="currentView === 'kardex-inventur'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">KARDEX INVENTUR</h2>
+
+            <!-- Inventur-Aufgabe erstellen Formular -->
+            <div
+                style="background: #f8f9fa; border: 2px solid #0da2bd; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 800px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                    <mat-icon style="font-size: 32px; width: 32px; height: 32px; color: #0da2bd;">add_task</mat-icon>
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #333;">Inventur-Aufgabe erstellen
+                    </h3>
+                </div>
+
+                <form #inventurForm="ngForm" (ngSubmit)="createInventurTask()">
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 20px;">
+                        <!-- Turm Nr. (Pflicht) -->
+                        <div style="display: flex; flex-direction: column;">
+                            <label style="font-size: 14px; font-weight: 500; margin-bottom: 4px; color: #333;">
+                                Turm Nr. <span style="color: #dc3545;">*</span>
+                            </label>
+                            <input type="number" [(ngModel)]="inventurFormData.turmNr" name="turmNr" required
+                                placeholder="Turm Nr. eingeben"
+                                style="width: 90%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                        </div>
+
+                        <!-- Tablar Nr. (Pflicht) -->
+                        <div style="display: flex; flex-direction: column;">
+                            <label style="font-size: 14px; font-weight: 500; margin-bottom: 4px; color: #333;">
+                                Tablar Nr. <span style="color: #dc3545;">*</span>
+                            </label>
+                            <input type="number" [(ngModel)]="inventurFormData.tablarNr" name="tablarNr" required
+                                placeholder="Tablar Nr. eingeben"
+                                style="width: 90%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                        </div>
+
+                        <!-- Box Nr. (Optional) -->
+                        <div style="display: flex; flex-direction: column;">
+                            <label style="font-size: 14px; font-weight: 500; margin-bottom: 4px; color: #666;">
+                                Box Nr.
+                            </label>
+                            <input type="number" [(ngModel)]="inventurFormData.boxNr" name="boxNr"
+                                placeholder="optional"
+                                style="width: 90%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                        </div>
+
+                        <!-- Spalte Nr. (Optional) -->
+                        <div style="display: flex; flex-direction: column;">
+                            <label style="font-size: 14px; font-weight: 500; margin-bottom: 4px; color: #666;">
+                                Spalte Nr.
+                            </label>
+                            <input type="number" [(ngModel)]="inventurFormData.column" name="column"
+                                placeholder="optional"
+                                style="width: 90%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                        </div>
+
+                        <!-- Zeile Nr. (Optional) -->
+                        <div style="display: flex; flex-direction: column;">
+                            <label style="font-size: 14px; font-weight: 500; margin-bottom: 4px; color: #666;">
+                                Zeile Nr.
+                            </label>
+                            <input type="number" [(ngModel)]="inventurFormData.row" name="row" placeholder="optional"
+                                style="width: 90%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                        </div>
+                    </div>
+
+                    <!-- Inventur-Typ Anzeige -->
+                    <div
+                        style="margin-bottom: 16px; padding: 10px; background-color: #e7f3f5; border-radius: 4px; border-left: 4px solid #0da2bd;">
+                        <span style="font-size: 14px; color: #333;">
+                            <strong>Inventur-Typ:</strong> {{ getInventurTyp() }}
+                        </span>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" [disabled]="!inventurForm.form.valid || isLoading"
+                        style="cursor: pointer; font-size: 16px; padding: 10px 24px; border-radius: 4px; background-color: #0da2bd; color: white; border: none; display: flex; align-items: center; gap: 8px;"
+                        [style.opacity]="(!inventurForm.form.valid || isLoading) ? '0.6' : '1'"
+                        [style.cursor]="(!inventurForm.form.valid || isLoading) ? 'not-allowed' : 'pointer'">
+                        <mat-icon *ngIf="!isLoading"
+                            style="font-size: 20px; width: 20px; height: 20px;">add_circle</mat-icon>
+                        <mat-icon *ngIf="isLoading"
+                            style="font-size: 20px; width: 20px; height: 20px; animation: spin 1s linear infinite;">sync</mat-icon>
+                        {{ isLoading ? 'Wird erstellt...' : 'Inventur-Aufgabe erstellen' }}
+                    </button>
+                </form>
+
+                <!-- Erfolgs-Meldung -->
+                <div *ngIf="successMessage"
+                    style="margin-top: 16px; padding: 12px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; color: #155724; display: flex; align-items: center; gap: 8px;">
+                    <mat-icon style="font-size: 20px; width: 20px; height: 20px;">check_circle</mat-icon>
+                    {{ successMessage }}
+                </div>
+
+                <!-- Fehler-Meldung -->
+                <div *ngIf="errorMessage"
+                    style="margin-top: 16px; padding: 12px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; color: #721c24; display: flex; align-items: center; gap: 8px;">
+                    <mat-icon style="font-size: 20px; width: 20px; height: 20px;">error</mat-icon>
+                    {{ errorMessage }}
+                </div>
+
+                <!-- Letzte erstellte Aufgabe Details -->
+                <div *ngIf="lastCreatedTask?.success"
+                    style="margin-top: 16px; padding: 12px; background-color: #fff; border: 1px solid #ddd; border-radius: 4px;">
+                    <h4 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #333;">Letzte erstellte
+                        Aufgabe:</h4>
+                    <div style="font-size: 13px; color: #666;">
+                        <p style="margin: 4px 0;"><strong>Prozess-ID:</strong> {{ lastCreatedTask?.data?.prozessId?.pid
+                            }}</p>
+                        <p style="margin: 4px 0;"><strong>Regalnummer:</strong> {{
+                            lastCreatedTask?.data?.regalnummern?.[0] }}</p>
+                        <p style="margin: 4px 0;"><strong>Status:</strong> {{ lastCreatedTask?.data?.prozessId?.pstate
+                            }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventur Bereich  -->
+        <div *ngIf="currentView === 'inventur'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">INVENTUR</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">inventory</mat-icon>
+                <p style="margin-top: 16px; color: #667;">Inventur-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+
+        <!-- Bestandskontrolle Bereich -->
+        <div *ngIf="currentView === 'bestandskontrolle'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">BESTANDSKONTROLLE</h2>
+
+            <!-- Bestandskontrolle erstellen Formular -->
+            <div
+                style="background: #f8f9fa; border: 2px solid #0da2bd; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 500px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                    <mat-icon style="font-size: 32px; width: 32px; height: 32px; color: #0da2bd;">fact_check</mat-icon>
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #333;">Bestandskontrolle erstellen
+                    </h3>
+                </div>
+
+                <form #bestandskontrolleForm="ngForm" (ngSubmit)="createBestandskontrolleTask()">
+                    <div style="margin-bottom: 20px;">
+                        <!-- Artikelnummer (Pflicht) -->
+                        <div style="display: flex; flex-direction: column;">
+                            <label style="font-size: 14px; font-weight: 500; margin-bottom: 4px; color: #333;">
+                                Artikelnummer <span style="color: #dc3545;">*</span>
+                            </label>
+                            <input type="text" [(ngModel)]="bestandskontrolleFormData.artikelnummer"
+                                name="artikelnummer" required placeholder="bitte Artikel Nr. eingeben"
+                                style="width: 90%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" [disabled]="!bestandskontrolleForm.form.valid || bestandskontrolleLoading"
+                        style="cursor: pointer; font-size: 16px; padding: 10px 24px; border-radius: 4px; background-color: #0da2bd; color: white; border: none; display: flex; align-items: center; gap: 8px;"
+                        [style.opacity]="(!bestandskontrolleForm.form.valid || bestandskontrolleLoading) ? '0.6' : '1'"
+                        [style.cursor]="(!bestandskontrolleForm.form.valid || bestandskontrolleLoading) ? 'not-allowed' : 'pointer'">
+                        <mat-icon *ngIf="!bestandskontrolleLoading"
+                            style="font-size: 20px; width: 20px; height: 20px;">search</mat-icon>
+                        <mat-icon *ngIf="bestandskontrolleLoading"
+                            style="font-size: 20px; width: 20px; height: 20px; animation: spin 1s linear infinite;">sync</mat-icon>
+                        {{ bestandskontrolleLoading ? 'Wird erstellt...' : 'Bestandskontrolle starten' }}
+                    </button>
+                </form>
+
+                <!-- Erfolgs-Meldung -->
+                <div *ngIf="bestandskontrolleSuccess"
+                    style="margin-top: 16px; padding: 12px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; color: #155724; display: flex; align-items: center; gap: 8px;">
+                    <mat-icon style="font-size: 20px; width: 20px; height: 20px;">check_circle</mat-icon>
+                    {{ bestandskontrolleSuccess }}
+                </div>
+
+                <!-- Fehler-Meldung -->
+                <div *ngIf="bestandskontrolleError"
+                    style="margin-top: 16px; padding: 12px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; color: #721c24; display: flex; align-items: center; gap: 8px;">
+                    <mat-icon style="font-size: 20px; width: 20px; height: 20px;">error</mat-icon>
+                    {{ bestandskontrolleError }}
+                </div>
+
+                <!-- Letzte erstellte Aufgabe Details -->
+                <div *ngIf="lastBestandskontrolleTask?.success"
+                    style="margin-top: 16px; padding: 12px; background-color: #fff; border: 1px solid #ddd; border-radius: 4px;">
+                    <h4 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #333;">Letzte erstellte
+                        Aufgabe:</h4>
+                    <div style="font-size: 13px; color: #666;">
+                        <p style="margin: 4px 0;"><strong>Stock-ID:</strong> {{ lastBestandskontrolleTask?.stockId }}
+                        </p>
+                        <p style="margin: 4px 0;"><strong>Prozess-ID:</strong> {{ lastBestandskontrolleTask?.pid }}</p>
+                        <p style="margin: 4px 0;"><strong>Task-Typ:</strong> {{ lastBestandskontrolleTask?.task_type }}
+                        </p>
+                        <p style="margin: 4px 0;"><strong>Artikelnummer:</strong> {{
+                            lastBestandskontrolleTask?.artikelnummer }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <app-fusszeile (hauptmenueClick)="navigateToHome()" (logoutClick)="logout()"></app-fusszeile>
+</div>

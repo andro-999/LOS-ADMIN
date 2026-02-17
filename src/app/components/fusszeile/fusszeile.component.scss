@@ -1,0 +1,22 @@
+.fusszeile-container {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 5px;
+  flex-shrink: 0;
+  display: flex;
+  gap: 12px;
+}
+
+.fusszeile-btn {
+  cursor: pointer;
+  font-size: 18px;
+  padding: 10px 20px;
+  border-radius: 4px;
+  background-color: grey;
+  color: white;
+  border: none;
+
+  &:hover {
+    background-color: #555;
+  }
+}

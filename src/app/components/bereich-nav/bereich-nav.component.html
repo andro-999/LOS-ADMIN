@@ -1,0 +1,6 @@
+<div class="bereich-nav">
+    <a *ngFor="let item of items" (click)="navigateToView(item.id)" class="bereich-nav-link"
+        [class.active]="currentView === item.id">
+        {{ item.label }}
+    </a>
+</div>

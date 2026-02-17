@@ -1,0 +1,8 @@
+<div class="fusszeile-container">
+    <button *ngIf="showHauptmenue" (click)="hauptmenueClick.emit()" class="fusszeile-btn shadow-[0_0px_3px_0px_gray]">
+        Hauptmenü
+    </button>
+    <button *ngIf="showLogout" (click)="logoutClick.emit()" class="fusszeile-btn shadow-[0_0px_3px_0px_gray]">
+        Logout
+    </button>
+</div>

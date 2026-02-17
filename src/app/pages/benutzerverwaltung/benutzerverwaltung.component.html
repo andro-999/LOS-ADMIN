@@ -1,46 +1,177 @@
-<app-layout [showNav]="true" [bereichText]="'Benutzerverwaltung'">
-
-    <div class="layout-container">
-        <!--div class="sidebar-container">
-        <app-header></app-header>
-        <app-sidebar></app-sidebar>
+<!-- 01100001 01101110 01100100 01110010 01101111 -->
+<div style="margin-left: 5%; width: 90%; height: 100vh; display: flex; flex-direction: column; overflow: hidden;">
+    <app-header class="header-area" style="display: flex; align-items: center; height: 90px; flex-shrink: 0;">
+    </app-header>
+    <div style="margin-bottom: -20px; flex-shrink: 0;">
+        <hr
+            style="height: 4px;background-color: #168396;border: none;margin-bottom: 0px; margin-top: 0px; width: 100%; margin-left: 0;" />
+        <h1 style="padding-left: 15px; background-color: #dad8d8;min-height: 40px;">Benutzerverwaltung</h1>
+        <hr
+            style="height: 4px;background-color: #0da2bd;border: none;margin-bottom: 80px; margin-top: -20px; width: 100%; margin-left: 0;" />
     </div>
 
-        <div class="content-container"-->
-        <div class="main-content">
+    <div class="navigation-buttons"
+        style="display: flex; margin-top: -40px; gap: 12px; flex-wrap: wrap;  justify-content: space-between; flex-shrink: 0;">
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; flex: 1;">
+            <!-- Navigation Block -->
+            <app-nav-block [buttons]="navButtons" [showSearch]="false">
+            </app-nav-block>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 3%;"></th>
-                        <th style="width: 30px;"></th>
-                        <th style="width: 150px;">Benutzer</th>
-                        <th style="width: 550px;">Rollen</th>
+        </div>
 
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let user of users">
-                        <td>
-                            <button (click)="editUser(user)" class="btn-edit">
-                                <mat-icon>edit</mat-icon>
-                            </button>
+        <!-- Suchfeld -->
+        <div style="display: flex; align-items: center; gap: 8px; min-width: 300px;">
+            <mat-icon style="color: #666;">filter_list</mat-icon>
 
-                        </td>
-                        <td>
+            <select [(ngModel)]="selectedRole" (change)="filterUser()"
+                style="padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; cursor: pointer; min-width: 120px;">
+                <option value="">Alle Rollen</option>
+                <option *ngFor="let rolle of availableRoles" [value]="rolle">{{ rolle }}</option>
+            </select>
 
-                            <button (click)="deleteUser(user)" class="btn-delete"><mat-icon>delete</mat-icon></button>
-                        </td>
-                        <td>{{ user.name }}</td>
-                        <td>{{ user.rolle }}</td>
+            <button *ngIf="selectedRole" (click)="clearFilter()"
+                style="padding: 10px; background: none; border: none; cursor: pointer;">
+                <mat-icon style="color: #999;">close</mat-icon>
+            </button>
+        </div>
 
-                    </tr>
-                </tbody>
-            </table>
-            <div class="add-user">
-                <button (click)="addUser()" class="btn-add-user"><mat-icon>add</mat-icon> neu</button>
+
+    </div>
+
+
+
+
+
+    <div class="content-container mt-6"
+        style="flex: 1; overflow: hidden; display: flex; flex-direction: column; margin-top: 80px;">
+        <div class="main-content"
+            style="flex: 1;  margin-top: 80px; display: flex; flex-direction: column; overflow: hidden;">
+
+            <!-- Formular für neuen Benutzer -->
+            <div *ngIf="showAddUserForm" class="add-user-form"
+                style="background: #f8f9fa; border: 2px solid #0da2bd; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <h2 style="margin-top: 0; margin-bottom: 20px; color: #0da2bd;">Neuen Benutzer erstellen</h2>
+
+                <form (ngSubmit)="submitNewUser()" #userForm="ngForm">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 4px; font-weight: 500;">Benutzername *</label>
+                            <input type="text" [(ngModel)]="newUserData.username" name="username" required
+                                style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                        </div>
+
+                        <div>
+                            <label style="display: block; margin-bottom: 4px; font-weight: 500;">Passwort *</label>
+                            <input type="password" [(ngModel)]="newUserData.password" name="password" required
+                                style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                        </div>
+
+                        <div>
+                            <label style="display: block; margin-bottom: 4px; font-weight: 500;">Vollständiger Name
+                                *</label>
+                            <input type="text" [(ngModel)]="newUserData.name" name="name" required
+                                style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                        </div>
+
+                        <div>
+                            <label style="display: block; margin-bottom: 4px; font-weight: 500;">Rolle *</label>
+                            <select [(ngModel)]="newUserData.rolle" name="rolle" required
+                                style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                                <option value="user">User</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label style="display: block; margin-bottom: 4px; font-weight: 500;">Status</label>
+                            <select [(ngModel)]="newUserData.aktiv" name="aktiv"
+                                style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                                <option value="true">Aktiv</option>
+                                <option value="false">Inaktiv</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button type="button" (click)="cancelAddUser()"
+                            style="padding: 10px 20px; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                            Abbrechen
+                        </button>
+                        <button type="submit" [disabled]="!userForm.form.valid"
+                            style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">
+                            <mat-icon
+                                style="vertical-align: middle; margin-right: 4px; font-size: 18px; width: 18px; height: 18px;">save</mat-icon>
+                            Speichern
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div
+                style="flex: 1; overflow-y: auto; overflow-x: hidden; border: 1px solid #eee; border-radius: 4px; max-height: calc(100vh - 300px);">
+                <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600; flex-shrink: 0;">Benutzer Liste</h2>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead
+                        style="position: sticky; top: 0; background: white; z-index: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <tr style="border-bottom: 2px solid #ddd;">
+                            <th style="padding: 12px 8px; text-align: left; font-weight: 600; width: 60px;">Nr.</th>
+
+                            <th style="padding: 12px 8px; text-align: left; font-weight: 600; width: 60px;">Löschen</th>
+                            <th style="padding: 12px 8px; text-align: left; font-weight: 600; width: 200px;">Benutzer
+                            </th>
+                            <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Benutzer Name</th>
+                            <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Passwort</th>
+                            <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Passwort ändern</th>
+                            <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Rollen</th>
+                            <th style="padding: 12px 8px; text-align: left; font-weight: 600; width: 60px;">Rolle ändern
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngIf="filteredUsers.length === 0">
+                            <td colspan="7" style="padding: 32px; text-align: center; color: #666;">
+                                <h3>Keine Benutzer vorhanden</h3>
+                            </td>
+                        </tr>
+                        <tr *ngFor="let user of filteredUsers; let i = index" style="border-bottom: 1px solid #eee;"
+                            [style.background-color]="i % 2 === 0 ? '#fafafa' : 'white'">
+                            <td style="padding: 12px 8px;text-align: left;">{{ i + 1 }}</td>
+
+                            <td style="padding: 12px 8px;">
+                                <button (click)="deleteUser(user)" class="btn-delete">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </td>
+                            <td style="padding: 12px 8px; font-weight: 500;">{{ user.name }}</td>
+                            <td style="padding: 12px 8px;">{{ user.benutzer_id}}</td>
+                            <td style="padding: 12px 8px;">********</td>
+                            <td style="padding: 12px 8px;">
+
+
+                                <button class="btn-change-password" (click)="changePassword(user)"
+                                    style="padding: 6px 12px; background-color: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                    <mat-icon style="font-size: 18px; width: 18px; height: 18px;">vpn_key</mat-icon>
+                                </button>
+                            </td>
+                            <td style="padding: 12px 8px;">{{ user.rolle }}</td>
+                            <td style="padding: 12px 8px;">
+                                <button (click)="editUser(user)" class="btn-edit"
+                                    style="padding: 6px 12px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                    <mat-icon style="font-size: 18px; width: 18px; height: 18px;">edit</mat-icon>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="add-user" style="margin-top: 16px;">
+                <button (click)="addUser()" class="btn-add-user"
+                    style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 16px;">
+                    <mat-icon>add</mat-icon> Neuer Benutzer
+                </button>
             </div>
         </div>
     </div>
-    <!--/div-->
-</app-layout>
+    <app-fusszeile (hauptmenueClick)="navigateToHome()" (logoutClick)="logout()"></app-fusszeile>
+</div>

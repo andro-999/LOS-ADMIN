@@ -1,45 +1,72 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { interval, Subscription } from 'rxjs';
 //import { LayoutComponent } from '../../components/layout/layout.component';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { NachrichtenService } from '../../services/nachrichten.service';
 import { MatIcon } from '@angular/material/icon';
-import { User, UserService } from '../../services/user.service';
+// import { User, UserService } from '../../services/user.service'; // UNUSED
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LeitstandService, Auftrag } from './leitstand.service';
+import { LeitstandService, Auftrag, EinlagerungTask } from './leitstand.service';
 import { HeaderComponent } from '../../components/header/header.component';
+// import { BenutzerverwaltungComponent } from '../benutzerverwaltung/benutzerverwaltung.component'; // UNUSED
+import { NavBlockComponent, NavButton } from '../../components/nav-block/nav-block.component';
+import { NavigationService } from '../../services/navigation.service';
+import { InventurService, InventurTask } from '../inventur/inventur.service';
+import { BereichNavComponent, BereichNavItem } from '../../components/bereich-nav/bereich-nav.component';
+import { FusszeileComponent } from '../../components/fusszeile/fusszeile.component';
+
 
 @Component({
   selector: 'app-leitstand',
   standalone: true,
-  imports: [MatIcon, CommonModule, FormsModule, HeaderComponent],
+  imports: [
+    MatIcon,
+    CommonModule,
+    FormsModule,
+    HeaderComponent,
+    NavBlockComponent,
+    BereichNavComponent,
+    FusszeileComponent
+  ],
   templateUrl: './leitstand.component.html',
   styleUrls: ['./leitstand.component.scss']
 })
-export class LeitstandComponent implements OnInit {
-  zeigeNachrichten: boolean = false;
+export class LeitstandComponent implements OnInit, OnDestroy {
+
   auftraege: Auftrag[] = [];
   filteredAuftraege: Auftrag[] = [];
   freeAuftraege: Auftrag[] = []; // Aufträge ohne Lagerist
+  inventurTasks: InventurTask[] = []; // Inventur-Aufgaben
+  isLoadingInventur: boolean = false;
+  einlagerungTasks: EinlagerungTask[] = []; // Einlagerungs-Aufgaben
+  isLoadingEinlagerung: boolean = false;
+  bestandskontrolleTasks: Auftrag[] = []; // Bestandskontrolle-Aufgaben
+  isLoadingBestandskontrolle: boolean = false;
+  navButtons: NavButton[] = [];
   searchTerm: string = '';
-  currentView: 'alle-auftraege' | 'auftrag-loeschen' | 'position-loeschen' | 'prioritaet-aendern' | 'auftrag-blockieren' = 'alle-auftraege';
+  currentView: 'kommi-auftraege' | 'einlagerungsauftraege' | 'inventur-aufgaben' | 'bestandskontrolle-aufgaben' = 'kommi-auftraege';
+  bereichNavItems: BereichNavItem[] = [
+    { id: 'kommi-auftraege', label: 'Kommi Aufträge' },
+    { id: 'einlagerungsauftraege', label: 'Einlagerungs Aufträge' },
+    { id: 'inventur-aufgaben', label: 'Inventur Aufgaben' },
+    { id: 'bestandskontrolle-aufgaben', label: 'Bestandskontrolle Aufgaben' }
+  ];
   selectedPriority: string = ''; // Neues Feld für Prioritäts-Filter
   selectedStatus: string = ''; // Neues Feld für Erledigt-Filter ('', 'erledigt', 'offen')
   availablePriorities: number[] = [];
   blockedAuftraege: Set<string> = new Set(); // Blockierte Aufträge
 
-  // Position löschen Felder
-  belegnummer: string = '';
-  zeilennummer: string = '';
-  deleteMessage: string = '';
-  deleteError: string = '';
-  isDeleting: boolean = false;
+  // Auto-Refresh
+  private refreshSubscription?: Subscription;
+  private readonly REFRESH_INTERVAL = 30000; // 30 Sekunden
+
 
   // Pagination
   pageSize = 10;
   currentPage = 1;
-  pagedTasks: Auftrag[] = [];
+
   pagedFreeTasks: Auftrag[] = []; // Paginierte freie Aufträge
 
   get totalPages(): number {
@@ -52,31 +79,29 @@ export class LeitstandComponent implements OnInit {
 
   get pages(): number[] {
     // Verwende totalFreePages für freie Aufträge views
-    const maxPages = this.currentView === 'auftrag-loeschen' || this.currentView === 'prioritaet-aendern'
+    const maxPages = this.currentView === 'einlagerungsauftraege'
       ? this.totalFreePages
       : this.totalPages;
 
     return Array.from({ length: maxPages }, (_, i) => i + 1);
   }
 
-  get bereichText(): string {
-    switch (this.currentView) {
-      case 'alle-auftraege': return 'Leitstand - Alle Aufträge';
-      case 'auftrag-loeschen': return 'Leitstand - Auftrag löschen';
-      case 'position-loeschen': return 'Leitstand - Position löschen';
-      case 'prioritaet-aendern': return 'Leitstand - Priorität ändern';
-      case 'auftrag-blockieren': return 'Leitstand - Auftrag blockieren';
-      default: return 'Leitstand';
-    }
-  }
 
-  constructor(public router: Router, private route: ActivatedRoute, private authService: AuthService, public nachrichtenService: NachrichtenService, private userService: UserService, private leitstandService: LeitstandService) { }
+
+  constructor(
+    public router: Router,
+    private route: ActivatedRoute,
+    private authService: AuthService,
+    public nachrichtenService: NachrichtenService,
+    private leitstandService: LeitstandService,
+    private navigationService: NavigationService,
+    private inventurService: InventurService
+  ) { }
 
   ngOnInit(): void {
-    this.nachrichtenService.sichtbar$.subscribe(val => this.zeigeNachrichten = val);
 
     // Setze explizit die Standard-Ansicht
-    this.currentView = 'alle-auftraege';
+    this.currentView = 'kommi-auftraege';
 
     this.route.url.subscribe(urlSegments => {
       const lastSegment = urlSegments[urlSegments.length - 1]?.path;
@@ -84,16 +109,43 @@ export class LeitstandComponent implements OnInit {
       if (lastSegment && lastSegment !== 'leitstand') {
         this.currentView = lastSegment as any;
       } else {
-        this.currentView = 'alle-auftraege';
+        this.currentView = 'kommi-auftraege';
       }
       this.updatePagedTasks();
 
     });
-    // ENTFERNEN Sie diese Zeile - sie wird zu früh aufgerufen:
-    // this.updateAvailablePriorities();
+
+    // Lade Navigation
+    this.loadNavigation();
 
     // Lade die Aufträge
     this.loadTasks();
+
+    // Starte Auto-Refresh
+    this.startAutoRefresh();
+  }
+
+  loadNavigation(): void {
+    this.navigationService.getNavButtons('/leitstand').subscribe(
+      buttons => this.navButtons = buttons
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.stopAutoRefresh();
+  }
+
+  private startAutoRefresh(): void {
+    this.refreshSubscription = interval(this.REFRESH_INTERVAL)
+      .subscribe(() => {
+        this.loadTasks();
+      });
+  }
+
+  private stopAutoRefresh(): void {
+    if (this.refreshSubscription) {
+      this.refreshSubscription.unsubscribe();
+    }
   }
 
   logout() {
@@ -127,8 +179,11 @@ export class LeitstandComponent implements OnInit {
         this.updateAvailablePriorities();
 
         this.updatePagedTasks();
-        console.log('pagedTasks nach Update:', this.pagedTasks);
+        console.log('filteredAuftraege nach Update:', this.filteredAuftraege.length);
         console.log('currentView:', this.currentView);
+
+        // Aktualisiere Navigation nach dem Laden
+        this.navigationService.refreshCounts();
       },
       error: (err) => {
         console.error('Fehler beim Laden der Aufträge:', err);
@@ -136,6 +191,55 @@ export class LeitstandComponent implements OnInit {
         this.filteredAuftraege = [];
         this.freeAuftraege = [];
         this.updatePagedTasks();
+      }
+    });
+
+    // Lade Inventur-Aufgaben
+    this.loadInventurTasks();
+
+    // Lade Einlagerungs-Aufgaben
+    this.loadEinlagerungTasks();
+  }
+
+  loadInventurTasks(): void {
+    const userid = this.authService.getUsername() || '';
+    console.log('Benutzer-ID:', userid);
+    if (!userid) {
+      console.warn('Kein Benutzer eingeloggt, Inventur-Aufgaben können nicht geladen werden');
+      return;
+    }
+
+    this.isLoadingInventur = true;
+    this.inventurService.getAllTasks(userid).subscribe({
+      next: (tasks) => {
+        this.inventurTasks = tasks;
+        this.isLoadingInventur = false;
+        console.log('Inventur-Aufgaben geladen:', tasks.length);
+      },
+      error: (err) => {
+        console.error('Fehler beim Laden der Inventur-Aufgaben:', err);
+        this.inventurTasks = [];
+        this.isLoadingInventur = false;
+      }
+    });
+  }
+
+  loadBestandskontrolleTasks(): void {
+    // Diese Methode könnte ähnlich wie loadInventurTasks implementiert werden, abhängig von der API-Struktur
+  }
+
+  loadEinlagerungTasks(): void {
+    this.isLoadingEinlagerung = true;
+    this.leitstandService.getEinlagerungTasks().subscribe({
+      next: (tasks) => {
+        this.einlagerungTasks = tasks;
+        this.isLoadingEinlagerung = false;
+        console.log('Einlagerungs-Aufgaben geladen:', tasks.length);
+      },
+      error: (err) => {
+        console.error('Fehler beim Laden der Einlagerungs-Aufgaben:', err);
+        this.einlagerungTasks = [];
+        this.isLoadingEinlagerung = false;
       }
     });
   }
@@ -202,17 +306,14 @@ export class LeitstandComponent implements OnInit {
         auftrag.prioritaet?.toString() === this.selectedPriority;
 
       // Erledigt-Filter
-      const statusMatch = !this.selectedStatus ||
-        (this.selectedStatus === 'erledigt' && auftrag.erledigt === true) ||
-        (this.selectedStatus === 'offen' && auftrag.erledigt === false);
+      const auftragStatus = this.getAuftragStatus(auftrag);
+      const statusMatch = !this.selectedStatus || auftragStatus === this.selectedStatus;
 
       return textMatch && priorityMatch && statusMatch;
     });
 
     this.currentPage = 1;
     this.updatePagedTasks();
-    // ENTFERNEN: Die Zeile unten nicht hier aufrufen, da sie die Prioritäten der ORIGINALEN Liste nimmt
-    // this.updateAvailablePriorities();
   }
   updateAvailablePriorities() {
     const priorities = new Set<number>();
@@ -229,10 +330,7 @@ export class LeitstandComponent implements OnInit {
     console.log('Verfügbare Prioritäten:', this.availablePriorities);
   }
 
-  clearSearch(): void {
-    this.searchTerm = '';
-    this.filterAuftraege();
-  }
+
 
   clearFilters(): void {
     this.searchTerm = '';
@@ -241,13 +339,13 @@ export class LeitstandComponent implements OnInit {
     this.filterAuftraege();
   }
 
-  navigateToView(view: 'alle-auftraege' | 'auftrag-loeschen' | 'position-loeschen' | 'prioritaet-aendern' | 'auftrag-blockieren'): void {
+  navigateToView(view: 'kommi-auftraege' | 'einlagerungsauftraege' | 'inventur-aufgaben' | 'bestandskontrolle-aufgaben'): void {
     this.currentView = view;
     this.currentPage = 1; // Reset auf Seite 1
 
-    if (view === 'auftrag-loeschen' || view === 'prioritaet-aendern') {
+    if (view === 'einlagerungsauftraege') {
       this.updatePagedFreeTasks();
-    } else if (view === 'position-loeschen' || view === 'alle-auftraege') {
+    } else if (view === 'kommi-auftraege' || view === 'inventur-aufgaben' || view === 'bestandskontrolle-aufgaben') {
       this.updatePagedTasks();
     }
   }
@@ -263,13 +361,13 @@ export class LeitstandComponent implements OnInit {
       this.currentPage = this.totalPages;
     }
     const start = (this.currentPage - 1) * this.pageSize;
-    this.pagedTasks = this.auftraege.slice(start, start + this.pageSize);
+
   }
 
   prevPage(): void {
     if (this.currentPage > 1) {
       this.currentPage--;
-      if (this.currentView === 'auftrag-loeschen' || this.currentView === 'prioritaet-aendern') {
+      if (this.currentView === 'einlagerungsauftraege') {
         this.updatePagedFreeTasks();
       } else {
         this.updatePagedTasks();
@@ -278,13 +376,13 @@ export class LeitstandComponent implements OnInit {
   }
 
   nextPage(): void {
-    const maxPages = this.currentView === 'auftrag-loeschen' || this.currentView === 'prioritaet-aendern'
+    const maxPages = this.currentView === 'einlagerungsauftraege'
       ? this.totalFreePages
       : this.totalPages;
 
     if (this.currentPage < maxPages) {
       this.currentPage++;
-      if (this.currentView === 'auftrag-loeschen' || this.currentView === 'prioritaet-aendern') {
+      if (this.currentView === 'einlagerungsauftraege') {
         this.updatePagedFreeTasks();
       } else {
         this.updatePagedTasks();
@@ -292,62 +390,26 @@ export class LeitstandComponent implements OnInit {
     }
   }
 
+
   goToPage(page: number): void {
     this.currentPage = page;
-    if (this.currentView === 'auftrag-loeschen' || this.currentView === 'prioritaet-aendern') {
+    if (this.currentView === 'einlagerungsauftraege') {
       this.updatePagedFreeTasks();
     } else {
       this.updatePagedTasks();
     }
   }
 
-  deletePosition(): void {
-    if (!this.belegnummer || !this.zeilennummer) {
-      this.deleteError = 'Bitte füllen Sie beide Felder aus.';
-      this.deleteMessage = '';
-      return;
-    }
 
-    this.isDeleting = true;
-    this.deleteMessage = '';
-    this.deleteError = '';
-
-    this.leitstandService.deletePartOfKommiTask(this.belegnummer, this.zeilennummer)
-      .subscribe({
-        next: (response) => {
-          this.isDeleting = false;
-          if (response.success) {
-            this.deleteMessage = response.msg || 'Position erfolgreich gelöscht!';
-            this.deleteError = '';
-            this.belegnummer = '';
-            this.zeilennummer = '';
-          } else {
-            this.deleteError = response.error || 'Ein Fehler ist aufgetreten.';
-            this.deleteMessage = '';
-          }
-        },
-        error: (err) => {
-          this.isDeleting = false;
-          this.deleteError = 'Fehler beim Löschen der Position: ' + (err.message || 'Unbekannter Fehler');
-          this.deleteMessage = '';
-        }
-      });
-  }
 
   deleteAuftrag(auftragsnummer: string): void {
     if (confirm(`Möchten Sie den Auftrag ${auftragsnummer} wirklich vollständig löschen?`)) {
       this.leitstandService.deleteTask(auftragsnummer).subscribe({
         next: (response) => {
           if (response.success) {
-            // Entferne den Auftrag aus allen Listen
-            this.auftraege = this.auftraege.filter(a => a.auftragsnummer !== auftragsnummer);
-            this.freeAuftraege = this.freeAuftraege.filter(a => a.auftragsnummer !== auftragsnummer);
-            this.filteredAuftraege = this.filteredAuftraege.filter(a => a.auftragsnummer !== auftragsnummer);
-
-            this.updatePagedTasks();
-            this.updatePagedFreeTasks();
-
             alert(response.msg || 'Auftrag erfolgreich gelöscht');
+            // Liste neu laden
+            this.loadTasks();
           } else {
             alert(response.error || 'Fehler beim Löschen des Auftrags');
           }
@@ -360,15 +422,41 @@ export class LeitstandComponent implements OnInit {
     }
   }
 
-  isAuftragErledigt(auftrag: Auftrag): boolean {
+  getAuftragStatus(auftrag: Auftrag): 'offen' | 'gestartet' | 'erledigt' {
     if (!auftrag.positionen || auftrag.positionen.length === 0) {
-      return false;
+      return 'offen';
     }
 
-    return auftrag.positionen.every(position =>
+    // Prüfe ob alle Positionen erledigt sind
+    const alleErledigt = auftrag.positionen.every(position =>
+      position.menge_rueck > 0 &&
+      position.lagerist_rueck &&
+      position.lagerist_rueck.trim() !== ''
+    );
+
+    if (alleErledigt) {
+      return 'erledigt';
+    }
+
+    // Prüfe ob mindestens eine Position gestartet wurde
+    const hatLagerist = auftrag.positionen.some(position =>
       position.lagerist && position.lagerist.trim() !== ''
     );
+
+    if (hatLagerist) {
+      return 'gestartet';
+    }
+
+    return 'offen';
   }
+
+  isAuftragErledigt(auftrag: Auftrag): boolean {
+    return this.getAuftragStatus(auftrag) === 'erledigt';
+  }
+  isAuftragGestartet(auftrag: Auftrag): boolean {
+    return this.getAuftragStatus(auftrag) === 'gestartet';
+  }
+
 
   changePrio(auftrag: Auftrag): void {
     const belegnummer = auftrag.belegnummer;
@@ -420,6 +508,8 @@ export class LeitstandComponent implements OnInit {
         if (response.success) {
           // Auftrag als blockiert markieren
           this.blockedAuftraege.add(belegnummer);
+          // Liste neu laden
+          this.loadTasks();
         } else {
           // Fehler-Alert anzeigen
           const alertDiv = document.createElement('div');
@@ -470,6 +560,11 @@ export class LeitstandComponent implements OnInit {
       }
     });
   }
+
+  navigateToHome(): void {
+    this.router.navigate(['/home']);
+  }
+
 
   isAuftragBlocked(belegnummer: string | undefined): boolean {
     if (!belegnummer) {

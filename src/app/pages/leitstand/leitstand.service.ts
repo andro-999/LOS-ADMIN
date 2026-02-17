@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -34,6 +34,7 @@ interface Position {
   liefer_an_adresse: string;
   liefer_an_ort: string;
   liefer_an_plz_code: string;
+  menge_rueck: number;
   // ... weitere Felder nach Bedarf
 }
 interface AuftragData {
@@ -65,13 +66,35 @@ export interface Auftrag {
   lageristRueck?: string;
   belegnummer?: string;
 }
+
+// Einlagerung Task Interfaces
+export interface EinlagerungTask {
+  id: number;
+  entry_number: number;
+  abholort: string;
+  basis_menge: number;
+  artikelnummer: string;
+}
+
+interface EinlagerungTaskRaw {
+  entry_number: number;
+  abholort: string;
+  basis_menge: number;
+  artikelnummer: string;
+}
+
+interface EinlagerungTasksResponse {
+  success: boolean;
+  tasks: { [key: string]: EinlagerungTaskRaw }[];
+  task_count: number;
+}
 @Injectable({
   providedIn: 'root'
 })
 export class LeitstandService {
   private baseUrl = 'http://bsc-s-webserver.bsc-intern.de:8080/leitstand';
-
   private sinBotUrl = 'http://bsc-s-webserver.bsc-intern.de:8080/single_bottle_kommi';
+  private einlagerungUrl = 'http://bsc-s-webserver.bsc-intern.de:8080/einlagerung_kdx';
 
   constructor(private http: HttpClient) { }
 
@@ -122,5 +145,30 @@ export class LeitstandService {
     return this.http.get(`${this.baseUrl}/block_kommiTask`, {
       params: { belegnummer }
     });
+  }
+
+  getEinlagerungTasks(): Observable<EinlagerungTask[]> {
+    return this.http.get<EinlagerungTasksResponse>(
+      `${this.einlagerungUrl}/get_tasks`,
+      { headers: new HttpHeaders({ 'accept': '*/*' }) }
+    ).pipe(
+      map(response => {
+        if (!response.success || !response.tasks) {
+          return [];
+        }
+        return response.tasks.map((taskWrapper, index) => {
+          // Each task is wrapped in an object with numeric key
+          const key = Object.keys(taskWrapper)[0];
+          const task = taskWrapper[key];
+          return {
+            id: index + 1,
+            entry_number: task.entry_number,
+            abholort: task.abholort,
+            basis_menge: task.basis_menge,
+            artikelnummer: task.artikelnummer
+          } as EinlagerungTask;
+        });
+      })
+    );
   }
 }

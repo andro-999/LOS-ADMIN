@@ -1,4 +1,4 @@
-<!--app-layout [showNav]="false" [bereichText]="bereichText"-->
+<!-- 01100001 01101110 01100100 01110010 01101111 -->
 <div style="margin-left: 5%; width: 90%; height: 100vh; display: flex; flex-direction: column; overflow: hidden;">
     <app-header class="header-area" style="display: flex; align-items: center; height: 90px; flex-shrink: 0;">
     </app-header>
@@ -11,43 +11,16 @@
     </div>
     <!-- Navigation Buttons -->
     <div class="navigation-buttons"
-        style="margin-top: 40px; display: flex; gap: 12px; flex-wrap: wrap; width: 90%; justify-content: space-between; margin-left: 8%; flex-shrink: 0;">
+        style="display: flex; margin-top: -40px; gap: 12px; flex-wrap: wrap; justify-content: space-between; flex-shrink: 0;">
         <div style="display: flex; gap: 12px; flex-wrap: wrap; flex: 1;">
-            <div style="display: flex; flex-direction: column; align-items: center;">
-                <button (click)="navigateToView('alle-auftraege')" [class.active]="currentView === 'alle-auftraege'"
-                    class="nav-btn">
-                    Leitstand
-                    <hr class="hr-separator" />
-                    <span style="color: white; font-size: 14px; font-weight: 500;">
-                        <h1 style="font-size: xx-large;"> {{ filteredAuftraege.length }}</h1>
-                    </span>
-                </button>
-            </div>
-            <button class="nav-btn">
-                Benutzerverwaltung
-                <hr class="hr-separator" />
-                <span style="color: white; font-size: 14px; font-weight: 500;">
-                    <h1 style="font-size: xx-large;">0</h1>
-                </span>
-            </button>
-            <!--button (click)="navigateToView('position-loeschen')" [class.active]="currentView === 'position-loeschen'"
-                class="nav-btn">
-                Position löschen
-            </button-->
-            <button class="nav-btn" class="nav-btn">
-                Adminverwaltung
-                <hr style="width: 100%; height: 2px; background-color: white; border: none; margin: 8px 0;" />
-                <span style="color: white; font-size: 14px; font-weight: 500;">
-                    <h1 style="font-size: xx-large;">0</h1>
-                </span>
-            </button>
-            <button class="nav-btn">
-                Stellplatzverwaltung
-                <hr style="width: 100%; height: 2px; background-color: white; border: none; margin: 8px 0;" />
-                <span style="color: white; font-size: 14px; font-weight: 500;">
-                    <h1 style="font-size: xx-large;"></h1>0
-                </span>
-            </button>
+
+            <!-- Navigation Block -->
+            <app-nav-block [buttons]="navButtons" [showSearch]="true" [(searchTerm)]="searchTerm"
+                [(selectedPriority)]="selectedPriority" [(selectedStatus)]="selectedStatus"
+                [availablePriorities]="availablePriorities" (filterChanged)="filterAuftraege()"
+                (refreshClicked)="loadTasks()" (clearFilters)="clearFilters()">
+            </app-nav-block>
+
         </div>
 
         <!-- Suchfeld -->
@@ -64,8 +37,14 @@
                 style="padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; cursor: pointer; min-width: 120px;">
                 <option value="">Alle Status</option>
                 <option value="offen">Offen</option>
+                <option value="gestartet">Gestartet</option>
                 <option value="erledigt">Erledigt</option>
             </select>
+            <button (click)="loadTasks()"
+                style="padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center;"
+                title="Liste aktualisieren">
+                <mat-icon>refresh</mat-icon>
+            </button>
             <button *ngIf="searchTerm || selectedPriority || selectedStatus" (click)="clearFilters()"
                 style="padding: 10px; background: none; border: none; cursor: pointer;">
                 <mat-icon style="color: #999;">close</mat-icon>
@@ -75,12 +54,17 @@
 
 
     <div class="content-container mt-6" style="flex: 1; overflow: hidden; display: flex; flex-direction: column;">
-        <div class="main-content" style="flex: 1; overflow: hidden;">
-            <!-- Alle Aufträge Bereich (Standard) -->
-            <div *ngIf="currentView === 'alle-auftraege'" style="height: 100%; display: flex; flex-direction: column;">
+        <div class="main-content"
+            style="flex: 1; margin-top: 30px; overflow: hidden; display: flex; flex-direction: column;">
+            <app-bereich-nav [items]="bereichNavItems" [currentView]="currentView"
+                (viewChanged)="navigateToView($any($event))" style="flex-shrink: 0;">
+            </app-bereich-nav>
+            <!-- Kommi Aufträge Bereich (Standard) -->
+            <div *ngIf="currentView === 'kommi-auftraege'"
+                style="flex: 1; margin-top: 60px; display: flex; flex-direction: column; overflow: hidden;">
                 <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600; flex-shrink: 0;">Kommi Aufträge</h2>
 
-                <div style="flex: 1; overflow-y: auto; border: 1px solid #eee; border-radius: 4px;">
+                <div style="flex: 1; overflow-y: auto; border: 1px solid #eee; border-radius: 4px; min-height: 0;">
                     <table style="width: 100%; border-collapse: collapse;">
                         <thead
                             style="position: sticky; top: 0; background: white; z-index: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
@@ -132,9 +116,13 @@
                                     date:'yyyy-MM-dd' }}</td>
                                 <td style="padding: 12px 8px; text-align: left;">
                                     <mat-icon *ngIf="isAuftragErledigt(auftrag)"
-                                        style="color: red;">check_box</mat-icon>
-                                    <mat-icon *ngIf="!isAuftragErledigt(auftrag)"
-                                        style="color: green;">check_box_outline_blank</mat-icon>
+                                        style="color: #4caf50;">check_box</mat-icon>
+
+                                    <mat-icon *ngIf="isAuftragGestartet(auftrag) && !isAuftragErledigt(auftrag)"
+                                        style="color: #ff9800;">indeterminate_check_box</mat-icon>
+
+                                    <mat-icon *ngIf="!isAuftragGestartet(auftrag) && !isAuftragErledigt(auftrag)"
+                                        style="color: #9e9e9e;">check_box_outline_blank</mat-icon>
                                 </td>
                                 <td style="padding: 12px 4px; text-align: left; width: 60px;">{{ auftrag.prioritaet }}
                                 </td>
@@ -170,300 +158,179 @@
                 </div>
 
                 <!-- Info-Zeile -->
-                <div style="margin-top: 12px; color: #666; flex-shrink: 0;">
+                <div style="margin-top: 12px; padding-bottom: 12px; color: #666; flex-shrink: 0;">
                     <span *ngIf="searchTerm">{{ filteredAuftraege.length }} von {{ auftraege.length }} Aufträgen</span>
                     <span *ngIf="!searchTerm">Gesamt: {{ auftraege.length }} Aufträge</span>
+                    <button (click)="loadTasks()"
+                        style="margin-left: 16px; padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">refresh</mat-icon>
+                        Aktualisieren
+                    </button>
                 </div>
             </div>
 
-            <!-- Auftrag löschen Bereich -->
-            <div *ngIf="currentView === 'auftrag-loeschen'"
-                style="height: 100%; display: flex; flex-direction: column;">
-                <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600; flex-shrink: 0;">Auftrag löschen</h2>
+            <!-- Einlagerungs Aufträge Bereich -->
+            <div *ngIf="currentView === 'einlagerungsauftraege'"
+                style="flex: 1; display: flex; margin-top: 60px; flex-direction: column; overflow: hidden;">
+                <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600; flex-shrink: 0;">Einlagerungs
+                    Aufträge</h2>
 
-                <div style="flex: 1; overflow-y: auto; border: 1px solid #eee; border-radius: 4px;">
+                <div style="flex: 1; overflow-y: auto; border: 1px solid #eee; border-radius: 4px; min-height: 0;">
                     <table style="width: 100%; border-collapse: collapse;">
                         <thead
                             style="position: sticky; top: 0; background: white; z-index: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                             <tr style="border-bottom: 2px solid #ddd;">
                                 <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Nr.</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Auftragsnummer</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Kunde</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Straße</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">PLZ</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Ort</th>
-                                <th style="padding: 12px 8px; text-align: center; font-weight: 600;">Löschen</th>
+                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Entry-Nr.</th>
+                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Artikel-Nr.</th>
+                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Abholort</th>
+                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Basis-Menge</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngIf="pagedFreeTasks.length === 0">
-                                <td colspan="7" style="padding: 32px; text-align: center; color: #666;">
-                                    <h3>Keine freien Aufträge (ohne Lagerist) gefunden</h3>
+                            <!-- Loading State -->
+                            <tr *ngIf="isLoadingEinlagerung">
+                                <td colspan="5" style="padding: 32px; text-align: center; color: #666;">
+                                    <mat-icon
+                                        style="font-size: 48px; width: 48px; height: 48px; animation: spin 1s linear infinite;">sync</mat-icon>
+                                    <h3>Lade Einlagerungs-Aufgaben...</h3>
                                 </td>
                             </tr>
-                            <tr *ngFor="let auftrag of pagedFreeTasks; let i = index"
+                            <!-- Keine Daten -->
+                            <tr *ngIf="!isLoadingEinlagerung && einlagerungTasks.length === 0">
+                                <td colspan="5" style="padding: 32px; text-align: center; color: #666;">
+                                    <mat-icon style="font-size: 48px; width: 48px; height: 48px;">inventory</mat-icon>
+                                    <h3>Keine Einlagerungs-Aufgaben vorhanden</h3>
+                                </td>
+                            </tr>
+                            <!-- Daten-Zeilen -->
+                            <tr *ngFor="let task of einlagerungTasks; let i = index"
                                 style="border-bottom: 1px solid #eee;"
                                 [style.background-color]="i % 2 === 0 ? '#fafafa' : 'white'">
-                                <td style="padding: 12px 8px;">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
-                                <td style="padding: 12px 8px; font-weight: 500;">{{ auftrag.auftragsnummer }}</td>
-                                <td style="padding: 12px 8px;">{{ auftrag.kunde }}</td>
-                                <td style="padding: 12px 8px;">{{ auftrag.strasse || '-' }}</td>
-                                <td style="padding: 12px 8px;">{{ auftrag.plz || '-' }}</td>
-                                <td style="padding: 12px 8px;">{{ auftrag.ort || '-' }}</td>
-                                <td style="padding: 12px 8px; text-align: center;">
-                                    <button class="btn-delete" (click)="deleteAuftrag(auftrag.auftragsnummer)">
-                                        <mat-icon>delete</mat-icon>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="pagination"
-                    style="margin-top: 12px; display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                    <button (click)="prevPage()" [disabled]="currentPage === 1" class="pagination-btn">« Zurück</button>
-                    <ng-container *ngFor="let p of pages">
-                        <button (click)="goToPage(p)" [class.active]="currentPage === p" class="pagination-btn">{{ p
-                            }}</button>
-                    </ng-container>
-                    <button (click)="nextPage()" [disabled]="currentPage === totalFreePages"
-                        class="pagination-btn">Weiter »</button>
-                    <span style="margin-left: 8px;">Seite {{ currentPage }} von {{ totalFreePages }} | Gesamt: {{
-                        freeAuftraege.length }} freie Aufträge</span>
-                </div>
-            </div>
-
-            <div *ngIf="currentView === 'position-loeschen'">
-                <div style="flex: 1; overflow-y: auto; border: 1px solid #eee; border-radius: 4px;">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead
-                            style="position: sticky; top: 0; background: white; z-index: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                            <tr style="border-bottom: 2px solid #ddd;">
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Nr.</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Document Nr.</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Source Nr.</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Lieferdatum</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Erledigt</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Priorität</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colspan="6" style="padding: 32px; text-align: center; color: #666;">
-                                    <mat-icon style="font-size: 48px; width: 48px; height: 48px;">engineering</mat-icon>
-                                    <h3>In Entwicklung</h3>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Position löschen Bereich -->
-            <!--div *ngIf="currentView === 'position-loeschen'"
-                style="height: 100%; display: flex; flex-direction: column;">
-                <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600; flex-shrink: 0;">Position löschen
-                </h2>
-
-                <div class="position-loeschen-form"
-                    style="padding: 20px; border: 1px solid #eee; border-radius: 4px; background: white; margin-bottom: 20px; flex-shrink: 0;">
-                    <div style="display: flex; flex-direction: column; gap: 16px; max-width: 500px;">
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Belegnummer:</label>
-                            <input type="text" [(ngModel)]="belegnummer" placeholder="z.B. LA0974263"
-                                style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"
-                                [disabled]="isDeleting" />
-                        </div>
-
-                        <div>
-                            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Zeilennummer:</label>
-                            <input type="text" [(ngModel)]="zeilennummer" placeholder="z.B. 10000"
-                                style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;"
-                                [disabled]="isDeleting" />
-                        </div>
-
-                        <button (click)="deletePosition()" [disabled]="isDeleting || !belegnummer || !zeilennummer"
-                            style="padding: 10px 20px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; font-weight: 500;"
-                            [style.opacity]="isDeleting || !belegnummer || !zeilennummer ? '0.6' : '1'"
-                            [style.cursor]="isDeleting || !belegnummer || !zeilennummer ? 'not-allowed' : 'pointer'">
-                            {{ isDeleting ? 'Wird gelöscht...' : 'Position löschen' }}
-                        </button>
-
-                        <div *ngIf="deleteMessage"
-                            style="padding: 12px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; color: #155724;">
-                            <strong>Erfolg:</strong> {{ deleteMessage }}
-                        </div>
-
-                        <div *ngIf="deleteError"
-                            style="padding: 12px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; color: #721c24;">
-                            <strong>Fehler:</strong> {{ deleteError }}
-                        </div>
-                    </div>
-                </div>
-
-                < Auftrags-Liste -->
-            <!--div style="flex: 1; overflow-y: auto; border: 1px solid #eee; border-radius: 4px;">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead
-                            style="position: sticky; top: 0; background: white; z-index: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                            <tr style="border-bottom: 2px solid #ddd;">
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Nr.</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Document Nr.</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Source Nr.</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Lieferdatum</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Erledigt</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Priorität</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Ändern</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngIf="pagedTasks.length === 0">
-                                <td colspan="7" style="padding: 32px; text-align: center; color: #666;">
-                                    <h3>Keine Aufträge gefunden</h3>
-                                </td>
-                            </tr>
-                            <tr *ngFor="let auftrag of pagedTasks; let i = index" style="border-bottom: 1px solid #eee;"
-                                [style.background-color]="i % 2 === 0 ? '#fafafa' : 'white'">
-                                <td style="padding: 12px 8px;">{{ (currentPage - 1) * pageSize + i + 1 }}</td>
-                                <td style="padding: 12px 8px; font-weight: 500;">{{ auftrag.auftragsnummer }}</td>
-                                <td style="padding: 12px 8px;">{{ auftrag.kunde }}</td>
-                                <td style="padding: 12px 8px;">{{ auftrag.strasse || '-' }}</td>
-                                <td style="padding: 12px 8px;">{{ auftrag.plz || '-' }}</td>
-                                <td style="padding: 12px 8px;">{{ auftrag.ort || '-' }}</td>
-                                <td style="padding: 12px 8px; font-weight: 600;">{{ auftrag.prioritaet || '-' }}</td>
-                                <td style="padding: 12px 8px; text-align: center;">
-                                    <button class="btn-edit" (click)="changePrio(auftrag)"
-                                        style="padding: 6px 12px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                                        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">edit</mat-icon>
-                                        Ändern
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="pagination"
-                    style="margin-top: 12px; display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                    <button (click)="prevPage()" [disabled]="currentPage === 1" class="pagination-btn">« Zurück</button>
-                    <ng-container *ngFor="let p of pages">
-                        <button (click)="goToPage(p)" [class.active]="currentPage === p" class="pagination-btn">{{ p
-                            }}</button>
-                    </ng-container>
-                    <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="pagination-btn">Weiter
-                        »</button>
-                    <span style="margin-left: 8px;">Seite {{ currentPage }} von {{ totalPages }}</span>
-                </div>
-            </div-->
-
-            <!-- Priorität ändern Bereich -->
-            <div *ngIf="currentView === 'prioritaet-aendern'"
-                style="height: 100%; display: flex; flex-direction: column;">
-                <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600; flex-shrink: 0;">Priorität ändern
-                </h2>
-
-                <div style="flex: 1; overflow-y: auto; border: 1px solid #eee; border-radius: 4px;">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead
-                            style="position: sticky; top: 0; background: white; z-index: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                            <tr style="border-bottom: 2px solid #ddd;">
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Nr.</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Document Nr.</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Source Nr.</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Lieferdatum</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Erledigt</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Priorität</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Ändern</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngIf="pagedFreeTasks.length === 0">
-                                <td colspan="8" style="padding: 32px; text-align: center; color: #666;">
-                                    <h3>Keine freien Aufträge (ohne Lagerist) gefunden</h3>
-                                </td>
-                            </tr>
-                            <tr *ngFor="let auftrag of pagedFreeTasks; let i = index"
-                                style="border-bottom: 1px solid #eee;"
-                                [style.background-color]="i % 2 === 0 ? '#fafafa' : 'white'">
-                                <td style="padding: 12px 8px; text-align: left;">{{ (currentPage - 1) * pageSize + i + 1
+                                <td style="padding: 12px 8px; text-align: left;">{{ i + 1 }}</td>
+                                <td style="padding: 12px 8px; text-align: left; font-weight: 500;">{{ task.entry_number
                                     }}</td>
-                                <td style="padding: 12px 8px; text-align: left; font-weight: 500;">{{
-                                    auftrag.belegnummer }}</td>
-                                <td style="padding: 12px 8px; text-align: left;">{{ auftrag.auftragsnummer }}</td>
-                                <td style="padding: 12px 8px; text-align: left;">{{ auftrag.lieferdatum |
-                                    date:'yyyy-MM-dd'}}</td>
-                                <td style="padding: 12px 8px; text-align: left;">{{ auftrag.erledigt }}</td>
-                                <td style="padding: 12px 8px; text-align: left;">{{ auftrag.prioritaet }}</td>
-                                <td style="padding: 12px 8px; text-align: left;">
-                                    <button class="btn-edit" (click)="changePrio(auftrag)"
-                                        style="padding: 6px 12px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                                        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">edit</mat-icon>
-                                        Ändern
-                                    </button>
-                                </td>
+                                <td style="padding: 12px 8px; text-align: left; font-weight: 500; color: #0da2bd;">{{
+                                    task.artikelnummer }}</td>
+                                <td style="padding: 12px 8px; text-align: left;">{{ task.abholort }}</td>
+                                <td style="padding: 12px 8px; text-align: left;">{{ task.basis_menge }}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div class="pagination"
-                    style="margin-top: 12px; display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                    <button (click)="prevPage()" [disabled]="currentPage === 1" class="pagination-btn">« Zurück</button>
-                    <ng-container *ngFor="let p of pages">
-                        <button (click)="goToPage(p)" [class.active]="currentPage === p" class="pagination-btn">
-                            {{ p }}</button>
-                    </ng-container>
-                    <button (click)="nextPage()" [disabled]="currentPage === totalFreePages"
-                        class="pagination-btn">Weiter »</button>
-                    <span style="margin-left: 8px;">Seite {{ currentPage }} von {{ totalFreePages }} | Gesamt: {{
-                        freeAuftraege.length }} freie Aufträge</span>
+                <!-- Info-Zeile -->
+                <div style="margin-top: 12px; padding-bottom: 12px; color: #666; flex-shrink: 0;">
+                    <span>Gesamt: {{ einlagerungTasks.length }} Einlagerungs-Aufgaben</span>
+                    <button (click)="loadEinlagerungTasks()"
+                        style="margin-left: 16px; padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">refresh</mat-icon>
+                        Aktualisieren
+                    </button>
                 </div>
             </div>
 
-            <!-- Auftrag blockieren Bereich -->
-            <div *ngIf="currentView === 'auftrag-blockieren'"
-                style="height: 100%; display: flex; flex-direction: column;">
-                <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600; flex-shrink: 0;">Auftrag blockieren
+
+
+
+
+
+            <!-- Inventur Aufgaben Bereich -->
+            <div *ngIf="currentView === 'inventur-aufgaben'"
+                style="flex: 1; display: flex; margin-top: 60px; flex-direction: column; overflow: hidden;">
+                <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600; flex-shrink: 0;">Inventur Aufgaben
                 </h2>
 
-                <div style="flex: 1; overflow-y: auto; border: 1px solid #eee; border-radius: 4px;">
+                <div style="flex: 1; overflow-y: auto; border: 1px solid #eee; border-radius: 4px; min-height: 0;">
                     <table style="width: 100%; border-collapse: collapse;">
                         <thead
                             style="position: sticky; top: 0; background: white; z-index: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                             <tr style="border-bottom: 2px solid #ddd;">
                                 <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Nr.</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Document Nr.</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Source Nr.</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Lieferdatum</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Erledigt</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Priorität</th>
+                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Prozess-ID</th>
+                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Regalbereich</th>
+                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Lager</th>
+                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Status</th>
+                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Initiator</th>
+                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Bearbeiter</th>
+                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Erstellt am</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td colspan="6" style="padding: 32px; text-align: center; color: #666;">
-                                    <mat-icon style="font-size: 48px; width: 48px; height: 48px;">engineering</mat-icon>
-                                    <h3>In Entwicklung</h3>
+                            <!-- Loading State -->
+                            <tr *ngIf="isLoadingInventur">
+                                <td colspan="8" style="padding: 32px; text-align: center; color: #666;">
+                                    <mat-icon
+                                        style="font-size: 48px; width: 48px; height: 48px; animation: spin 1s linear infinite;">sync</mat-icon>
+                                    <h3>Lade Inventur-Aufgaben...</h3>
+                                </td>
+                            </tr>
+                            <!-- Keine Daten -->
+                            <tr *ngIf="!isLoadingInventur && inventurTasks.length === 0">
+                                <td colspan="8" style="padding: 32px; text-align: center; color: #666;">
+                                    <mat-icon style="font-size: 48px; width: 48px; height: 48px;">inventory_2</mat-icon>
+                                    <h3>Keine Inventur-Aufgaben vorhanden</h3>
+                                </td>
+                            </tr>
+                            <!-- Daten-Zeilen -->
+                            <tr *ngFor="let task of inventurTasks; let i = index" style="border-bottom: 1px solid #eee;"
+                                [style.background-color]="i % 2 === 0 ? '#fafafa' : 'white'">
+                                <td style="padding: 12px 8px; text-align: left;">{{ i + 1 }}</td>
+                                <td style="padding: 12px 8px; text-align: left; font-weight: 500;">{{ task.pid }}</td>
+                                <td style="padding: 12px 8px; text-align: left; font-weight: 500; color: #0da2bd;">{{
+                                    task.variables.regalArea || '-' }}</td>
+                                <td style="padding: 12px 8px; text-align: left;">{{ task.variables.fCode || '-' }}</td>
+                                <td style="padding: 12px 8px; text-align: left;">
+                                    <span [style.background-color]="task.pstate === 'active' ? '#e8f5e9' : '#fff3e0'"
+                                        [style.color]="task.pstate === 'active' ? '#2e7d32' : '#f57c00'"
+                                        style="padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 500;">
+                                        {{ task.pstate === 'active' ? 'Aktiv' : task.pstate }}
+                                    </span>
+                                </td>
+                                <td style="padding: 12px 8px; text-align: left;">{{ task.variables.initiatorUserId ||
+                                    '-' }}</td>
+                                <td style="padding: 12px 8px; text-align: left;">{{ task.variables.executorUserId || '-'
+                                    }}</td>
+                                <td style="padding: 12px 8px; text-align: left;">{{ (task.variables.createdAt || '-') |
+                                    date:'yyyy-MM-dd HH:mm' }}
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Info-Zeile -->
+                <div style="margin-top: 12px; padding-bottom: 12px; color: #666; flex-shrink: 0;">
+                    <span>Gesamt: {{ inventurTasks.length }} Inventur-Aufgaben</span>
+                    <button (click)="loadInventurTasks()"
+                        style="margin-left: 16px; padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">refresh</mat-icon>
+                        Aktualisieren
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bestandskontrolle Aufgaben Bereich -->
+            <div *ngIf="currentView === 'bestandskontrolle-aufgaben'"
+                style="flex: 1; display: flex; margin-top: 60px; flex-direction: column; overflow: hidden;">
+                <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600; flex-shrink: 0;">Bestandskontrolle
+                    Aufgaben
+                </h2>
+
+                <!-- Info-Zeile -->
+                <div style="margin-top: 12px; padding-bottom: 12px; color: #666; flex-shrink: 0;">
+                    <span>Gesamt: {{ bestandskontrolleTasks.length }} Bestandskontrolle-Aufgaben</span>
+                    <button (click)="loadBestandskontrolleTasks()"
+                        style="margin-left: 16px; padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">refresh</mat-icon>
+                        Aktualisieren
+                    </button>
                 </div>
             </div>
 
         </div>
     </div>
 
-    <div style="margin-top: 50px; flex-shrink: 0;">
-        <button (click)="logout()" class="shadow-[0_0px_3px_0px_gray]"
-            style="cursor: pointer; font-size: 18px; padding: 10px 20px; border-radius: 4px;">
-            Logout
-        </button>
-        <button (click)="router.navigate(['/home'])" class="shadow-[0_0px_3px_0px_gray]"
-            style="cursor: pointer; font-size: 18px; padding: 10px 20px; border-radius: 4px;">
-            Hauptmenü
-        </button>
-    </div>
+    <app-fusszeile (hauptmenueClick)="navigateToHome()" (logoutClick)="logout()"></app-fusszeile>
 </div>
 <!--/app-layout-->

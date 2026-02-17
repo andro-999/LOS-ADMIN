@@ -1,1 +1,124 @@
-<p>konfiguration works!</p>
+<!-- 01100001 01101110 01100100 01110010 01101111 -->
+<div style="margin-left: 5%; width: 90%; height: 100vh; display: flex; flex-direction: column; overflow: hidden;">
+    <app-header class="header-area" style="display: flex; align-items: center; height: 90px; flex-shrink: 0;">
+    </app-header>
+    <div style="margin-bottom: -20px; flex-shrink: 0;">
+        <hr
+            style="height: 4px;background-color: #168396;border: none;margin-bottom: 0px; margin-top: 0px; width: 100%; margin-left: 0;" />
+        <h1 style="padding-left: 15px; background-color: #dad8d8;min-height: 40px;">KONFIGURATION</h1>
+        <hr
+            style="height: 4px;background-color: #0da2bd;border: none;margin-bottom: 80px; margin-top: -20px; width: 100%; margin-left: 0;" />
+    </div>
+
+    <div class="navigation-buttons"
+        style="display: flex; margin-top: -40px; gap: 12px; flex-wrap: wrap;  justify-content: space-between; flex-shrink: 0;">
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; flex: 1;">
+            <!-- Navigation Block -->
+            <app-nav-block [buttons]="navButtons" [showSearch]="false">
+            </app-nav-block>
+
+        </div>
+    </div>
+
+    <!-- Bereich-Navigation Links -->
+    <div style="margin-top: 40px; flex-shrink: 0;">
+        <app-bereich-nav [items]="bereichNavItems" [currentView]="currentView"
+            (viewChanged)="navigateToView($any($event))">
+        </app-bereich-nav>
+    </div>
+    <!-- Content Container -->
+    <div class="content-container"
+        style="flex: 1; overflow-y: auto; margin-top: 20px;  margin-right: 5%; display: flex; flex-direction: column;">
+
+        <!-- Prozessmanager Bereich (Standard) -->
+        <div *ngIf="currentView === 'prozessmanager'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">PROZESSMANAGER</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">inventory</mat-icon>
+                <p style="margin-top: 16px; color: #667;">Prozessmanager-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+
+        <!-- GS1-Etikett Bereich  -->
+        <div *ngIf="currentView === 'gs1-etikett'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">GS1-ETIKETT</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">label</mat-icon>
+                <p style="margin-top: 16px; color: #667;">GS1-Etikett-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+
+        <!-- Breakage Bereich -->
+        <div *ngIf="currentView === 'breakage'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">BREAKAGE</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">broken_image</mat-icon>
+                <p style="color: #667;">Breakage-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+
+        <!-- WAYBILL Bereich  -->
+        <div *ngIf="currentView === 'waybill'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">WAYBILL</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">description</mat-icon>
+                <p style="margin-top: 16px; color: #667;">Waybill-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+
+        <!-- Split Bereich  -->
+        <div *ngIf="currentView === 'split'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">SPLIT</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;"><svg
+                        xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                        fill="#1f1f1f">
+                        <path
+                            d="M160-440v-80h304l200-200H560v-80h240v240h-80v-104L496-440H160Zm400 280v-80h104L536-366l58-58 126 128v-104h80v240H560Z" />
+                    </svg></mat-icon>
+                <p style="margin-top: 16px; color: #667;">Split-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+
+        <!-- Slotmanager Bereich -->
+        <div *ngIf="currentView === 'slotmanager'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">SLOTMANAGER</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">broken_image</mat-icon>
+                <p style="color: #667;">Slotmanager-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+
+        <!-- STOREPUT Bereich  -->
+        <div *ngIf="currentView === 'storeput'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">STOREPUT</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">card_giftcard</mat-icon>
+                <p style="margin-top: 16px; color: #667;">Storeput-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+
+
+        <!-- KDXPALETTETYPES Bereich -->
+        <div *ngIf="currentView === 'kdxpallettypes'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">KDXPALETTETYPES</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">local_shipping</mat-icon>
+                <p style="color: #667;">KDXPallettypes-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+
+        <!-- Global Bereich -->
+        <div *ngIf="currentView === 'global'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">GLOBAL</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">public</mat-icon>
+                <p style="color: #667;">Global-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Action Buttons -->
+    <app-fusszeile (hauptmenueClick)="navigateToHome()" (logoutClick)="logout()"></app-fusszeile>
+</div>

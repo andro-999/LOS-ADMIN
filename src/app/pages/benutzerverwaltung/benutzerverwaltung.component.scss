@@ -1,33 +1,33 @@
-/* filepath: c:\projects\los-admin\src\app\pages\benutzerverwaltung\benutzerverwaltung.component.scss */
+// /* filepath: c:\projects\los-admin\src\app\pages\benutzerverwaltung\benutzerverwaltung.component.scss */
 
-/* Container für das gesamte Layout */
-.layout-container {
-  display: flex;
-  height: 100vh; /* Die gesamte Höhe des Viewports */
-}
+// /* Container für das gesamte Layout */
+// .layout-container {
+//   display: flex;
+//   height: 100vh; /* Die gesamte Höhe des Viewports */
+// }
 
-/* Sidebar und Header auf der linken Seite */
-.sidebar-container {
-  width: 250px; /* Feste Breite für Sidebar und Header */
-  display: flex;
-  flex-direction: column;
-  position: fixed; /* Fixiert die Sidebar und das Header-Logo */
-  top: 0;
-  left: 0;
-  bottom: 0;
-  background-color: #dfe5e7; /* Hintergrundfarbe der Sidebar */
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  z-index: 1000; /* Stellt sicher, dass die Sidebar über anderen Elementen liegt */
-}
+// /* Sidebar und Header auf der linken Seite */
+// .sidebar-container {
+//   width: 250px; /* Feste Breite für Sidebar und Header */
+//   display: flex;
+//   flex-direction: column;
+//   position: fixed; /* Fixiert die Sidebar und das Header-Logo */
+//   top: 0;
+//   left: 0;
+//   bottom: 0;
+//   background-color: #dfe5e7; /* Hintergrundfarbe der Sidebar */
+//   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+//   z-index: 1000; /* Stellt sicher, dass die Sidebar über anderen Elementen liegt */
+// }
 
-/* Hauptinhalt rechts von der Sidebar */
-.content-container {
-  margin-left: 250px; /* Platz für die Sidebar */
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto; /* Ermöglicht Scrollen, wenn der Inhalt zu groß ist */
-  background-color: #f8f9fa; /* Hintergrundfarbe für den Hauptinhalt */
-}
+// /* Hauptinhalt rechts von der Sidebar */
+// .content-container {
+//   margin-left: 250px; /* Platz für die Sidebar */
+//   flex: 1;
+//   padding: 20px;
+//   overflow-y: auto; /* Ermöglicht Scrollen, wenn der Inhalt zu groß ist */
+//   background-color: #f8f9fa; /* Hintergrundfarbe für den Hauptinhalt */
+// }
 
 /* Tabelle */
 table {
@@ -96,4 +96,55 @@ th {
 
 .btn-delete:hover {
   background-color: #c0392b;
+}
+
+// Button Styles für die Benutzerverwaltung
+.btn-delete {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: #c82333;
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.btn-edit:hover {
+  background-color: #0056b3;
+}
+
+.btn-add-user:hover {
+  background-color: #218838;
+}
+
+// Formular Styles
+.add-user-form {
+  input:focus,
+  select:focus {
+    outline: none;
+    border-color: #0da2bd;
+    box-shadow: 0 0 0 3px rgba(13, 162, 189, 0.1);
+  }
+
+  button[type="submit"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #6c757d;
+  }
+
+  button:hover:not(:disabled) {
+    opacity: 0.9;
+  }
 }

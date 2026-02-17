@@ -1,0 +1,217 @@
+<!-- 01100001 01101110 01100100 01110010 01101111 -->
+<div style="margin-left: 5%; width: 90%; height: 100vh; display: flex; flex-direction: column; overflow: hidden;">
+    <app-header class="header-area" style="display: flex; align-items: center; height: 90px; flex-shrink: 0;">
+    </app-header>
+    <div style="margin-bottom: -20px; flex-shrink: 0;">
+        <hr
+            style="height: 4px;background-color: #168396;border: none;margin-bottom: 0px; margin-top: 0px; width: 100%; margin-left: 0;" />
+        <h1 style="padding-left: 15px; background-color: #dad8d8;min-height: 40px;">STELLPLATZVERWALTUNG</h1>
+        <hr
+            style="height: 4px;background-color: #0da2bd;border: none;margin-bottom: 80px; margin-top: -20px; width: 100%; margin-left: 0;" />
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="navigation-buttons"
+        style="display: flex; margin-top: -40px; gap: 12px; flex-wrap: wrap; justify-content: space-between; flex-shrink: 0;">
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; flex: 1;">
+            <app-nav-block [buttons]="navButtons" [showSearch]="false"></app-nav-block>
+        </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="content-area">
+        <!-- Zeile 1: Buttons und Suche -->
+        <div class="row-1">
+            <div class="left-buttons">
+                <button class="action-btn primary">Regal hinzufügen</button>
+                <button class="action-btn primary">Serienanlage ausführen</button>
+                <button class="action-btn primary">PalettenAnzahl</button>
+            </div>
+            <div class="right-controls">
+                <button class="icon-btn" title="Spalten ein / ausblenden">
+                    <mat-icon>view_column</mat-icon>
+                </button>
+                <button class="icon-btn" title="Anwender Filter">
+                    <mat-icon>filter_alt</mat-icon>
+                </button>
+                <button class="icon-btn" title="CSV Datei herunterladen">
+                    <mat-icon>description</mat-icon>
+                </button>
+                <button class="icon-btn" title="PDF Datei herunterladen">
+                    <mat-icon>picture_as_pdf</mat-icon>
+                </button>
+                <input type="text" class="search-field" placeholder="Suchen..." [(ngModel)]="searchTerm" />
+                <button class="action-btn secondary">Filter leeren</button>
+            </div>
+        </div>
+
+        <hr class="table-divider" />
+
+        <!-- Tabelle mit integrierten Filtern -->
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <!-- Filter Zeile -->
+                    <tr class="filter-row">
+                        <th class="action-col"></th>
+                        <th class="action-col"></th>
+                        <th class="action-col"></th>
+                        <th><input type="text" [(ngModel)]="filters.regalNr" placeholder="Regal-Nr."
+                                class="filter-input" /></th>
+                        <th><input type="text" [(ngModel)]="filters.filialCode" placeholder="Filial Code"
+                                class="filter-input" /></th>
+                        <th><input type="text" [(ngModel)]="filters.artikelNr" placeholder="Artikel-Nr."
+                                class="filter-input" /></th>
+                        <th><input type="text" [(ngModel)]="filters.jahrgang" placeholder="Jahrgang"
+                                class="filter-input" /></th>
+                        <th><input type="text" [(ngModel)]="filters.mhd" placeholder="MHD" class="filter-input" /></th>
+                        <th class="narrow-col"><input type="text" [(ngModel)]="filters.kPlatz" placeholder="K-P"
+                                class="filter-input" title="K-Platz" /></th>
+                        <th><input type="text" [(ngModel)]="filters.hoehe" placeholder="Höhe mm" class="filter-input" />
+                        </th>
+                        <th><input type="text" [(ngModel)]="filters.breite" placeholder="Breite mm"
+                                class="filter-input" /></th>
+                        <th><input type="text" [(ngModel)]="filters.tiefe" placeholder="Tiefe mm"
+                                class="filter-input" /></th>
+                        <th><input type="text" [(ngModel)]="filters.nve" placeholder="NVE" class="filter-input" /></th>
+                        <th><input type="text" [(ngModel)]="filters.gesamtmenge" placeholder="Gesamtmenge"
+                                class="filter-input" /></th>
+                        <th><input type="text" [(ngModel)]="filters.menge" placeholder="Menge" class="filter-input" />
+                        </th>
+                        <th><input type="text" [(ngModel)]="filters.einheit" placeholder="Einheit"
+                                class="filter-input" /></th>
+                        <th class="tiny-col"><input type="text" [(ngModel)]="filters.mengeEinheit" placeholder="M/E"
+                                class="filter-input" title="Menge/Einheit" /></th>
+                        <th class="narrow-col"><input type="text" [(ngModel)]="filters.steuer" placeholder="St"
+                                class="filter-input" title="Steuer" /></th>
+                        <th class="narrow-col"><input type="text" [(ngModel)]="filters.gesperrt" placeholder="Gesp"
+                                class="filter-input" title="Gesperrt" /></th>
+                        <th class="narrow-col"><input type="text" [(ngModel)]="filters.bio" placeholder="Bio"
+                                class="filter-input" title="Bio" /></th>
+                        <th class="narrow-col"><input type="text" [(ngModel)]="filters.hochProzent" placeholder="H%"
+                                class="filter-input" title="Hoch%" /></th>
+                        <th class="narrow-col"><input type="text" [(ngModel)]="filters.bestellartikelplatz"
+                                placeholder="BAP" class="filter-input" title="Bestellartikelplatz" /></th>
+                        <th><input type="text" [(ngModel)]="filters.paletten" placeholder="Paletten"
+                                class="filter-input" /></th>
+                    </tr>
+                    <!-- Header Zeile -->
+                    <tr>
+                        <th class="action-col">PDF</th>
+                        <th class="action-col">Bearbeiten</th>
+                        <th class="action-col">Löschen</th>
+                        <th>Regal-Nr.</th>
+                        <th>Filial Code</th>
+                        <th>Artikel-Nr.</th>
+                        <th>Jahrgang</th>
+                        <th>MHD</th>
+                        <th class="narrow-col" title="K-Platz">K-P</th>
+                        <th>Höhe mm</th>
+                        <th>Breite mm</th>
+                        <th>Tiefe mm</th>
+                        <th>NVE</th>
+                        <th>Gesamtmenge</th>
+                        <th>Menge</th>
+                        <th>Einheit</th>
+                        <th class="tiny-col" title="Menge/Einheit">M/E</th>
+                        <th class="narrow-col" title="Steuer">St</th>
+                        <th class="narrow-col" title="Gesperrt">Gesp</th>
+                        <th class="narrow-col" title="Bio">Bio</th>
+                        <th class="narrow-col" title="Hoch%">H%</th>
+                        <th class="narrow-col" title="Bestellartikelplatz">BAP</th>
+                        <th>Paletten</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of tableData">
+                        <td class="action-col">
+                            <button class="table-icon-btn" title="PDF">
+                                <mat-icon>picture_as_pdf</mat-icon>
+                            </button>
+                        </td>
+                        <td class="action-col">
+                            <button class="table-icon-btn" title="Bearbeiten">
+                                <mat-icon>edit</mat-icon>
+                            </button>
+                        </td>
+                        <td class="action-col">
+                            <button class="table-icon-btn" title="Löschen">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </td>
+                        <td>{{ item.regalNr }}</td>
+                        <td>{{ item.filialCode }}</td>
+                        <td>{{ item.artikelNr }}</td>
+                        <td>{{ item.jahrgang }}</td>
+                        <td>{{ item.mhd }}</td>
+                        <td class="narrow-col" [title]="item.kPlatz ? 'Ja' : 'Nein'">
+                            <mat-icon class="bool-icon" [ngClass]="item.kPlatz ? 'yes' : 'no'">{{ item.kPlatz ? 'check'
+                                : 'close' }}</mat-icon>
+                        </td>
+                        <td>{{ item.hoehe }}</td>
+                        <td>{{ item.breite }}</td>
+                        <td>{{ item.tiefe }}</td>
+                        <td>{{ item.nve }}</td>
+                        <td>{{ item.gesamtmenge }}</td>
+                        <td>{{ item.menge }}</td>
+                        <td>{{ item.einheit }}</td>
+                        <td class="tiny-col">{{ item.mengeEinheit }}</td>
+                        <td class="narrow-col" [title]="item.steuer ? 'Ja' : 'Nein'">
+                            <mat-icon class="bool-icon" [ngClass]="item.steuer ? 'yes' : 'no'">{{ item.steuer ? 'check'
+                                : 'close' }}</mat-icon>
+                        </td>
+                        <td class="narrow-col" [title]="item.gesperrt ? 'Ja' : 'Nein'">
+                            <mat-icon class="bool-icon" [ngClass]="item.gesperrt ? 'yes' : 'no'">{{ item.gesperrt ?
+                                'check' : 'close' }}</mat-icon>
+                        </td>
+                        <td class="narrow-col" [title]="item.bio ? 'Ja' : 'Nein'">
+                            <mat-icon class="bool-icon" [ngClass]="item.bio ? 'yes' : 'no'">{{ item.bio ? 'check' :
+                                'close' }}</mat-icon>
+                        </td>
+                        <td class="narrow-col" [title]="item.hochProzent ? 'Ja' : 'Nein'">
+                            <mat-icon class="bool-icon" [ngClass]="item.hochProzent ? 'yes' : 'no'">{{ item.hochProzent
+                                ? 'check' : 'close' }}</mat-icon>
+                        </td>
+                        <td class="narrow-col" [title]="item.bestellartikelplatz ? 'Ja' : 'Nein'">
+                            <mat-icon class="bool-icon" [ngClass]="item.bestellartikelplatz ? 'yes' : 'no'">{{
+                                item.bestellartikelplatz ? 'check' : 'close' }}</mat-icon>
+                        </td>
+                        <td>{{ item.paletten }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container">
+            <div class="pagination-info">
+                <span>Zeige</span>
+                <select [(ngModel)]="pageSize" class="page-size-select">
+                    <option [value]="10">10</option>
+                    <option [value]="25">25</option>
+                    <option [value]="50">50</option>
+                    <option [value]="100">100</option>
+                </select>
+                <span>Einträge pro Seite</span>
+                <span class="pagination-total">| {{ totalItems }} Einträge gesamt</span>
+            </div>
+            <div class="pagination-controls">
+                <button class="pagination-btn" [disabled]="currentPage === 1" (click)="goToFirstPage()">
+                    <mat-icon>first_page</mat-icon>
+                </button>
+                <button class="pagination-btn" [disabled]="currentPage === 1" (click)="goToPreviousPage()">
+                    <mat-icon>chevron_left</mat-icon>
+                </button>
+                <span class="page-info">Seite {{ currentPage }} von {{ totalPages }}</span>
+                <button class="pagination-btn" [disabled]="currentPage === totalPages" (click)="goToNextPage()">
+                    <mat-icon>chevron_right</mat-icon>
+                </button>
+                <button class="pagination-btn" [disabled]="currentPage === totalPages" (click)="goToLastPage()">
+                    <mat-icon>last_page</mat-icon>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <app-fusszeile (hauptmenueClick)="navigateToHome()" (logoutClick)="logout()"></app-fusszeile>
+</div>
