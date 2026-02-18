@@ -80,11 +80,11 @@ export interface BestandskontrolleResponse {
     freieRegalnummern: string;
 }
 export interface InventurResponse {
-  success?: boolean;
-  tasks?: InventurTask[];
-  data?: InventurTask[];
-  // Falls die Struktur anders ist
-  [key: string]: any;
+    success?: boolean;
+    tasks?: InventurTask[];
+    data?: InventurTask[];
+    // Falls die Struktur anders ist
+    [key: string]: any;
 }
 
 @Injectable({
