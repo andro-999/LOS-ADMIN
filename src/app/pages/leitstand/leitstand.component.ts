@@ -8,7 +8,7 @@ import { MatIcon } from '@angular/material/icon';
 // import { User, UserService } from '../../services/user.service'; // UNUSED
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LeitstandService, Auftrag, EinlagerungTask } from './leitstand.service';
+import { LeitstandService, Auftrag, EinlagerungTask, KdxRegalplatz } from './leitstand.service';
 import { HeaderComponent } from '../../components/header/header.component';
 // import { BenutzerverwaltungComponent } from '../benutzerverwaltung/benutzerverwaltung.component'; // UNUSED
 import { NavBlockComponent, NavButton } from '../../components/nav-block/nav-block.component';
@@ -44,14 +44,23 @@ export class LeitstandComponent implements OnInit, OnDestroy {
   isLoadingEinlagerung: boolean = false;
   bestandskontrolleTasks: Auftrag[] = []; // Bestandskontrolle-Aufgaben
   isLoadingBestandskontrolle: boolean = false;
+
+  // KDX Bereinigung Properties
+  kdxTurmNr: number = 3;
+  kdxTablarNr: number = 1;
+  kdxRegalplaetze: (KdxRegalplatz & { releasing?: boolean })[] = [];
+  filteredKdxRegalplaetze: (KdxRegalplatz & { releasing?: boolean })[] = [];
+  isLoadingKdxBoxen: boolean = false;
+  kdxReserviertFilter: string = ''; // '', 'reserviert', 'frei'
   navButtons: NavButton[] = [];
   searchTerm: string = '';
-  currentView: 'kommi-auftraege' | 'einlagerungsauftraege' | 'inventur-aufgaben' | 'bestandskontrolle-aufgaben' = 'kommi-auftraege';
+  currentView: 'kommi-auftraege' | 'einlagerungsauftraege' | 'inventur-aufgaben' | 'bestandskontrolle-aufgaben' | 'kdx-bereinigung' = 'kommi-auftraege';
   bereichNavItems: BereichNavItem[] = [
     { id: 'kommi-auftraege', label: 'Kommi Aufträge' },
     { id: 'einlagerungsauftraege', label: 'Einlagerungs Aufträge' },
     { id: 'inventur-aufgaben', label: 'Inventur Aufgaben' },
-    { id: 'bestandskontrolle-aufgaben', label: 'Bestandskontrolle Aufgaben' }
+    { id: 'bestandskontrolle-aufgaben', label: 'Bestandskontrolle Aufgaben' },
+    { id: 'kdx-bereinigung', label: 'KDX Bereinigung' }
   ];
   selectedPriority: string = ''; // Neues Feld für Prioritäts-Filter
   selectedStatus: string = ''; // Neues Feld für Erledigt-Filter ('', 'erledigt', 'offen')
@@ -199,6 +208,10 @@ export class LeitstandComponent implements OnInit, OnDestroy {
 
     // Lade Einlagerungs-Aufgaben
     this.loadEinlagerungTasks();
+
+    this.loadBestandskontrolleTasks();
+
+    this.loadKdxBereinigungTasks();
   }
 
   loadInventurTasks(): void {
@@ -223,9 +236,96 @@ export class LeitstandComponent implements OnInit, OnDestroy {
       }
     });
   }
-
   loadBestandskontrolleTasks(): void {
-    // Diese Methode könnte ähnlich wie loadInventurTasks implementiert werden, abhängig von der API-Struktur
+
+  }
+
+  loadKdxBereinigungTasks(): void {
+    this.loadKdxBoxen();
+  }
+
+  loadKdxBoxen(): void {
+    if (!this.kdxTurmNr || !this.kdxTablarNr) {
+      return;
+    }
+
+    this.isLoadingKdxBoxen = true;
+    this.kdxRegalplaetze = [];
+
+    this.leitstandService.getKdxBoxen(this.kdxTurmNr, this.kdxTablarNr).subscribe({
+      next: (response) => {
+        if (response.success && response.boxen) {
+          // Flatten all storage places from all boxes
+          const plaetze: (KdxRegalplatz & { releasing?: boolean })[] = [];
+          response.boxen.forEach((box) => {
+            box.rows.forEach((row) => {
+              row.forEach((cell) => {
+                plaetze.push({
+                  ...cell,
+                  releasing: false
+                });
+              });
+            });
+          });
+          this.kdxRegalplaetze = plaetze;
+          this.filterKdxRegalplaetze();
+        }
+        this.isLoadingKdxBoxen = false;
+      },
+      error: (error) => {
+        console.error('Fehler beim Laden der KDX Boxen:', error);
+        this.isLoadingKdxBoxen = false;
+      }
+    });
+  }
+
+  releaseRegalplatz(regalNr: string): void {
+    const platz = this.kdxRegalplaetze.find(p => p.regalNr === regalNr);
+    if (platz) {
+      platz.releasing = true;
+    }
+
+    this.leitstandService.releaseKdxRegal(regalNr).subscribe({
+      next: (response) => {
+        if (response.success) {
+          // Update local state
+          if (platz) {
+            platz.besetzt = false;
+            platz.releasing = false;
+          }
+          this.filterKdxRegalplaetze();
+        }
+      },
+      error: (error) => {
+        console.error('Fehler beim Freigeben des Regalplatzes:', error);
+        if (platz) {
+          platz.releasing = false;
+        }
+      }
+    });
+  }
+
+  getReserviertCount(): number {
+    return this.kdxRegalplaetze.filter(p => p.besetzt).length;
+  }
+
+  filterKdxRegalplaetze(): void {
+    const searchLower = this.searchTerm.toLowerCase().trim();
+
+    this.filteredKdxRegalplaetze = this.kdxRegalplaetze.filter(platz => {
+      // Text-basierte Suche (Regalnummer)
+      const textMatch = !searchLower || platz.regalNr.toLowerCase().includes(searchLower);
+
+      // Reserviert-Filter
+      let reserviertMatch = true;
+      if (this.kdxReserviertFilter === 'reserviert') {
+        reserviertMatch = platz.besetzt === true;
+      } else if (this.kdxReserviertFilter === 'frei') {
+        reserviertMatch = platz.besetzt === false;
+      }
+
+      return textMatch && reserviertMatch;
+    });
   }
 
   loadEinlagerungTasks(): void {
@@ -314,6 +414,11 @@ export class LeitstandComponent implements OnInit, OnDestroy {
 
     this.currentPage = 1;
     this.updatePagedTasks();
+
+    // Filter auch KDX wenn in dieser Ansicht
+    if (this.currentView === 'kdx-bereinigung') {
+      this.filterKdxRegalplaetze();
+    }
   }
   updateAvailablePriorities() {
     const priorities = new Set<number>();
@@ -336,16 +441,18 @@ export class LeitstandComponent implements OnInit, OnDestroy {
     this.searchTerm = '';
     this.selectedPriority = '';
     this.selectedStatus = '';
+    this.kdxReserviertFilter = '';
     this.filterAuftraege();
+    this.filterKdxRegalplaetze();
   }
 
-  navigateToView(view: 'kommi-auftraege' | 'einlagerungsauftraege' | 'inventur-aufgaben' | 'bestandskontrolle-aufgaben'): void {
+  navigateToView(view: 'kommi-auftraege' | 'einlagerungsauftraege' | 'inventur-aufgaben' | 'bestandskontrolle-aufgaben' | 'kdx-bereinigung'): void {
     this.currentView = view;
     this.currentPage = 1; // Reset auf Seite 1
 
     if (view === 'einlagerungsauftraege') {
       this.updatePagedFreeTasks();
-    } else if (view === 'kommi-auftraege' || view === 'inventur-aufgaben' || view === 'bestandskontrolle-aufgaben') {
+    } else if (view === 'kommi-auftraege' || view === 'inventur-aufgaben' || view === 'bestandskontrolle-aufgaben' || view === 'kdx-bereinigung') {
       this.updatePagedTasks();
     }
   }

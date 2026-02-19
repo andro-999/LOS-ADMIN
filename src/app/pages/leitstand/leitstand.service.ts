@@ -88,6 +88,41 @@ interface EinlagerungTasksResponse {
   tasks: { [key: string]: EinlagerungTaskRaw }[];
   task_count: number;
 }
+
+// KDX Boxen Interfaces
+export interface KdxRegalplatz {
+  rowNr: number;
+  columnNr: number;
+  width: number;
+  length: number;
+  besetzt: boolean;
+  gesperrt: boolean;
+  gewicht: number;
+  artikelnummer: string;
+  regalNr: string;
+  size: string;
+  releasing?: boolean;
+}
+
+export interface KdxBox {
+  rows: KdxRegalplatz[][];
+  lable: string;
+  boxNumber: string;
+  width: number;
+  length: number;
+  max_stroge_place: number;
+  gewicht: number;
+}
+
+export interface KdxBoxenResponse {
+  success: boolean;
+  boxen: KdxBox[];
+  box_count: number;
+}
+
+export interface KdxReleaseResponse {
+  success: boolean;
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -169,6 +204,20 @@ export class LeitstandService {
           } as EinlagerungTask;
         });
       })
+    );
+  }
+
+  getKdxBoxen(turmNr: number, tablarNr: number): Observable<KdxBoxenResponse> {
+    return this.http.get<KdxBoxenResponse>(
+      `${this.einlagerungUrl}/get_boxen?turmNr=${turmNr}&tablarNr=${tablarNr}`,
+      { headers: new HttpHeaders({ 'accept': '*/*' }) }
+    );
+  }
+
+  releaseKdxRegal(regalnummer: string): Observable<KdxReleaseResponse> {
+    return this.http.get<KdxReleaseResponse>(
+      `${this.einlagerungUrl}/release_regal?regalnummer=${regalnummer}`,
+      { headers: new HttpHeaders({ 'accept': '*/*' }) }
     );
   }
 }

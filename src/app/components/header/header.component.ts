@@ -12,5 +12,6 @@ import { CommonModule } from '@angular/common';
 export class HeaderComponent {
 
   @Input() showBackground = true;
+  @Input() pageTitle: string = '';
 
 }
