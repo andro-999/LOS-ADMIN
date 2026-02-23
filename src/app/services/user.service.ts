@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { map, catchError, tap } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export interface User {
   benutzer_id: string;
@@ -37,7 +38,7 @@ type BackendUser = Omit<User, 'isActive'> & { isActive: string };
 })
 export class UserService {
 
-  private readonly baseUrl = 'http://bsc-s-webserver.bsc-intern.de:8080';
+  private readonly baseUrl = environment.apiUrl;
   private readonly adminUsersUrl = `${this.baseUrl}/users/admin`;
   private readonly allUsersUrl = `${this.adminUsersUrl}/all_users`;
   private readonly addUserUrl = `${this.adminUsersUrl}/add_user`;

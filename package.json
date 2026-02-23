@@ -1,10 +1,13 @@
 {
   "name": "los-admin",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:prod": "ng serve --configuration production",
     "build": "ng build",
+    "build:dev": "ng build --configuration development --base-href /los-admin/ & explorer dist\\los-admin\\browser",
+    "build:prod": "ng build --configuration production --base-href /los-admin/ & explorer dist\\los-admin\\browser",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

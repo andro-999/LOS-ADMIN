@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
 interface DeletePartResponse {
   msg?: string;
@@ -127,9 +128,9 @@ export interface KdxReleaseResponse {
   providedIn: 'root'
 })
 export class LeitstandService {
-  private baseUrl = 'http://bsc-s-webserver.bsc-intern.de:8080/leitstand';
-  private sinBotUrl = 'http://bsc-s-webserver.bsc-intern.de:8080/single_bottle_kommi';
-  private einlagerungUrl = 'http://bsc-s-webserver.bsc-intern.de:8080/einlagerung_kdx';
+  private baseUrl = `${environment.apiUrl}/leitstand`;
+  private sinBotUrl = `${environment.apiUrl}/single_bottle_kommi`;
+  private einlagerungUrl = `${environment.apiUrl}/einlagerung_kdx`;
 
   constructor(private http: HttpClient) { }
 

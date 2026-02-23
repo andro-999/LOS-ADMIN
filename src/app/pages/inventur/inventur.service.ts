@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
 export interface CreateInventurSlotRequest {
     initiatorid: string;
@@ -91,7 +92,7 @@ export interface InventurResponse {
     providedIn: 'root'
 })
 export class InventurService {
-    private readonly baseUrl = 'http://bsc-s-webserver.bsc-intern.de:8080';
+    private readonly baseUrl = environment.apiUrl;
     private readonly kdxInventurUrl = `${this.baseUrl}/kdx_inventur/admin`;
     private readonly kdxInventurBaseUrl = `${this.baseUrl}/kdx_inventur`;
 

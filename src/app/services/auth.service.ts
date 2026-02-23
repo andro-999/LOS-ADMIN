@@ -5,6 +5,7 @@ import { from, Observable } from 'rxjs';
 import { Location } from '@angular/common';
 import { AuthServiceInterface, UserDetails, EditUserResponse } from '../services/auth.service.interface'; // Pfad ggf. anpassen
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 
 
@@ -76,6 +77,6 @@ export class AuthService implements CanActivate, AuthServiceInterface {
 
   // Jetzt kommt die echte login()-Methode, die vom Interface gefordert ist:
   login(user: UserDetails): Observable<EditUserResponse> {
-    return this.http.post<EditUserResponse>('http://bsc-s-webserver.bsc-intern.de:8080/users/get_permission', user);
+    return this.http.post<EditUserResponse>(`${environment.apiUrl}/users/get_permission`, user);
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface TestModusResponse {
     success: boolean;
@@ -11,7 +12,7 @@ export interface TestModusResponse {
     providedIn: 'root'
 })
 export class WartungService {
-    private readonly baseUrl = 'http://bsc-s-webserver.bsc-intern.de:8080/leitstand';
+    private readonly baseUrl = `${environment.apiUrl}/leitstand`;
 
     constructor(private http: HttpClient) { }
 
