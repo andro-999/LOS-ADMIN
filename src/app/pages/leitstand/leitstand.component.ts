@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { interval, Subscription } from 'rxjs';
+import { firstValueFrom, interval, Subscription } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 //import { LayoutComponent } from '../../components/layout/layout.component';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -16,6 +17,7 @@ import { NavigationService } from '../../services/navigation.service';
 import { InventurService, InventurTask } from '../inventur/inventur.service';
 import { BereichNavComponent, BereichNavItem } from '../../components/bereich-nav/bereich-nav.component';
 import { FusszeileComponent } from '../../components/fusszeile/fusszeile.component';
+import { environment } from '../../../environments/environment.prod';
 
 
 @Component({
@@ -104,7 +106,8 @@ export class LeitstandComponent implements OnInit, OnDestroy {
     public nachrichtenService: NachrichtenService,
     private leitstandService: LeitstandService,
     private navigationService: NavigationService,
-    private inventurService: InventurService
+    private inventurService: InventurService,
+    private http: HttpClient
   ) { }
 
   ngOnInit(): void {
@@ -157,11 +160,7 @@ export class LeitstandComponent implements OnInit, OnDestroy {
     }
   }
 
-  logout() {
-    localStorage.removeItem('username');
-    this.authService.logout();
-    this.router.navigate(['/login']);
-  }
+
 
   loadTasks(): void {
     console.log('loadTasks() wird aufgerufen');
@@ -509,9 +508,14 @@ export class LeitstandComponent implements OnInit, OnDestroy {
 
 
 
-  deleteAuftrag(auftragsnummer: string): void {
-    if (confirm(`Möchten Sie den Auftrag ${auftragsnummer} wirklich vollständig löschen?`)) {
-      this.leitstandService.deleteTask(auftragsnummer).subscribe({
+  deleteAuftrag(belegnummer?: string): void {
+    if (!belegnummer) {
+      console.error('Keine Belegnummer vorhanden');
+      return;
+    }
+
+    if (confirm(`Möchten Sie den Auftrag ${belegnummer} wirklich vollständig löschen?`)) {
+      this.leitstandService.deleteTask(belegnummer).subscribe({
         next: (response) => {
           if (response.success) {
             alert(response.msg || 'Auftrag erfolgreich gelöscht');
@@ -612,6 +616,7 @@ export class LeitstandComponent implements OnInit, OnDestroy {
 
     this.leitstandService.blockKommiTask(belegnummer).subscribe({
       next: (response) => {
+        console.log('Block Response:', response); // DEBUG
         if (response.success) {
           // Auftrag als blockiert markieren
           this.blockedAuftraege.add(belegnummer);
@@ -620,7 +625,8 @@ export class LeitstandComponent implements OnInit, OnDestroy {
         } else {
           // Fehler-Alert anzeigen
           const alertDiv = document.createElement('div');
-          alertDiv.textContent = 'Kann nicht blockiert werden';
+          const errorMsg = response.error || response.message || response.msg || 'Unbekannter Fehler';
+          alertDiv.textContent = `Kann nicht blockiert werden: ${errorMsg}`;
           alertDiv.style.cssText = `
             position: fixed;
             top: 50%;
@@ -645,7 +651,8 @@ export class LeitstandComponent implements OnInit, OnDestroy {
       error: (err) => {
         console.error('Fehler beim Blockieren:', err);
         const alertDiv = document.createElement('div');
-        alertDiv.textContent = 'Kann nicht blockiert werden';
+        const errorMsg = err.error?.error || err.error?.message || err.message || 'Unbekannter Fehler';
+        alertDiv.textContent = `Kann nicht blockiert werden: ${errorMsg}`;
         alertDiv.style.cssText = `
           position: fixed;
           top: 50%;

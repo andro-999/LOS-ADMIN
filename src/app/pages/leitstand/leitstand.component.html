@@ -136,7 +136,7 @@
                                     </button>
                                 </td>
                                 <td style="padding: 12px 8px 12px 48px; text-align: left;">
-                                    <button class="btn-delete" (click)="deleteAuftrag(auftrag.auftragsnummer)">
+                                    <button class="btn-delete" (click)="deleteAuftrag(auftrag.belegnummer)">
                                         <mat-icon>delete</mat-icon>
                                     </button>
                                 </td>
@@ -435,6 +435,6 @@
         </div>
     </div>
 
-    <app-fusszeile (hauptmenueClick)="navigateToHome()" (logoutClick)="logout()"></app-fusszeile>
+    <app-fusszeile></app-fusszeile>
 </div>
 <!--/app-layout-->

@@ -1,0 +1,183 @@
+<!-- 01100001 01101110 01100100 01110010 01101111 -->
+<div style="margin-left: 5%; width: 90%; height: 100vh; display: flex; flex-direction: column; overflow: hidden;">
+    <app-header pageTitle="Prozessmanager" style="flex-shrink: 0;"></app-header>
+    <!-- Navigation Buttons -->
+    <div class="navigation-buttons"
+        style="display: flex; margin-top: 20px; gap: 12px; flex-wrap: wrap; justify-content: space-between; flex-shrink: 0;">
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; flex: 1;">
+            <!-- Navigation Block -->
+            <app-nav-block [buttons]="navButtons"></app-nav-block>
+        </div>
+    </div>
+    <!-- Bereich-Navigation Links -->
+    <div style="margin-top: 40px; flex-shrink: 0;">
+        <app-bereich-nav [items]="bereichNavItems" [currentView]="currentView" [openDropdownId]="openDropdownId"
+            (viewChanged)="navigateToView($event)" (subViewChanged)="onSubViewChanged($event)">
+        </app-bereich-nav>
+    </div>
+
+    <div class="content-container"
+        style="flex: 1; overflow-y: auto; margin-top: 150px;  margin-right: 5%; display: flex; flex-direction: column;">
+        <!-- Admin Bereich (Standard) -->
+        <div *ngIf="currentView === 'admin'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">ADMIN</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">inventory</mat-icon>
+                <p style="margin-top: 16px; color: #667;">Admin-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+        <!-- Leer Bereich  >
+        <div *ngIf="currentView === 'leer'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">LEER</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">label</mat-icon>
+                <p style="margin-top: 16px; color: #667;">Leer-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+        
+        <div *ngIf="currentView === 'nachfuell'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">NACHFÜLL</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">broken_image</mat-icon>
+                <p style="color: #667;">Nachfüll-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+        
+        <div *ngIf="currentView === 'einlagern'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">EINLAGERN</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">inventory</mat-icon>
+                <p style="margin-top: 16px; color: #667;">Einlagern-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+       
+        <div *ngIf="currentView === 'umlagern'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">UMLAGERN</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">label</mat-icon>
+                <p style="margin-top: 16px; color: #667;">Umlagern-Funktionalität hier implementieren...</p>
+            </div>
+        </div-->
+        <!-- Vollpalette Bereich -->
+        <div *ngIf="currentView === 'vollpalette'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">VOLLPALLETTE</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">broken_image</mat-icon>
+                <p style="color: #667;">Vollpalette-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+        <!-- wareneingang Bereich  -->
+        <div *ngIf="currentView === 'wareneingang'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">WARENEINGANG</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">label</mat-icon>
+                <p style="margin-top: 16px; color: #667;">Wareneingang-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+        <!-- checken Bereich -->
+        <div *ngIf="currentView === 'checken'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">CHECKEN</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">broken_image</mat-icon>
+                <p style="color: #667;">Checken-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+        <!-- abschlußprüfung Bereich -->
+        <div *ngIf="currentView === 'abschlußprüfung'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">ABSCHLUßPRÜFUNG</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">inventory</mat-icon>
+                <p style="margin-top: 16px; color: #667;">Abschlußprüfung-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+        <!-- kommissionierung Bereich  -->
+        <div *ngIf="currentView === 'kommissionierung'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">KOMMISSIONIERUNG</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">label</mat-icon>
+                <p style="margin-top: 16px; color: #667;">Kommissionierung-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+        <!-- bestandkontrolle Bereich -->
+        <div *ngIf="currentView === 'bestandkontrolle'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">BESTANDKONTROLLE</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">broken_image</mat-icon>
+                <p style="color: #667;">Bestandkontrolle-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+        <!-- inventur Bereich -->
+        <div *ngIf="currentView === 'inventur'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">INVENTUR</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">inventory</mat-icon>
+                <p style="margin-top: 16px; color: #667;">Inventur-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+        <!-- einzelflaschen Bereich  -->
+        <div *ngIf="currentView === 'einzelflaschen'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">EINZELFLASCHEN</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">label</mat-icon>
+                <p style="margin-top: 16px; color: #667;">Einzelflaschen-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+        <!-- exakt-mengen Bereich -->
+        <div *ngIf="currentView === 'exakt-mengen'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">EXAKT-MENGEN</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">broken_image</mat-icon>
+                <p style="color: #667;">Exakt-Mengen-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+        <!-- rollkarte Bereich  -->
+        <div *ngIf="currentView === 'rollkarte'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">ROLLKARTE</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">label</mat-icon>
+                <p style="margin-top: 16px; color: #667;">Rollkarte-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+        <!-- bruchÜbersicht Bereich -->
+        <div *ngIf="currentView === 'bruchÜbersicht'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">BRUCHÜBERSICHT</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">broken_image</mat-icon>
+                <p style="color: #667;">Bruchübersicht-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+
+        <!-- Kardex Bereich >
+        <div *ngIf="currentView === 'kardexManagement'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">KARDEX MANAGEMENT</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">inventory</mat-icon>
+                <p style="margin-top: 16px; color: #667;">Kardex-Management-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+       
+        <div *ngIf="currentView === 'kardexEinlagerung'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">KARDEX EINLAGERUNG</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">label</mat-icon>
+                <p style="margin-top: 16px; color: #667;">Kardex-Einlagerung-Funktionalität hier implementieren...</p>
+            </div>
+        </div>
+       
+        <div *ngIf="currentView === 'kardexKommissionierung'" style="display: flex; flex-direction: column;">
+            <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600;">KARDEX KOMMISSIONIERUNG</h2>
+            <div style="border: 1px solid #ddd; border-radius: 4px; padding: 20px; background-color: #f9f9f9;">
+                <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #007bff;">local_shipping</mat-icon>
+                <p style="margin-top: 16px; color: #667;">Kardex-Kommissionierung-Funktionalität hier implementieren...
+                </p>
+            </div>
+        </div-->
+
+
+    </div>
+
+    <!-- Kardex-Einlagerung Modal -->
+    <app-kardex-einlagerung-modal *ngIf="showKardexEinlagerungModal" (close)="closeKardexEinlagerungModal()">
+    </app-kardex-einlagerung-modal>
+    <app-fusszeile></app-fusszeile>
+</div>

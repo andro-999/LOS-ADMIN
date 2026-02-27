@@ -1,30 +1,9 @@
-<!-- <app-sidebar></app-sidebar>
-<app-header></app-header>
-<div class="main-content">
+<!-- 01100001 01101110 01100100 01110010 01101111 -->
+<div style="margin-left: 5%; width: 90%; height: 100vh; display: flex; flex-direction: column; overflow: hidden;">
+    <app-header pageTitle="Hauptmenü" style="flex-shrink: 0;"></app-header>
+    <!-- Navigation Buttons -->
+    <!-- Navigation Block -->
+    <app-nav-block [buttons]="navButtons" style="margin-top: 40px;"></app-nav-block>
 
-    <div class="container ">
-        <div class="row">
-
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-
-                <button (click)="logout()" class="shadow-[0_0px_3px_0px_gray]" style="background: rgb(240, 233, 233); border: none; color: white;
- cursor: pointer; font-size: 18px;"> logout
-
-                </button>
-            </div>
-        </div>
-    </div>
-</div> -->
-
-<app-layout [showNav]="true" [bereichText]="'Home'">
-    <div class="home-content">
-        <h1>Willkommen auf der Startseite!</h1>
-        <p>Dies ist der Hauptbereich der Anwendung.</p>
-        <button (click)="logout()" class="shadow-[0_0px_3px_0px_gray]" style="background: rgb(240, 233, 233); border: none; color: white;
- cursor: pointer; font-size: 18px;"> logout
-
-        </button>
-    </div>
-</app-layout>
+    <app-fusszeile></app-fusszeile>
+</div>

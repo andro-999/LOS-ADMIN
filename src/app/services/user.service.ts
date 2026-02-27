@@ -66,17 +66,9 @@ export class UserService {
     );
   }
 
-  // neue Benutzer erstellen - ALTE METHODE (auskommentiert)
-  // createUser(user: User): Observable<User> {
-  //   return this.http.post<User>(this.adminUsersUrl, user).pipe(
-  //     catchError(err => {
-  //       console.error('Fehler beim Erstellen des Benutzers:', err);
-  //       return throwError(() => new Error('Benutzer konnte nicht erstellt werden.'));
-  //     })
-  //   );
-  // }
 
-  // Neue Benutzer erstellen mit korrektem Backend-Schema
+
+  // Neue Benutzer erstellen mit Backend-Schema
   createUser(userData: CreateUserRequest): Observable<any> {
     return this.http.post<any>(this.addUserUrl, userData, {
       headers: new HttpHeaders({

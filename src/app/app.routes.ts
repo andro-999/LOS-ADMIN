@@ -12,6 +12,7 @@ import { WartungComponent } from './pages/wartung/wartung.component';
 import { LeitstandComponent } from './pages/leitstand/leitstand.component';
 import { InventurComponent } from './pages/inventur/inventur.component';
 import { StellplatzverwaltungComponent } from './pages/stellplatzverwaltung/stellplatzverwaltung.component';
+import { ProzessmanagerComponent } from './pages/prozessmanager/prozessmanager.component';
 
 
 export const routes: Routes = [
@@ -19,7 +20,7 @@ export const routes: Routes = [
     { path: 'login', component: LoginComponent },
     //{ path: 'tracking', component: TrackingComponent, canActivate: [AuthService] },
     { path: 'konfiguration', component: KonfigurationComponent, canActivate: [AuthService] },
-    //{ path: 'paletten', component: PalettenComponent, canActivate: [AuthService] },
+    { path: 'prozessmanager', component: ProzessmanagerComponent, canActivate: [AuthService] },
     { path: 'home', component: HomeComponent },
     { path: 'benutzerverwaltung', component: BenutzerverwaltungComponent },
     { path: 'wartung', component: WartungComponent, canActivate: [AuthService] },

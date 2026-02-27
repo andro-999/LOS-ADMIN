@@ -2,12 +2,11 @@ import { Component } from '@angular/core';
 import { OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { NachrichtenService } from '../../services/nachrichten.service';
-import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { SidebarComponent } from '../../components/sidebar/sidebar.component';
 import { HeaderComponent } from '../../components/header/header.component';
-import { LayoutComponent } from '../../components/layout/layout.component';
+import { FusszeileComponent } from '../../components/fusszeile/fusszeile.component';
+import { NavBlockComponent, NavButton } from '../../components/nav-block/nav-block.component';
+import { NavigationService } from '../../services/navigation.service';
 
 
 @Component({
@@ -15,20 +14,29 @@ import { LayoutComponent } from '../../components/layout/layout.component';
   standalone: true,
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
-  imports: [CommonModule, LayoutComponent],
+  imports: [CommonModule, HeaderComponent, FusszeileComponent, NavBlockComponent],
 
 })
 export class HomeComponent implements OnInit {
 
-  constructor(public router: Router, private authService: AuthService, public nachrichtenService: NachrichtenService) { }
+  constructor(
+    public router: Router,
+    private authService: AuthService,
+    private navigationService: NavigationService
+  ) { }
 
-  zeigeNachrichten: boolean = false;
-  messages: string[] = ['Nachricht 1', 'Nachricht 2', 'Nachricht 3']; // Beispiel-Daten
+  navButtons: NavButton[] = [];
 
 
   ngOnInit(): void {
-    this.nachrichtenService.sichtbar$.subscribe(val => this.zeigeNachrichten = val);
     this.checkSession();
+    this.loadNavigation();
+  }
+
+  loadNavigation(): void {
+    this.navigationService.getNavButtons('/home').subscribe(
+      buttons => this.navButtons = buttons
+    );
   }
 
   checkSession(): void {
@@ -40,12 +48,5 @@ export class HomeComponent implements OnInit {
 
     }
 
-  }
-  logout() {
-    //localStorage.setItem('username', 'Peter')
-    //alert(this.username);
-    //localStorage.removeItem('username');
-    this.authService.logout();
-    this.router.navigate(['/login']);
   }
 }

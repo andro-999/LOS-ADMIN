@@ -1,0 +1,58 @@
+<div class="modal-backdrop" (click)="onBackdropClick($event)">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h2>Kardex-Einlagerung</h2>
+            <button class="close-btn" (click)="onClose()">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <div *ngIf="isLoading" class="loading-spinner">
+                Lädt...
+            </div>
+
+            <div *ngIf="!isLoading" class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;"></th>
+                            <th>Prozess</th>
+                            <th>Artikel</th>
+                            <th>Filiale Code</th>
+                            <th>Regal Nr.</th>
+                            <th>ausführende</th>
+                            <th>Initiator</th>
+                            <th>erstellt am</th>
+                            <th style="width: 40px;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let task of tasks">
+                            <td>
+                                <button class="action-btn" (click)="deleteTask(task.id)" title="Task beenden">
+                                    <mat-icon>remove</mat-icon>
+                                </button>
+                            </td>
+                            <td>{{ task.entry_number }}</td>
+                            <td>{{ task.artikelnummer}}</td>
+                            <td>{{task.abholort | slice:0:3 }}</td>
+                            <td>{{ task.abholort }}</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td style="background-color: #ffd700;width: 40px;"></td>
+                        </tr>
+                        <tr *ngIf="tasks.length === 0">
+                            <td colspan="5" class="no-data">Keine Daten vorhanden</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="onClose()">Schließen</button>
+        </div>
+    </div>
+</div>

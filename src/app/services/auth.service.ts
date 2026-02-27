@@ -1,7 +1,7 @@
 
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
-import { from, Observable } from 'rxjs';
+import { from, Observable, firstValueFrom } from 'rxjs';
 import { Location } from '@angular/common';
 import { AuthServiceInterface, UserDetails, EditUserResponse } from '../services/auth.service.interface'; // Pfad ggf. anpassen
 import { HttpClient } from '@angular/common/http';
@@ -64,12 +64,21 @@ export class AuthService implements CanActivate, AuthServiceInterface {
     }
   }
 
-  logout(): void {
+  async logout(): Promise<void> {
+    try {
+      const logoutUrl = `${environment.apiUrl}/logout`;
+      await firstValueFrom(this.http.get(logoutUrl));
+      console.log('Backend-Logout erfolgreich (JSESSIONID gelöscht)');
+    } catch (err) {
+      console.warn('Backend-Logout fehlgeschlagen:', err);
+    }
+
     this.username = null;
     localStorage.removeItem('username');
-    console.log('Logout aufgerufen');
     localStorage.removeItem('JSESSIONID');
     localStorage.removeItem('pageReloaded');
+    console.log('Logout aufgerufen');
+
     if (this.location.path() !== '/login') {
       this.router.navigate(['/login']);
     }

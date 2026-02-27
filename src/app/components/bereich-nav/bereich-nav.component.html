@@ -1,6 +1,16 @@
 <div class="bereich-nav">
-    <a *ngFor="let item of items" (click)="navigateToView(item.id)" class="bereich-nav-link"
-        [class.active]="currentView === item.id">
-        {{ item.label }}
-    </a>
+    <div *ngFor="let item of items" class="nav-item-wrapper">
+        <a (click)="navigateToView(item.id)" class="bereich-nav-link"
+            [class.active]="currentView === item.id || isSubItemActive(item)">
+            {{ item.label }}<span *ngIf="item.hasDropdown" class="dropdown-icon"> ▼</span>
+        </a>
+
+        <!-- Dropdown direkt unter dem Item -->
+        <div *ngIf="item.hasDropdown && item.subItems && openDropdownId === item.id" class="dropdown-menu">
+            <div *ngFor="let subItem of item.subItems" (click)="selectSubItem(subItem.id)" class="dropdown-item"
+                [class.active]="currentView === subItem.id">
+                {{ subItem.label }}
+            </div>
+        </div>
+    </div>
 </div>
