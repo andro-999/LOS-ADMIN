@@ -289,7 +289,7 @@ export class LeitstandComponent implements OnInit, OnDestroy {
         if (response.success) {
           // Update local state
           if (platz) {
-            platz.besetzt = false;
+            platz.gesperrt = false;
             platz.releasing = false;
           }
           this.filterKdxRegalplaetze();
@@ -305,7 +305,7 @@ export class LeitstandComponent implements OnInit, OnDestroy {
   }
 
   getReserviertCount(): number {
-    return this.kdxRegalplaetze.filter(p => p.besetzt).length;
+    return this.kdxRegalplaetze.filter(p => p.gesperrt).length;
   }
 
   filterKdxRegalplaetze(): void {
@@ -318,9 +318,9 @@ export class LeitstandComponent implements OnInit, OnDestroy {
       // Reserviert-Filter
       let reserviertMatch = true;
       if (this.kdxReserviertFilter === 'reserviert') {
-        reserviertMatch = platz.besetzt === true;
+        reserviertMatch = platz.gesperrt === true;
       } else if (this.kdxReserviertFilter === 'frei') {
-        reserviertMatch = platz.besetzt === false;
+        reserviertMatch = platz.gesperrt === false;
       }
 
       return textMatch && reserviertMatch;

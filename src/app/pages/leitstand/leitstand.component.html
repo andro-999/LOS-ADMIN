@@ -366,6 +366,7 @@
                             <tr style="border-bottom: 2px solid #ddd;">
                                 <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Nr.</th>
                                 <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Regalnummer</th>
+                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Besetzt</th>
                                 <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Reserviert</th>
                                 <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Freigeben</th>
                             </tr>
@@ -399,7 +400,12 @@
                                         style="color: #4caf50;">radio_button_unchecked</mat-icon>
                                 </td>
                                 <td style="padding: 12px 8px; text-align: left;">
-                                    <button *ngIf="platz.besetzt" (click)="releaseRegalplatz(platz.regalNr)"
+                                    <mat-icon *ngIf="platz.gesperrt" style="color: #f44336;">check_circle</mat-icon>
+                                    <mat-icon *ngIf="!platz.gesperrt"
+                                        style="color: #4caf50;">radio_button_unchecked</mat-icon>
+                                </td>
+                                <td style="padding: 12px 8px; text-align: left;">
+                                    <button *ngIf="platz.gesperrt" (click)="releaseRegalplatz(platz.regalNr)"
                                         [disabled]="platz.releasing"
                                         style="padding: 6px 12px; background-color: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
                                         [style.opacity]="platz.releasing ? '0.6' : '1'">
@@ -408,7 +414,7 @@
                                         </mat-icon>
                                         {{ platz.releasing ? 'Wird freigegeben...' : 'Freigeben' }}
                                     </button>
-                                    <span *ngIf="!platz.besetzt" style="color: #4caf50; font-weight: 500;">Frei</span>
+                                    <span *ngIf="!platz.gesperrt" style="color: #4caf50; font-weight: 500;">Frei</span>
                                 </td>
                             </tr>
                         </tbody>
