@@ -1,0 +1,63 @@
+<div class="einlagerung-container">
+    <h2>Einlagerungs Aufträge</h2>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nr.</th>
+                    <th>Entry-Nr.</th>
+                    <th>Artikel-Nr.</th>
+                    <th>Abholort</th>
+                    <th>Basis-Menge</th>
+                    <th>Lagerist</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngIf="isLoadingEinlagerung">
+                    <td colspan="6" class="loading-state">
+                        <mat-icon class="spin">sync</mat-icon>
+                        <h3>Lade Einlagerungs-Aufgaben...</h3>
+                    </td>
+                </tr>
+
+                <tr *ngIf="!isLoadingEinlagerung && einlagerungTasks.length === 0">
+                    <td colspan="6" class="empty-state">
+                        <mat-icon>inventory</mat-icon>
+                        <h3>Keine Einlagerungs-Aufgaben vorhanden</h3>
+                    </td>
+                </tr>
+
+                <tr *ngFor="let task of einlagerungTasks; let i = index" [class.even]="i % 2 === 0">
+                    <td>{{ i + 1 }}</td>
+                    <td class="entry-nr">{{ task.entry_number }}</td>
+                    <td class="artikel-nr">{{ task.artikelnummer }}</td>
+                    <td>{{ task.abholort }}</td>
+                    <td>{{ task.basis_menge }}</td>
+                    <td>
+                        <select [ngModel]="task.lagerist || ''" (ngModelChange)="assignLagerist(task, $event)"
+                            class="lagerist-select">
+                            <option value="">Auswählen</option>
+                            <option *ngIf="task.lagerist && !isLageristInList(task.lagerist)" [ngValue]="task.lagerist"
+                                class="inactive">
+                                {{ task.lagerist }} (inaktiv)
+                            </option>
+                            <option *ngFor="let user of availableLageristen" [ngValue]="user.benutzer_id"
+                                [class.inactive]="!user.isActive">
+                                {{ user.benutzer_id + (!user.isActive ? ' (inaktiv)' : '') }}
+                            </option>
+                        </select>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="info-row">
+        <span>Gesamt: {{ einlagerungTasks.length }} Einlagerungs-Aufgaben</span>
+        <button (click)="loadEinlagerungTasks()" class="btn-refresh">
+            <mat-icon>refresh</mat-icon>
+            Aktualisieren
+        </button>
+    </div>
+</div>

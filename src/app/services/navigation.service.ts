@@ -1,10 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { UserService } from './user.service';
-import { LeitstandService } from '../pages/leitstand/leitstand.service';
-import { InventurService } from '../pages/inventur/inventur.service';
-import { AuthService } from './auth.service';
 import { NavButton } from '../components/nav-block/nav-block.component';
 
 @Injectable({
@@ -16,47 +12,27 @@ export class NavigationService {
     private adminCount$ = new BehaviorSubject<number>(0);
     private inventurCount$ = new BehaviorSubject<number>(0);
 
-    constructor(
-        private userService: UserService,
-        private leitstandService: LeitstandService,
-        private inventurService: InventurService,
-        private authService: AuthService
-    ) {
-        this.loadCounts();
+    constructor() {
+        // Alle Counts werden von den Komponenten aktualisiert - keine API-Calls hier
     }
 
-    loadCounts(): void {
-        // Lade Aufträge
-        this.leitstandService.getAuftraege('KOMM').subscribe({
-            next: (data) => {
-                this.auftraegeCount$.next(data.length);
-                console.log('NavigationService: Aufträge geladen:', data.length);
-            },
-            error: (err) => console.error('NavigationService: Fehler beim Laden der Aufträge:', err)
-        });
+    // Wird vom Leitstand aufgerufen - KEIN eigener API-Call
+    updateAuftraegeCount(count: number): void {
+        this.auftraegeCount$.next(count);
+        console.log('NavigationService: Aufträge-Count aktualisiert:', count);
+    }
 
-        // Lade Benutzer
-        this.userService.getUsers().subscribe({
-            next: (data) => {
-                this.usersCount$.next(data.length);
-                const adminCount = data.filter(user => user.rolle && user.rolle.toLowerCase().includes('admin')).length;
-                this.adminCount$.next(adminCount);
-                console.log('NavigationService: Benutzer geladen:', data.length, 'Admins:', adminCount);
-            },
-            error: (err) => console.error('NavigationService: Fehler beim Laden der Benutzer:', err)
-        });
+    // Wird vom Inventur aufgerufen - KEIN eigener API-Call
+    updateInventurCount(count: number): void {
+        this.inventurCount$.next(count);
+        console.log('NavigationService: Inventur-Count aktualisiert:', count);
+    }
 
-        // Lade Inventur-Aufgaben
-        const userid = this.authService.getUsername() || '';
-        if (userid) {
-            this.inventurService.getAllTasks(userid).subscribe({
-                next: (data) => {
-                    this.inventurCount$.next(data.length);
-                    console.log('NavigationService: Inventur-Aufgaben geladen:', data.length);
-                },
-                error: (err) => console.error('NavigationService: Fehler beim Laden der Inventur-Aufgaben:', err)
-            });
-        }
+    // Wird vom Leitstand aufgerufen - KEIN eigener API-Call
+    updateUserCounts(totalUsers: number, adminCount: number): void {
+        this.usersCount$.next(totalUsers);
+        this.adminCount$.next(adminCount);
+        console.log('NavigationService: User-Count aktualisiert:', totalUsers, 'Admins:', adminCount);
     }
 
     getNavButtons(currentRoute: string): Observable<NavButton[]> {
@@ -135,6 +111,7 @@ export class NavigationService {
     }
 
     refreshCounts(): void {
-        this.loadCounts();
+        // Alle Counts werden von den Komponenten aktualisiert - keine API-Calls hier
+        console.log('NavigationService: refreshCounts() - Counts werden von Komponenten aktualisiert');
     }
 }

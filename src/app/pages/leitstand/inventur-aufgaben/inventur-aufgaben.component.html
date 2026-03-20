@@ -1,0 +1,58 @@
+<div class="inventur-container">
+    <h2>Inventur Aufgaben</h2>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nr.</th>
+                    <th>Prozess-ID</th>
+                    <th>Regalbereich</th>
+                    <th>Lager</th>
+                    <th>Status</th>
+                    <th>Initiator</th>
+                    <th>Bearbeiter</th>
+                    <th>Erstellt am</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngIf="isLoadingInventur">
+                    <td colspan="8" class="loading-state">
+                        <mat-icon class="spin">sync</mat-icon>
+                        <h3>Lade Inventur-Aufgaben...</h3>
+                    </td>
+                </tr>
+
+                <tr *ngIf="!isLoadingInventur && inventurTasks.length === 0">
+                    <td colspan="8" class="empty-state">
+                        <mat-icon>inventory_2</mat-icon>
+                        <h3>Keine Inventur-Aufgaben vorhanden</h3>
+                    </td>
+                </tr>
+
+                <tr *ngFor="let task of inventurTasks; let i = index" [class.even]="i % 2 === 0">
+                    <td>{{ i + 1 }}</td>
+                    <td class="pid">{{ task.pid }}</td>
+                    <td class="regal-area">{{ task.variables.regalArea || '-' }}</td>
+                    <td>{{ task.variables.fCode || '-' }}</td>
+                    <td>
+                        <span class="status-badge" [class.active]="task.pstate === 'active'">
+                            {{ task.pstate === 'active' ? 'Aktiv' : task.pstate }}
+                        </span>
+                    </td>
+                    <td>{{ task.variables.initiatorUserId || '-' }}</td>
+                    <td>{{ task.variables.executorUserId || '-' }}</td>
+                    <td>{{ (task.variables.createdAt || '-') | date:'yyyy-MM-dd HH:mm' }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="info-row">
+        <span>Gesamt: {{ inventurTasks.length }} Inventur-Aufgaben</span>
+        <!--button (click)="loadInventurTasks()" class="btn-refresh">
+            <mat-icon>refresh</mat-icon>
+            Aktualisieren
+        </button-->
+    </div>
+</div>

@@ -1,0 +1,72 @@
+<div class="quickpick-container">
+    <h2>Quickpick Logs</h2>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nr.</th>
+                    <th class="sortable" (click)="sortBy('belegnummer')">
+                        Auftrags Nr.
+                        <mat-icon *ngIf="sortColumn === 'belegnummer'" class="sort-icon">
+                            {{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                        </mat-icon>
+                    </th>
+                    <th class="sortable" (click)="sortBy('artikelnummer')">
+                        ArtikelNr.
+                        <mat-icon *ngIf="sortColumn === 'artikelnummer'" class="sort-icon">
+                            {{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                        </mat-icon>
+                    </th>
+                    <th class="sortable" (click)="sortBy('beschreibung')">
+                        Artikel Name
+                        <mat-icon *ngIf="sortColumn === 'beschreibung'" class="sort-icon">
+                            {{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                        </mat-icon>
+                    </th>
+                    <th class="sortable" (click)="sortBy('menge')">
+                        Menge
+                        <mat-icon *ngIf="sortColumn === 'menge'" class="sort-icon">
+                            {{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                        </mat-icon>
+                    </th>
+                    <th>Quickpick</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngIf="isLoading">
+                    <td colspan="6" class="loading-state">
+                        <mat-icon class="spin">sync</mat-icon>
+                        <h3>Lade Quickpick-Logs...</h3>
+                    </td>
+                </tr>
+
+                <tr *ngIf="!isLoading && quickpickLogs.length === 0">
+                    <td colspan="6" class="empty-state">
+                        <mat-icon>list_alt</mat-icon>
+                        <h3>Keine Quickpick-Logs vorhanden</h3>
+                    </td>
+                </tr>
+
+                <tr *ngFor="let log of quickpickLogs; let i = index" [class.even]="i % 2 === 0">
+                    <td>{{ i + 1 }}</td>
+                    <td class="belegnummer">{{ log.belegnummer }}</td>
+                    <td class="artikelnummer">{{ log.artikelnummer }}</td>
+                    <td>{{ log.beschreibung }}</td>
+                    <td class="menge">{{ log.menge }}</td>
+                    <td class="quickpick-status">
+                        <mat-icon class="check-icon">check_circle</mat-icon>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="info-row">
+        <span>Gesamt: {{ quickpickLogs.length }} Logs</span>
+        <!--button (click)="loadLogs()" class="btn-refresh">
+            <mat-icon>refresh</mat-icon>
+            Aktualisieren
+        </button-->
+    </div>
+</div>

@@ -1,0 +1,33 @@
+<div class="column-settings-container">
+    <!-- Toggle Button -->
+    <button class="settings-button" (click)="togglePanel()" [class.active]="showPanel" title="Spalten ein-/ausblenden">
+        <mat-icon>view_column</mat-icon>
+        <span>Spalten ein-/ausblenden ({{ getVisibleCount() }}/{{ columns.length }})</span>
+    </button>
+
+    <!-- Reset Button -->
+    <button class="reset-button" (click)="resetColumns()" title="Spaltenreihenfolge zurücksetzen">
+        <mat-icon>restart_alt</mat-icon>
+        <span>Spaltenreihenfolge zurücksetzen</span>
+    </button>
+
+    <!-- Dropdown Panel -->
+    <div class="settings-panel" *ngIf="showPanel" (click)="$event.stopPropagation()">
+        <div class="panel-header">
+            <span>Sichtbare Spalten</span>
+            <div class="quick-actions">
+                <button (click)="showAll()" title="Alle anzeigen">Alle</button>
+                <button (click)="hideAll()" title="Alle ausblenden">Keine</button>
+            </div>
+        </div>
+
+        <div class="panel-content">
+            <label *ngFor="let col of columns" class="column-item" [class.disabled]="!col.visible">
+                <input type="checkbox" [checked]="col.visible" (change)="toggleVisibility(col)">
+                <span class="column-label">{{ col.label }}</span>
+                <mat-icon class="visibility-icon" *ngIf="col.visible">visibility</mat-icon>
+                <mat-icon class="visibility-icon hidden" *ngIf="!col.visible">visibility_off</mat-icon>
+            </label>
+        </div>
+    </div>
+</div>

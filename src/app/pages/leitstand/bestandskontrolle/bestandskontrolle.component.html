@@ -1,0 +1,16 @@
+<div class="bestandskontrolle-container">
+    <h2>Bestandskontrolle Aufgaben</h2>
+
+    <div class="empty-state" *ngIf="bestandskontrolleTasks.length === 0">
+        <mat-icon>inventory_2</mat-icon>
+        <h3>Keine Bestandskontrolle-Aufgaben vorhanden</h3>
+    </div>
+
+    <div class="info-row">
+        <span>Gesamt: {{ bestandskontrolleTasks.length }} Bestandskontrolle-Aufgaben</span>
+        <!--button (click)="loadTasks()" class="btn-refresh">
+            <mat-icon>refresh</mat-icon>
+            Aktualisieren
+        </button-->
+    </div>
+</div>

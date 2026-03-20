@@ -1,0 +1,238 @@
+<div class="kommi-auftraege-container">
+    <div class="header-row">
+        <h2>Kommi Aufträge</h2>
+        <app-column-settings [columns]="kommiColumns" [storageKey]="'kommiColumnSettings'"
+            (columnsChange)="onColumnsChange($event)" (reset)="resetColumnOrder()">
+        </app-column-settings>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="dropColumn($event)">
+                <tr>
+                    <ng-container *ngFor="let col of kommiColumns">
+                        <th *ngIf="col.visible" [attr.data-col]="col.id" cdkDrag class="draggable-header"
+                            [style.width]="col.width" [style.min-width]="col.width" [style.max-width]="col.width">
+                            <div class="drag-handle">{{ col.label }}</div>
+                        </th>
+                    </ng-container>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngIf="filteredAuftraege.length === 0 && searchTerm">
+                    <td [attr.colspan]="kommiColumns.length" class="empty-state">
+                        <mat-icon>search_off</mat-icon>
+                        <h3>Keine Aufträge gefunden für "{{ searchTerm }}"</h3>
+                    </td>
+                </tr>
+                <tr *ngIf="filteredAuftraege.length === 0 && !searchTerm">
+                    <td [attr.colspan]="kommiColumns.length" class="empty-state">
+                        <h3>Keine Aufträge gefunden</h3>
+                    </td>
+                </tr>
+
+                <ng-container *ngFor="let auftrag of filteredAuftraege; let i = index">
+                    <tr [class.expanded]="isAuftragExpanded(auftrag)" [class.selected]="selectedRowIndex === i"
+                        [class.even]="i % 2 === 0" (click)="selectRow(i)">
+                        <ng-container *ngFor="let col of kommiColumns">
+                            <!-- Nr. -->
+                            <td *ngIf="col.id === 'nr' && col.visible">{{ i + 1 }}</td>
+
+                            <!-- Source Nr. -->
+                            <td *ngIf="col.id === 'auftragsnummer' && col.visible">
+                                {{ auftrag.auftragsnummer || '---------' }}
+                            </td>
+
+                            <!-- Document Nr. -->
+                            <td *ngIf="col.id === 'belegnummer' && col.visible" class="belegnummer">
+                                <a (click)="toggleAuftragExpand(auftrag, $event)" class="expand-link">
+                                    <mat-icon class="expand-icon">
+                                        {{ isAuftragExpanded(auftrag) ? 'expand_less' : 'expand_more' }}
+                                    </mat-icon>
+                                    {{ auftrag.belegnummer }}
+                                </a>
+                            </td>
+
+                            <!-- Tour Nummer -->
+                            <td *ngIf="col.id === 'tournummer' && col.visible">{{ auftrag.tourcode || '-' }}</td>
+
+                            <!-- Brutto Gewicht -->
+                            <td *ngIf="col.id === 'bruttogewicht' && col.visible">
+                                {{ auftrag.bruttoGewicht ? auftrag.bruttoGewicht + ' kg' : '-' }}
+                            </td>
+
+                            <!-- Lieferdatum -->
+                            <td *ngIf="col.id === 'lieferdatum' && col.visible">
+                                {{ auftrag.lieferdatum | date:'dd.MM.yyyy' }}
+                            </td>
+
+                            <!-- Menge -->
+                            <td *ngIf="col.id === 'menge' && col.visible">{{ getAuftragMenge(auftrag) }}</td>
+
+                            <!-- Pick Menge -->
+                            <td *ngIf="col.id === 'pickMenge' && col.visible"
+                                [style.color]="getAuftragPickMenge(auftrag) === getAuftragMenge(auftrag) ? 'green' : 'red'">
+                                {{ getAuftragPickMenge(auftrag) }}
+                            </td>
+
+                            <!-- Debitor -->
+                            <td *ngIf="col.id === 'debitor' && col.visible">{{ auftrag.liefer_an_name }}</td>
+
+                            <!-- Palettenanzahl -->
+                            <td *ngIf="col.id === 'palettenanzahl' && col.visible">{{ getPalettenAnzahl(auftrag) }}</td>
+
+                            <!-- Packhilfen -->
+                            <td *ngIf="col.id === 'packhilfen' && col.visible">{{ getPackhilfenAnzahl(auftrag) }}</td>
+
+                            <!-- Nachschub -->
+                            <td *ngIf="col.id === 'nachschub' && col.visible">{{ getPackhilfenAnzahl(auftrag) }}</td>
+
+                            <!-- Staplerkomm -->
+                            <td *ngIf="col.id === 'staplerkomm' && col.visible">{{ getPackhilfenAnzahl(auftrag) }}</td>
+
+                            <!-- Status -->
+                            <td *ngIf="col.id === 'status' && col.visible" [style.width]="col.width">
+                                <mat-icon *ngIf="isAuftragErledigt(auftrag)"
+                                    style="color: #4caf50;">check_box</mat-icon>
+                                <mat-icon *ngIf="isAuftragGestartet(auftrag) && !isAuftragErledigt(auftrag)"
+                                    style="color: #ff9800;">indeterminate_check_box</mat-icon>
+                                <mat-icon *ngIf="!isAuftragGestartet(auftrag) && !isAuftragErledigt(auftrag)"
+                                    style="color: #9e9e9e;">check_box_outline_blank</mat-icon>
+                            </td>
+
+                            <!-- Priorität -->
+                            <td *ngIf="col.id === 'prioritaet' && col.visible" [style.width]="col.width">
+                                <select (change)="changePrio(auftrag, +$any($event.target).value)" class="prio-select">
+                                    <option *ngFor="let prio of prioOptions" [value]="prio"
+                                        [selected]="prio === auftrag.prioritaet">{{ prio }}</option>
+                                </select>
+                            </td>
+
+                            <!-- Löschen -->
+                            <td *ngIf="col.id === 'loeschen' && col.visible" [style.width]="col.width">
+                                <button class="btn-delete" (click)="deleteAuftrag(auftrag.belegnummer)">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </td>
+
+                            <!-- Blockieren -->
+                            <td *ngIf="col.id === 'blockieren' && col.visible" [style.width]="col.width">
+                                <button *ngIf="!isAuftragBlocked(auftrag)" (click)="blockAuftrag(auftrag)"
+                                    class="btn-block">
+                                    Blockieren
+                                </button>
+                                <button *ngIf="isAuftragBlocked(auftrag)" (click)="unblockAuftrag(auftrag)"
+                                    class="btn-unblock">
+                                    Freigeben
+                                </button>
+                            </td>
+
+                            <!-- Lagerist -->
+                            <td *ngIf="col.id === 'lagerist' && col.visible" [style.width]="col.width">
+                                <span *ngIf="isAuftragErledigt(auftrag)" class="lagerist-text">
+                                    {{ auftrag.lagerist || '-' }}
+                                </span>
+                                <select *ngIf="!isAuftragErledigt(auftrag)" [ngModel]="auftrag.lagerist || ''"
+                                    (ngModelChange)="assignLagerist(auftrag.belegnummer, $event)"
+                                    class="lagerist-select">
+                                    <option value="">Auswählen</option>
+                                    <option *ngIf="auftrag.lagerist && !isLageristInList(auftrag.lagerist)"
+                                        [ngValue]="auftrag.lagerist" class="inactive">
+                                        {{ auftrag.lagerist }} (inaktiv)
+                                    </option>
+                                    <option *ngFor="let user of availableLageristen" [ngValue]="user.benutzer_id"
+                                        [class.inactive]="!user.isActive">
+                                        {{ user.benutzer_id + (!user.isActive ? ' (inaktiv)' : '') }}
+                                    </option>
+                                </select>
+                            </td>
+                        </ng-container>
+                    </tr>
+
+                    <!-- Aufklappbare Detail-Zeile -->
+                    <tr *ngIf="isAuftragExpanded(auftrag)" class="detail-row">
+                        <td [attr.colspan]="visibleColumnsCount">
+                            <div class="detail-content">
+                                <div class="detail-header">
+                                    <span class="detail-title">Positionen - {{ auftrag.belegnummer }}</span>
+                                    <span class="detail-progress">
+                                        Fortschritt: <span
+                                            [style.color]="getAFS(auftrag).percent === 100 ? 'green' : '#ff9800'">{{
+                                            getAFS(auftrag).percent }}%</span>
+                                    </span>
+                                    <button (click)="toggleDetailLevel()" class="btn-toggle-detail">
+                                        <mat-icon>{{ expandedLevel === 2 ? 'unfold_less' : 'unfold_more' }}</mat-icon>
+                                        {{ expandedLevel === 2 ? 'Weniger Details' : 'Mehr Details' }}
+                                    </button>
+                                </div>
+
+                                <!-- Level 1: Gruppierte Positionen -->
+                                <table *ngIf="expandedLevel === 1" class="detail-table level-1">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 100px;">ArtikelNr.</th>
+                                            <th>Beschreibung</th>
+                                            <th style="width: 100px;">MHD</th>
+                                            <th style="width: 80px;">Menge</th>
+                                            <th style="width: 100px;">zu Liefern</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let pos of getGroupedPositions(auftrag); let j = index"
+                                            [class.even]="j % 2 === 0">
+                                            <td>{{ pos.artikelnummer || '-' }}</td>
+                                            <td>{{ pos.beschreibung }} {{ pos.zusatz_beschreibung }}</td>
+                                            <td>{{ pos.chargennummer || '-' }}</td>
+                                            <td>{{ pos.menge_rueck || 0 }}</td>
+                                            <td>{{ pos.zu_liefern || 0 }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- Level 2: Vollständige Details -->
+                                <table *ngIf="expandedLevel === 2" class="detail-table level-2">
+                                    <thead>
+                                        <tr>
+                                            <th>Beleg Nr.</th>
+                                            <th>ArtikelNr.</th>
+                                            <th>Beschreibung</th>
+                                            <th>Lagerist</th>
+                                            <th>Regalnummer</th>
+                                            <th>Filialcode</th>
+                                            <th>Start Rück</th>
+                                            <th>Ende Rück</th>
+                                            <th>Menge Rück</th>
+                                            <th>Lagerist Rück</th>
+                                            <th title="Position Fortschritt">P/F</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let pos of auftrag.positionen; let j = index"
+                                            [class.even]="j % 2 === 0">
+                                            <td>{{ pos.belegnummer || '-' }}</td>
+                                            <td>{{ pos.artikelnummer || '-' }}</td>
+                                            <td>{{ pos.beschreibung || '-' }}</td>
+                                            <td>{{ pos.lagerist || '-' }}</td>
+                                            <td>{{ pos.regalnummer || '-' }}</td>
+                                            <td>{{ pos.filialcode || '-' }}</td>
+                                            <td>{{ $any(pos).start_rueck || '-' }}</td>
+                                            <td>{{ $any(pos).end_rueck || '-' }}</td>
+                                            <td>{{ pos.menge_rueck || 0 }}</td>
+                                            <td>{{ pos.lagerist_rueck || '-' }}</td>
+                                            <td class="progress-cell">
+                                                <span
+                                                    [style.color]="getPositionFortschritt(pos) === '100%' ? '#4caf50' : '#ff9800'">
+                                                    {{ getPositionFortschritt(pos) }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-container>
+            </tbody>
+        </table>
+    </div>
+</div>

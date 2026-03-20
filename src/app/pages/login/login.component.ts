@@ -84,12 +84,12 @@ export class LoginComponent implements OnInit, AfterViewInit {
     }
   }
 
-  checkSession(): void {
-    const jsessionid = localStorage.getItem('JSESSIONID')
-    if (!jsessionid)
-      this.authentificationService.logout()
-    //throw new Error('Method not implemented.');
-  }
+  // checkSession(): void {
+  //   const jsessionid = localStorage.getItem('JSESSIONID')
+  //   if (!jsessionid)
+  //     this.authentificationService.logout()
+  //   //throw new Error('Method not implemented.');
+  // }
 
   login(): void {
     console.log('Login-Methode aufgerufen');

@@ -1,0 +1,136 @@
+.einlagerung-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+
+  h2 {
+    margin-bottom: 16px;
+    font-size: 24px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+}
+
+.table-container {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  min-height: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    tr {
+      border-bottom: 2px solid #ddd;
+    }
+
+    th {
+      padding: 12px 8px;
+      text-align: left;
+      font-weight: 600;
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid #eee;
+
+      &.even {
+        background-color: #fafafa;
+      }
+    }
+
+    td {
+      padding: 12px 8px;
+      text-align: left;
+    }
+  }
+}
+
+.entry-nr {
+  font-weight: 500;
+}
+
+.artikel-nr {
+  font-weight: 500;
+  color: #0da2bd;
+}
+
+.loading-state,
+.empty-state {
+  padding: 32px;
+  text-align: center;
+  color: #666;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.info-row {
+  margin-top: 12px;
+  padding-bottom: 12px;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.btn-refresh {
+  margin-left: 16px;
+  padding: 6px 12px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.lagerist-select {
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  min-width: 120px;
+
+  &:focus {
+    outline: none;
+    border-color: #007bff;
+  }
+
+  option.inactive {
+    color: #999;
+  }
+}

@@ -1,0 +1,84 @@
+<div class="kdx-bereinigung-container">
+    <h2>KDX Bereinigung Aufgaben</h2>
+
+    <div class="input-row">
+        <div class="input-group">
+            <label>Turmnummer</label>
+            <input type="number" [(ngModel)]="kdxTurmNr" placeholder="z.B. 3" />
+        </div>
+        <div class="input-group">
+            <label>Tablar Nummer</label>
+            <input type="number" [(ngModel)]="kdxTablarNr" placeholder="z.B. 1" />
+        </div>
+        <button (click)="loadKdxBoxen()" class="btn-search">
+            <mat-icon>search</mat-icon>
+            Suchen
+        </button>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nr.</th>
+                    <th>Regalnummer</th>
+                    <th>Besetzt</th>
+                    <th>Reserviert</th>
+                    <th>Freigeben</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngIf="isLoadingKdxBoxen">
+                    <td colspan="5" class="loading-state">
+                        <mat-icon class="spin">sync</mat-icon>
+                        <h3>Lade KDX Boxen...</h3>
+                    </td>
+                </tr>
+
+                <tr *ngIf="!isLoadingKdxBoxen && filteredKdxRegalplaetze.length === 0">
+                    <td colspan="5" class="empty-state">
+                        <mat-icon>inventory_2</mat-icon>
+                        <h3>Keine Regalplätze gefunden. Bitte Turm- und Tablarnummer eingeben.</h3>
+                    </td>
+                </tr>
+
+                <tr *ngFor="let platz of filteredKdxRegalplaetze; let i = index" [class.even]="i % 2 === 0">
+                    <td>{{ i + 1 }}</td>
+                    <td class="regal-nr">{{ platz.regalNr }}</td>
+                    <td>
+                        <mat-icon *ngIf="platz.besetzt" class="status-occupied">check_circle</mat-icon>
+                        <mat-icon *ngIf="!platz.besetzt" class="status-free">radio_button_unchecked</mat-icon>
+                    </td>
+                    <td>
+                        <mat-icon *ngIf="platz.gesperrt" class="status-occupied">check_circle</mat-icon>
+                        <mat-icon *ngIf="!platz.gesperrt" class="status-free">radio_button_unchecked</mat-icon>
+                    </td>
+                    <td>
+                        <button *ngIf="platz.gesperrt" (click)="releaseRegalplatz(platz.regalNr)"
+                            [disabled]="platz.releasing" class="btn-release" [class.releasing]="platz.releasing">
+                            <mat-icon>{{ platz.releasing ? 'sync' : 'lock_open' }}</mat-icon>
+                            {{ platz.releasing ? 'Wird freigegeben...' : 'Freigeben' }}
+                        </button>
+                        <span *ngIf="!platz.gesperrt" class="free-label">Frei</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="info-row">
+        <span *ngIf="searchTerm || kdxReserviertFilter">
+            {{ filteredKdxRegalplaetze.length }} von {{ kdxRegalplaetze.length }} Regalplätzen
+        </span>
+        <span *ngIf="!searchTerm && !kdxReserviertFilter">
+            Gesamt: {{ kdxRegalplaetze.length }} Regalplätze
+        </span>
+        <span *ngIf="kdxRegalplaetze.length > 0" class="reserved-count">
+            ({{ getReserviertCount() }} reserviert)
+        </span>
+        <!--button (click)="loadKdxBoxen()" class="btn-refresh">
+            <mat-icon>refresh</mat-icon>
+            Aktualisieren
+        </button-->
+    </div>
+</div>
