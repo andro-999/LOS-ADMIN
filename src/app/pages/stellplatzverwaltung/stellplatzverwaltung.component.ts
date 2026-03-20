@@ -11,6 +11,8 @@ import { NavButton, NavBlockComponent } from '../../components/nav-block/nav-blo
 import { SlotService } from '../../services/api/slot.service';
 import { Slot, SlotSearchCriteria, CreateSlotRequest, EditSlotRequest } from '../../services/api/slot.interface';
 import { Subject, takeUntil, debounceTime } from 'rxjs';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export interface StellplatzFilter {
   regalNr: string;
@@ -23,6 +25,10 @@ export interface StellplatzFilter {
   breite: string;
   tiefe: string;
   nve: string;
+  createdBy: string;
+  createdAt: string;
+  updatedBy: string;
+  updatedAt: string;
   gesamtmenge: string;
   menge: string;
   einheit: string;
@@ -33,6 +39,12 @@ export interface StellplatzFilter {
   hochProzent: string;
   bestellartikelplatz: string;
   paletten: string;
+}
+
+export interface ColumnConfig {
+  key: string;
+  label: string;
+  visible: boolean;
 }
 
 @Component({
@@ -65,6 +77,10 @@ export class StellplatzverwaltungComponent implements OnInit, OnDestroy {
     breite: '',
     tiefe: '',
     nve: '',
+    createdBy: '',
+    createdAt: '',
+    updatedBy: '',
+    updatedAt: '',
     gesamtmenge: '',
     menge: '',
     einheit: '',
@@ -97,10 +113,39 @@ export class StellplatzverwaltungComponent implements OnInit, OnDestroy {
   showDeleteConfirm: boolean = false;
   showAddModal: boolean = false;
   showEditModal: boolean = false;
+  showColumnModal: boolean = false;
   slotToDelete: Slot | null = null;
   slotToEdit: Slot | null = null;
   newSlot: CreateSlotRequest = this.getEmptySlot();
   editSlot: EditSlotRequest = this.getEmptyEditSlot();
+
+  // Spalten-Konfiguration
+  columns: ColumnConfig[] = [
+    { key: 'regalnummer', label: 'Regal-Nr.', visible: true },
+    { key: 'filialcode', label: 'Filial Code', visible: true },
+    { key: 'artikelnummer', label: 'Artikel-Nr.', visible: true },
+    { key: 'vintageyear', label: 'Jahrgang', visible: true },
+    { key: 'charge', label: 'Charge', visible: true },
+    { key: 'ist_kommiplatz', label: 'K-Platz', visible: true },
+    { key: 'height', label: 'Höhe mm', visible: true },
+    { key: 'width', label: 'Breite mm', visible: true },
+    { key: 'depth', label: 'Tiefe mm', visible: true },
+    { key: 'nve', label: 'NVE', visible: true },
+    { key: 'createdby', label: 'Erstellt von', visible: true },
+    { key: 'createdat', label: 'Erstellt am', visible: true },
+    { key: 'updatedby', label: 'Aktualisiert von', visible: true },
+    { key: 'updatedat', label: 'Aktualisiert am', visible: true },
+    { key: 'amountbase', label: 'Gesamtmenge', visible: true },
+    { key: 'amount', label: 'Menge', visible: true },
+    { key: 'unit', label: 'Einheit', visible: true },
+    { key: 'amountunit', label: 'Menge/Einheit', visible: true },
+    { key: 'tax', label: 'Steuer', visible: true },
+    { key: 'locked', label: 'Gesperrt', visible: true },
+    { key: '_bio', label: 'Bio', visible: true },
+    { key: 'liquor', label: 'Hochprozentig', visible: true },
+    { key: 'orderarticle', label: 'Bestellartikelplatz', visible: true },
+    { key: 'pals', label: 'Paletten', visible: true }
+  ];
 
   constructor(
     private router: Router,
@@ -112,6 +157,7 @@ export class StellplatzverwaltungComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadNavigation();
     this.setupFilterDebounce();
+    this.loadColumnSettings();
     this.loadSlots();
   }
 
@@ -232,6 +278,10 @@ export class StellplatzverwaltungComponent implements OnInit, OnDestroy {
       breite: '',
       tiefe: '',
       nve: '',
+      createdBy: '',
+      createdAt: '',
+      updatedBy: '',
+      updatedAt: '',
       gesamtmenge: '',
       menge: '',
       einheit: '',
@@ -515,5 +565,171 @@ export class StellplatzverwaltungComponent implements OnInit, OnDestroy {
         alert('Fehler beim Aktualisieren: ' + errorMsg);
       }
     });
+  }
+
+  /**
+   * Exportiert die gefilterten Stellplätze als CSV-Datei
+   */
+  downloadCsv(): void {
+    if (this.allFilteredSlots.length === 0) {
+      alert('Keine Daten zum Exportieren vorhanden');
+      return;
+    }
+
+    const headers = [
+      'Regal-Nr.', 'Filial Code', 'Artikel-Nr.', 'Jahrgang', 'Charge',
+      'K-Platz', 'Höhe mm', 'Breite mm', 'Tiefe mm', 'NVE',
+      'Ges.Menge', 'Menge', 'Einheit', 'M/E', 'Steuer',
+      'Gesperrt', 'Bio', 'Hoch%', 'BAP', 'Paletten'
+    ];
+
+    const rows = this.allFilteredSlots.map(slot => [
+      slot.regalnummer,
+      slot.filialcode,
+      slot.artikelnummer,
+      slot.vintageyear,
+      slot.charge,
+      slot.ist_kommiplatz ? 'Ja' : 'Nein',
+      slot.height,
+      slot.width,
+      slot.depth,
+      slot.nve,
+      slot.amountbase,
+      slot.amount,
+      slot.unit,
+      slot.amountunit,
+      slot.tax ? 'Ja' : 'Nein',
+      slot.locked ? 'Ja' : 'Nein',
+      slot._bio ? 'Ja' : 'Nein',
+      slot.liquor ? 'Ja' : 'Nein',
+      slot.orderarticle ? 'Ja' : 'Nein',
+      slot.pals
+    ]);
+
+    // CSV mit BOM für Excel-Kompatibilität (UTF-8)
+    // Alle Daten in einer Spalte mit Semikolon als sichtbarem Trennzeichen
+    const bom = '\uFEFF';
+    const csvContent = bom + [
+      `"${headers.join(';')}"`,
+      ...rows.map(row => `"${row.map(cell => cell ?? '').join(';')}"`)
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `stellplaetze_${this.selectedFilialCode}_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    window.URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Exportiert die gefilterten Stellplätze als PDF-Datei
+   */
+  downloadPdf(): void {
+    if (this.allFilteredSlots.length === 0) {
+      alert('Keine Daten zum Exportieren vorhanden');
+      return;
+    }
+
+    const doc = new jsPDF('landscape', 'mm', 'a4');
+
+    // Titel
+    doc.setFontSize(16);
+    doc.text(`Stellplatzverwaltung - ${this.selectedFilialCode}`, 14, 15);
+    doc.setFontSize(10);
+    doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 14, 22);
+    doc.text(`Anzahl Einträge: ${this.allFilteredSlots.length}`, 14, 27);
+
+    const headers = [
+      'Regal-Nr.', 'Filial', 'Artikel-Nr.', 'Jahrgang', 'Charge',
+      'K-P', 'Höhe', 'Breite', 'Tiefe', 'NVE',
+      'Ges.M', 'Menge', 'Einheit', 'M/E', 'St',
+      'Gesp', 'Bio', 'H%', 'BAP', 'Pal'
+    ];
+
+    const rows = this.allFilteredSlots.map(slot => [
+      slot.regalnummer,
+      slot.filialcode,
+      slot.artikelnummer,
+      slot.vintageyear,
+      slot.charge,
+      slot.ist_kommiplatz ? 'Ja' : 'Nein',
+      slot.height,
+      slot.width,
+      slot.depth,
+      slot.nve,
+      slot.amountbase,
+      slot.amount,
+      slot.unit,
+      slot.amountunit,
+      slot.tax ? 'Ja' : 'Nein',
+      slot.locked ? 'Ja' : 'Nein',
+      slot._bio ? 'Ja' : 'Nein',
+      slot.liquor ? 'Ja' : 'Nein',
+      slot.orderarticle ? 'Ja' : 'Nein',
+      slot.pals
+    ]);
+
+    autoTable(doc, {
+      head: [headers],
+      body: rows,
+      startY: 32,
+      styles: { fontSize: 7, cellPadding: 1 },
+      headStyles: { fillColor: [22, 131, 150], textColor: 255 },
+      alternateRowStyles: { fillColor: [245, 245, 245] }
+    });
+
+    doc.save(`stellplaetze_${this.selectedFilialCode}_${new Date().toISOString().slice(0, 10)}.pdf`);
+  }
+
+  // ========== Spalten-Sichtbarkeit ==========
+
+  private readonly COLUMN_SETTINGS_KEY = 'stellplatzverwaltung_column_settings';
+
+  private loadColumnSettings(): void {
+    try {
+      const saved = localStorage.getItem(this.COLUMN_SETTINGS_KEY);
+      if (saved) {
+        const savedVisibility: { [key: string]: boolean } = JSON.parse(saved);
+        this.columns.forEach(col => {
+          if (savedVisibility.hasOwnProperty(col.key)) {
+            col.visible = savedVisibility[col.key];
+          }
+        });
+      }
+    } catch (e) {
+      console.warn('Fehler beim Laden der Spalteneinstellungen:', e);
+    }
+  }
+
+  saveColumnSettings(): void {
+    try {
+      const visibility: { [key: string]: boolean } = {};
+      this.columns.forEach(col => {
+        visibility[col.key] = col.visible;
+      });
+      localStorage.setItem(this.COLUMN_SETTINGS_KEY, JSON.stringify(visibility));
+    } catch (e) {
+      console.warn('Fehler beim Speichern der Spalteneinstellungen:', e);
+    }
+  }
+
+  openColumnModal(): void {
+    this.showColumnModal = true;
+  }
+
+  closeColumnModal(): void {
+    this.showColumnModal = false;
+  }
+
+  isColumnVisible(key: string): boolean {
+    const col = this.columns.find(c => c.key === key);
+    return col ? col.visible : true;
+  }
+
+  toggleAllColumns(visible: boolean): void {
+    this.columns.forEach(col => col.visible = visible);
+    this.saveColumnSettings();
   }
 }

@@ -1,446 +1,90 @@
-<!-- 01100001 01101110 01100100 01110010 01101111 -->
-<div style="margin-left: 5%; width: 90%; height: 100vh; display: flex; flex-direction: column; overflow: hidden;">
-    <app-header pageTitle="LEITSTAND" style="flex-shrink: 0;"></app-header>
-    <!-- Navigation Buttons -->
-    <div class="navigation-buttons"
-        style="display: flex; margin-top: 20px; gap: 12px; flex-wrap: wrap; justify-content: space-between; flex-shrink: 0;">
-        <div style="display: flex; gap: 12px; flex-wrap: wrap; flex: 1;">
+<!-- 0110000101101110011001000111001001101111 -->
+<div class="leitstand-container">
+    <app-header pageTitle="LEITSTAND"></app-header>
 
-            <!-- Navigation Block -->
+    <!-- Navigation Buttons -->
+    <div class="navigation-buttons">
+        <div class="nav-block-container">
             <app-nav-block [buttons]="navButtons" [showSearch]="true" [(searchTerm)]="searchTerm"
                 [(selectedPriority)]="selectedPriority" [(selectedStatus)]="selectedStatus"
-                [availablePriorities]="availablePriorities" (filterChanged)="filterAuftraege()"
-                (refreshClicked)="loadTasks()" (clearFilters)="clearFilters()">
+                [availablePriorities]="availablePriorities" (filterChanged)="onFilterChanged()"
+                (refreshClicked)="refreshCurrentView()" (clearFilters)="clearFilters()">
             </app-nav-block>
-
         </div>
 
-        <!-- Suchfeld -->
-        <div style="display: flex; align-items: center; gap: 8px; min-width: 300px;">
-            <mat-icon style="color: #666;">search</mat-icon>
-            <input type="text" [(ngModel)]="searchTerm" (input)="filterAuftraege()" placeholder="Suchen..."
-                style="flex: 1; padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;" />
-            <select [(ngModel)]="selectedPriority" (change)="filterAuftraege()"
-                style="padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; cursor: pointer; min-width: 120px;"
-                [style.display]="currentView === 'kdx-bereinigung' ? 'none' : 'block'">
+        <!-- Suchfeld nur für Kommi Aufträge -->
+        <div class="search-container" *ngIf="currentView === 'kommi-auftraege' || currentView === 'kdx-bereinigung'">
+            <mat-icon class="search-icon">search</mat-icon>
+            <input type="text" [(ngModel)]="searchTerm" (input)="onFilterChanged()" placeholder="Suchen..."
+                class="search-input" />
+
+            <select *ngIf="currentView === 'kommi-auftraege'" [(ngModel)]="selectedPriority"
+                (change)="onFilterChanged()" class="filter-select">
                 <option value="">Alle Prio</option>
                 <option *ngFor="let prio of availablePriorities" [value]="prio">Prio {{ prio }}</option>
             </select>
-            <select [(ngModel)]="selectedStatus" (change)="filterAuftraege()"
-                style="padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; cursor: pointer; min-width: 120px;"
-                [style.display]="currentView === 'kdx-bereinigung' ? 'none' : 'block'">
+
+            <select *ngIf="currentView === 'kommi-auftraege'" [(ngModel)]="selectedStatus" (change)="onFilterChanged()"
+                class="filter-select">
                 <option value="">Alle Status</option>
                 <option value="offen">Offen</option>
                 <option value="gestartet">Gestartet</option>
                 <option value="erledigt">Erledigt</option>
             </select>
+
             <!-- KDX Reserviert Filter -->
             <select *ngIf="currentView === 'kdx-bereinigung'" [(ngModel)]="kdxReserviertFilter"
-                (change)="filterKdxRegalplaetze()"
-                style="padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; cursor: pointer; min-width: 140px;">
+                (change)="onKdxFilterChanged()" class="filter-select kdx-filter">
                 <option value="">Alle Plätze</option>
                 <option value="reserviert">Nur Reserviert</option>
                 <option value="frei">Nur Frei</option>
             </select>
-            <button (click)="loadTasks()"
-                style="padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center;"
-                title="Liste aktualisieren">
+
+            <button (click)="refreshCurrentView()" class="btn-refresh" title="Liste aktualisieren">
                 <mat-icon>refresh</mat-icon>
             </button>
+
             <button *ngIf="searchTerm || selectedPriority || selectedStatus || kdxReserviertFilter"
-                (click)="clearFilters()" style="padding: 10px; background: none; border: none; cursor: pointer;">
-                <mat-icon style="color: #999;">close</mat-icon>
+                (click)="clearFilters()" class="btn-clear">
+                <mat-icon>close</mat-icon>
             </button>
         </div>
     </div>
 
-
-    <div class="content-container mt-6" style="flex: 1; overflow: hidden; display: flex; flex-direction: column;">
-        <div class="main-content"
-            style="flex: 1; margin-top: 30px; overflow: hidden; display: flex; flex-direction: column;">
+    <div class="content-container">
+        <div class="main-content">
             <app-bereich-nav [items]="bereichNavItems" [currentView]="currentView"
-                (viewChanged)="navigateToView($any($event))" style="flex-shrink: 0;">
+                (viewChanged)="navigateToView($any($event))">
             </app-bereich-nav>
-            <!-- Kommi Aufträge Bereich (Standard) -->
-            <div *ngIf="currentView === 'kommi-auftraege'"
-                style="flex: 1; margin-top: 60px; display: flex; flex-direction: column; overflow: hidden;">
-                <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600; flex-shrink: 0;">Kommi Aufträge</h2>
 
-                <div style="flex: 1; overflow-y: auto; border: 1px solid #eee; border-radius: 4px; min-height: 0;">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead
-                            style="position: sticky; top: 0; background: white; z-index: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                            <tr style="border-bottom: 2px solid #ddd;">
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600; ">Nr.</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Document Nr.</th>
-                                <!--th style="padding: 12px 8px; text-align: left; font-weight: 600;">Kunde </th-->
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Source Nr.</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Lieferdatum</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Erledigt</th>
-                                <th style="padding: 12px 4px; text-align: left; font-weight: 600; width: 60px;">
-                                    Priorität</th>
-                                <th
-                                    style="padding: 12px 48px 12px 4px; text-align: left; font-weight: 600; width: 90px;">
-                                    Prio
-                                    ändern</th>
-                                <th style="padding: 12px 8px 12px 48px; text-align: left; font-weight: 600;">Löschen
-                                </th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600; width: 5%;">Blockieren
-                                </th>
-                                <!--th style="padding: 12px 8px; text-align: left; font-weight: 600; width: 5%;">
-                                    KommFortschritt %</th-->
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngIf="filteredAuftraege.length === 0 && searchTerm">
-                                <td colspan="11" style="padding: 32px; text-align: center; color: #666;">
-                                    <mat-icon style="font-size: 48px; width: 48px; height: 48px;">search_off</mat-icon>
-                                    <h3>Keine Aufträge gefunden für "{{ searchTerm }}"</h3>
-                                </td>
-                            </tr>
-                            <tr *ngIf="filteredAuftraege.length === 0 && !searchTerm">
-                                <td colspan="11" style="padding: 32px; text-align: center; color: #666;">
-                                    <h3>Keine Aufträge gefunden</h3>
-                                </td>
-                            </tr>
-                            <tr *ngFor="let auftrag of filteredAuftraege; let i = index"
-                                style="border-bottom: 1px solid #eee;"
-                                [style.background-color]="i % 2 === 0 ? '#fafafa' : 'white'">
-                                <td style="padding: 12px 8px;text-align: left;">{{ i + 1 }}</td>
-                                <td style="padding: 12px 8px;text-align: left; font-weight: 500;">{{
-                                    auftrag.belegnummer }}</td>
-                                <!--td style="padding: 12px 8px;text-align: left; font-weight: 500;">{{
-                                    auftrag.kunde }}</td-->
-                                <td style="padding: 12px 8px;text-align: left;">{{auftrag.auftragsnummer || '---------'
-                                    }}
-                                </td>
-                                <td style="padding: 12px 8px;text-align: left;">{{ auftrag.lieferdatum |
-                                    date:'yyyy-MM-dd' }}</td>
-                                <td style="padding: 12px 8px; text-align: left;">
-                                    <mat-icon *ngIf="isAuftragErledigt(auftrag)"
-                                        style="color: #4caf50;">check_box</mat-icon>
+            <!-- Kommi Aufträge -->
+            <app-kommi-auftraege *ngIf="currentView === 'kommi-auftraege'" #kommiComponent [searchTerm]="searchTerm"
+                [selectedPriority]="selectedPriority" [selectedStatus]="selectedStatus"
+                (auftraegeCountChanged)="onAuftraegeCountChanged($event)">
+            </app-kommi-auftraege>
 
-                                    <mat-icon *ngIf="isAuftragGestartet(auftrag) && !isAuftragErledigt(auftrag)"
-                                        style="color: #ff9800;">indeterminate_check_box</mat-icon>
+            <!-- Einlagerungs Aufträge -->
+            <app-einlagerung-auftraege *ngIf="currentView === 'einlagerungsauftraege'" #einlagerungComponent>
+            </app-einlagerung-auftraege>
 
-                                    <mat-icon *ngIf="!isAuftragGestartet(auftrag) && !isAuftragErledigt(auftrag)"
-                                        style="color: #9e9e9e;">check_box_outline_blank</mat-icon>
-                                </td>
-                                <td style="padding: 12px 4px; text-align: left; width: 60px;">{{ auftrag.prioritaet }}
-                                </td>
-                                <td style="padding: 12px 24px 12px 4px; text-align: left; width: 90px;">
-                                    <button class="btn-edit" (click)="changePrio(auftrag)"
-                                        style="padding: 6px 12px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                                        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">edit</mat-icon>
-                                        Ändern
-                                    </button>
-                                </td>
-                                <td style="padding: 12px 8px 12px 48px; text-align: left;">
-                                    <button class="btn-delete" (click)="deleteAuftrag(auftrag.belegnummer)">
-                                        <mat-icon>delete</mat-icon>
-                                    </button>
-                                </td>
-                                <td style="padding: 12px 8px;text-align: left;">
-                                    <button *ngIf="!isAuftragBlocked(auftrag.belegnummer)"
-                                        (click)="blockAuftrag(auftrag.belegnummer)"
-                                        style="background-color: #ff9800; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
-                                        Blockieren
-                                    </button>
-                                    <span *ngIf="isAuftragBlocked(auftrag.belegnummer)"
-                                        style="color: #9e9e9e; font-weight: bold;">
-                                        BLOCKIERT
-                                    </span>
-                                </td>
-                                <!--td style="padding: 12px 8px;text-align: left;">
-                                    <span [style.color]="getStatusColor(auftrag.status)">{{ auftrag.status }}</span>
-                                </td-->
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <!-- Inventur Aufgaben -->
+            <app-inventur-aufgaben *ngIf="currentView === 'inventur-aufgaben'" #inventurComponent>
+            </app-inventur-aufgaben>
 
-                <!-- Info-Zeile -->
-                <div style="margin-top: 12px; padding-bottom: 12px; color: #666; flex-shrink: 0;">
-                    <span *ngIf="searchTerm">{{ filteredAuftraege.length }} von {{ auftraege.length }} Aufträgen</span>
-                    <span *ngIf="!searchTerm">Gesamt: {{ auftraege.length }} Aufträge</span>
-                    <button (click)="loadTasks()"
-                        style="margin-left: 16px; padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">refresh</mat-icon>
-                        Aktualisieren
-                    </button>
-                </div>
-            </div>
+            <!-- Bestandskontrolle Aufgaben -->
+            <app-bestandskontrolle *ngIf="currentView === 'bestandskontrolle-aufgaben'" #bestandskontrolleComponent>
+            </app-bestandskontrolle>
 
-            <!-- Einlagerungs Aufträge Bereich -->
-            <div *ngIf="currentView === 'einlagerungsauftraege'"
-                style="flex: 1; display: flex; margin-top: 60px; flex-direction: column; overflow: hidden;">
-                <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600; flex-shrink: 0;">Einlagerungs
-                    Aufträge</h2>
+            <!-- KDX Bereinigung -->
+            <app-kdx-bereinigung *ngIf="currentView === 'kdx-bereinigung'" #kdxComponent [searchTerm]="searchTerm"
+                [kdxReserviertFilter]="kdxReserviertFilter">
+            </app-kdx-bereinigung>
 
-                <div style="flex: 1; overflow-y: auto; border: 1px solid #eee; border-radius: 4px; min-height: 0;">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead
-                            style="position: sticky; top: 0; background: white; z-index: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                            <tr style="border-bottom: 2px solid #ddd;">
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Nr.</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Entry-Nr.</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Artikel-Nr.</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Abholort</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Basis-Menge</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Loading State -->
-                            <tr *ngIf="isLoadingEinlagerung">
-                                <td colspan="5" style="padding: 32px; text-align: center; color: #666;">
-                                    <mat-icon
-                                        style="font-size: 48px; width: 48px; height: 48px; animation: spin 1s linear infinite;">sync</mat-icon>
-                                    <h3>Lade Einlagerungs-Aufgaben...</h3>
-                                </td>
-                            </tr>
-                            <!-- Keine Daten -->
-                            <tr *ngIf="!isLoadingEinlagerung && einlagerungTasks.length === 0">
-                                <td colspan="5" style="padding: 32px; text-align: center; color: #666;">
-                                    <mat-icon style="font-size: 48px; width: 48px; height: 48px;">inventory</mat-icon>
-                                    <h3>Keine Einlagerungs-Aufgaben vorhanden</h3>
-                                </td>
-                            </tr>
-                            <!-- Daten-Zeilen -->
-                            <tr *ngFor="let task of einlagerungTasks; let i = index"
-                                style="border-bottom: 1px solid #eee;"
-                                [style.background-color]="i % 2 === 0 ? '#fafafa' : 'white'">
-                                <td style="padding: 12px 8px; text-align: left;">{{ i + 1 }}</td>
-                                <td style="padding: 12px 8px; text-align: left; font-weight: 500;">{{ task.entry_number
-                                    }}</td>
-                                <td style="padding: 12px 8px; text-align: left; font-weight: 500; color: #0da2bd;">{{
-                                    task.artikelnummer }}</td>
-                                <td style="padding: 12px 8px; text-align: left;">{{ task.abholort }}</td>
-                                <td style="padding: 12px 8px; text-align: left;">{{ task.basis_menge }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Info-Zeile -->
-                <div style="margin-top: 12px; padding-bottom: 12px; color: #666; flex-shrink: 0;">
-                    <span>Gesamt: {{ einlagerungTasks.length }} Einlagerungs-Aufgaben</span>
-                    <button (click)="loadEinlagerungTasks()"
-                        style="margin-left: 16px; padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">refresh</mat-icon>
-                        Aktualisieren
-                    </button>
-                </div>
-            </div>
-
-
-
-
-
-
-            <!-- Inventur Aufgaben Bereich -->
-            <div *ngIf="currentView === 'inventur-aufgaben'"
-                style="flex: 1; display: flex; margin-top: 60px; flex-direction: column; overflow: hidden;">
-                <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600; flex-shrink: 0;">Inventur Aufgaben
-                </h2>
-
-                <div style="flex: 1; overflow-y: auto; border: 1px solid #eee; border-radius: 4px; min-height: 0;">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead
-                            style="position: sticky; top: 0; background: white; z-index: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                            <tr style="border-bottom: 2px solid #ddd;">
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Nr.</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Prozess-ID</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Regalbereich</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Lager</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Status</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Initiator</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Bearbeiter</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Erstellt am</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Loading State -->
-                            <tr *ngIf="isLoadingInventur">
-                                <td colspan="8" style="padding: 32px; text-align: center; color: #666;">
-                                    <mat-icon
-                                        style="font-size: 48px; width: 48px; height: 48px; animation: spin 1s linear infinite;">sync</mat-icon>
-                                    <h3>Lade Inventur-Aufgaben...</h3>
-                                </td>
-                            </tr>
-                            <!-- Keine Daten -->
-                            <tr *ngIf="!isLoadingInventur && inventurTasks.length === 0">
-                                <td colspan="8" style="padding: 32px; text-align: center; color: #666;">
-                                    <mat-icon style="font-size: 48px; width: 48px; height: 48px;">inventory_2</mat-icon>
-                                    <h3>Keine Inventur-Aufgaben vorhanden</h3>
-                                </td>
-                            </tr>
-                            <!-- Daten-Zeilen -->
-                            <tr *ngFor="let task of inventurTasks; let i = index" style="border-bottom: 1px solid #eee;"
-                                [style.background-color]="i % 2 === 0 ? '#fafafa' : 'white'">
-                                <td style="padding: 12px 8px; text-align: left;">{{ i + 1 }}</td>
-                                <td style="padding: 12px 8px; text-align: left; font-weight: 500;">{{ task.pid }}</td>
-                                <td style="padding: 12px 8px; text-align: left; font-weight: 500; color: #0da2bd;">{{
-                                    task.variables.regalArea || '-' }}</td>
-                                <td style="padding: 12px 8px; text-align: left;">{{ task.variables.fCode || '-' }}</td>
-                                <td style="padding: 12px 8px; text-align: left;">
-                                    <span [style.background-color]="task.pstate === 'active' ? '#e8f5e9' : '#fff3e0'"
-                                        [style.color]="task.pstate === 'active' ? '#2e7d32' : '#f57c00'"
-                                        style="padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 500;">
-                                        {{ task.pstate === 'active' ? 'Aktiv' : task.pstate }}
-                                    </span>
-                                </td>
-                                <td style="padding: 12px 8px; text-align: left;">{{ task.variables.initiatorUserId ||
-                                    '-' }}</td>
-                                <td style="padding: 12px 8px; text-align: left;">{{ task.variables.executorUserId || '-'
-                                    }}</td>
-                                <td style="padding: 12px 8px; text-align: left;">{{ (task.variables.createdAt || '-') |
-                                    date:'yyyy-MM-dd HH:mm' }}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Info-Zeile -->
-                <div style="margin-top: 12px; padding-bottom: 12px; color: #666; flex-shrink: 0;">
-                    <span>Gesamt: {{ inventurTasks.length }} Inventur-Aufgaben</span>
-                    <button (click)="loadInventurTasks()"
-                        style="margin-left: 16px; padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">refresh</mat-icon>
-                        Aktualisieren
-                    </button>
-                </div>
-            </div>
-
-            <!-- Bestandskontrolle Aufgaben Bereich -->
-            <div *ngIf="currentView === 'bestandskontrolle-aufgaben'"
-                style="flex: 1; display: flex; margin-top: 60px; flex-direction: column; overflow: hidden;">
-                <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600; flex-shrink: 0;">Bestandskontrolle
-                    Aufgaben
-                </h2>
-
-                <!-- Info-Zeile -->
-                <div style="margin-top: 12px; padding-bottom: 12px; color: #666; flex-shrink: 0;">
-                    <span>Gesamt: {{ bestandskontrolleTasks.length }} Bestandskontrolle-Aufgaben</span>
-                    <button (click)="loadBestandskontrolleTasks()"
-                        style="margin-left: 16px; padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">refresh</mat-icon>
-                        Aktualisieren
-                    </button>
-                </div>
-            </div>
-
-
-
-            <!-- KDX Bereinigung Aufgaben Bereich -->
-            <div *ngIf="currentView === 'kdx-bereinigung'"
-                style="flex: 1; display: flex; margin-top: 60px; flex-direction: column; overflow: hidden;">
-                <h2 style="margin-bottom: 16px; font-size: 24px; font-weight: 600; flex-shrink: 0;">KDX Bereinigung
-                    Aufgaben
-                </h2>
-
-                <!-- Eingabefelder -->
-                <div style="display: flex; gap: 16px; margin-bottom: 16px; flex-shrink: 0; align-items: flex-end;">
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <label style="font-size: 14px; font-weight: 500; color: #333;">Turmnummer</label>
-                        <input type="number" [(ngModel)]="kdxTurmNr" placeholder="z.B. 3"
-                            style="padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; width: 120px;" />
-                    </div>
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <label style="font-size: 14px; font-weight: 500; color: #333;">Tablar Nummer</label>
-                        <input type="number" [(ngModel)]="kdxTablarNr" placeholder="z.B. 1"
-                            style="padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; width: 120px;" />
-                    </div>
-                    <button (click)="loadKdxBoxen()"
-                        style="padding: 10px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; height: 42px;">
-                        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">search</mat-icon>
-                        Suchen
-                    </button>
-                </div>
-
-                <!-- Tabelle -->
-                <div style="flex: 1; overflow-y: auto; border: 1px solid #eee; border-radius: 4px; min-height: 0;">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead
-                            style="position: sticky; top: 0; background: white; z-index: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                            <tr style="border-bottom: 2px solid #ddd;">
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Nr.</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Regalnummer</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Besetzt</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Reserviert</th>
-                                <th style="padding: 12px 8px; text-align: left; font-weight: 600;">Freigeben</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Loading State -->
-                            <tr *ngIf="isLoadingKdxBoxen">
-                                <td colspan="4" style="padding: 32px; text-align: center; color: #666;">
-                                    <mat-icon
-                                        style="font-size: 48px; width: 48px; height: 48px; animation: spin 1s linear infinite;">sync</mat-icon>
-                                    <h3>Lade KDX Boxen...</h3>
-                                </td>
-                            </tr>
-                            <!-- Keine Daten -->
-                            <tr *ngIf="!isLoadingKdxBoxen && filteredKdxRegalplaetze.length === 0">
-                                <td colspan="4" style="padding: 32px; text-align: center; color: #666;">
-                                    <mat-icon style="font-size: 48px; width: 48px; height: 48px;">inventory_2</mat-icon>
-                                    <h3>Keine Regalplätze gefunden. Bitte Turm- und Tablarnummer eingeben.</h3>
-                                </td>
-                            </tr>
-                            <!-- Daten-Zeilen -->
-                            <tr *ngFor="let platz of filteredKdxRegalplaetze; let i = index"
-                                style="border-bottom: 1px solid #eee;"
-                                [style.background-color]="i % 2 === 0 ? '#fafafa' : 'white'">
-                                <td style="padding: 12px 8px; text-align: left;">{{ i + 1 }}</td>
-                                <td style="padding: 12px 8px; text-align: left; font-weight: 500;">{{ platz.regalNr }}
-                                </td>
-                                <td style="padding: 12px 8px; text-align: left;">
-                                    <mat-icon *ngIf="platz.besetzt" style="color: #f44336;">check_circle</mat-icon>
-                                    <mat-icon *ngIf="!platz.besetzt"
-                                        style="color: #4caf50;">radio_button_unchecked</mat-icon>
-                                </td>
-                                <td style="padding: 12px 8px; text-align: left;">
-                                    <mat-icon *ngIf="platz.gesperrt" style="color: #f44336;">check_circle</mat-icon>
-                                    <mat-icon *ngIf="!platz.gesperrt"
-                                        style="color: #4caf50;">radio_button_unchecked</mat-icon>
-                                </td>
-                                <td style="padding: 12px 8px; text-align: left;">
-                                    <button *ngIf="platz.gesperrt" (click)="releaseRegalplatz(platz.regalNr)"
-                                        [disabled]="platz.releasing"
-                                        style="padding: 6px 12px; background-color: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
-                                        [style.opacity]="platz.releasing ? '0.6' : '1'">
-                                        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">
-                                            {{ platz.releasing ? 'sync' : 'lock_open' }}
-                                        </mat-icon>
-                                        {{ platz.releasing ? 'Wird freigegeben...' : 'Freigeben' }}
-                                    </button>
-                                    <span *ngIf="!platz.gesperrt" style="color: #4caf50; font-weight: 500;">Frei</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Info-Zeile -->
-                <div style="margin-top: 12px; padding-bottom: 12px; color: #666; flex-shrink: 0;">
-                    <span *ngIf="searchTerm || kdxReserviertFilter">{{ filteredKdxRegalplaetze.length }} von {{
-                        kdxRegalplaetze.length }} Regalplätzen</span>
-                    <span *ngIf="!searchTerm && !kdxReserviertFilter">Gesamt: {{ kdxRegalplaetze.length }}
-                        Regalplätze</span>
-                    <span *ngIf="kdxRegalplaetze.length > 0" style="margin-left: 16px;">
-                        ({{ getReserviertCount() }} reserviert)
-                    </span>
-                    <button (click)="loadKdxBoxen()"
-                        style="margin-left: 16px; padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
-                        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">refresh</mat-icon>
-                        Aktualisieren
-                    </button>
-                </div>
-            </div>
-
+            <!-- Quickpick Logs -->
+            <app-quickpick-logs *ngIf="currentView === 'quickpick-logs'" #quickpickComponent>
+            </app-quickpick-logs>
         </div>
     </div>
 
     <app-fusszeile></app-fusszeile>
 </div>
-<!--/app-layout-->

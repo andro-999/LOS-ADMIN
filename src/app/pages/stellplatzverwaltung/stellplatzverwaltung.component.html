@@ -26,16 +26,16 @@
                 </div>
             </div>
             <div class="right-controls">
-                <button class="icon-btn" title="Spalten ein / ausblenden">
+                <button class="icon-btn" title="Spalten ein / ausblenden" (click)="openColumnModal()">
                     <mat-icon>view_column</mat-icon>
                 </button>
                 <button class="icon-btn" title="Anwender Filter">
                     <mat-icon>filter_alt</mat-icon>
                 </button>
-                <button class="icon-btn" title="CSV Datei herunterladen">
+                <button class="icon-btn" title="CSV Datei herunterladen" (click)="downloadCsv()">
                     <mat-icon>description</mat-icon>
                 </button>
-                <button class="icon-btn" title="PDF Datei herunterladen">
+                <button class="icon-btn" title="PDF Datei herunterladen" (click)="downloadPdf()">
                     <mat-icon>picture_as_pdf</mat-icon>
                 </button>
                 <input type="text" class="search-field" placeholder="Suchen..." [(ngModel)]="searchTerm"
@@ -66,81 +66,101 @@
                         <th class="action-col"></th>
                         <th class="action-col"></th>
                         <th class="action-col"></th>
-                        <th><input type="text" [(ngModel)]="filters.regalNr" (ngModelChange)="onFilterChange()"
-                                placeholder="Regal-Nr." class="filter-input" /></th>
-                        <th><input type="text" [(ngModel)]="filters.filialCode" (ngModelChange)="onFilterChange()"
-                                placeholder="Filial Code" class="filter-input" /></th>
-                        <th><input type="text" [(ngModel)]="filters.artikelNr" (ngModelChange)="onFilterChange()"
-                                placeholder="Artikel-Nr." class="filter-input" /></th>
-                        <th><input type="text" [(ngModel)]="filters.jahrgang" (ngModelChange)="onFilterChange()"
-                                placeholder="Jahrgang" class="filter-input" /></th>
-                        <th><input type="text" [(ngModel)]="filters.mhd" (ngModelChange)="onFilterChange()"
-                                placeholder="Charge" class="filter-input" /></th>
-                        <th class="narrow-col"><input type="text" [(ngModel)]="filters.kPlatz"
-                                (ngModelChange)="onFilterChange()" placeholder="K-P" class="filter-input"
-                                title="K-Platz" /></th>
-                        <th><input type="text" [(ngModel)]="filters.hoehe" (ngModelChange)="onFilterChange()"
-                                placeholder="Höhe mm" class="filter-input" />
+                        <th *ngIf="isColumnVisible('regalnummer')"><input type="text" [(ngModel)]="filters.regalNr"
+                                (ngModelChange)="onFilterChange()" placeholder="Regal-Nr." class="filter-input" /></th>
+                        <th *ngIf="isColumnVisible('filialcode')"><input type="text" [(ngModel)]="filters.filialCode"
+                                (ngModelChange)="onFilterChange()" placeholder="Filial Code" class="filter-input" />
                         </th>
-                        <th><input type="text" [(ngModel)]="filters.breite" (ngModelChange)="onFilterChange()"
-                                placeholder="Breite mm" class="filter-input" /></th>
-                        <th><input type="text" [(ngModel)]="filters.tiefe" (ngModelChange)="onFilterChange()"
-                                placeholder="Tiefe mm" class="filter-input" /></th>
-                        <th><input type="text" [(ngModel)]="filters.nve" (ngModelChange)="onFilterChange()"
-                                placeholder="NVE" class="filter-input" /></th>
-                        <th><input type="text" [(ngModel)]="filters.gesamtmenge" (ngModelChange)="onFilterChange()"
-                                placeholder="Ges.Menge" class="filter-input" /></th>
-                        <th><input type="text" [(ngModel)]="filters.menge" (ngModelChange)="onFilterChange()"
-                                placeholder="Menge" class="filter-input" />
+                        <th *ngIf="isColumnVisible('artikelnummer')"><input type="text" [(ngModel)]="filters.artikelNr"
+                                (ngModelChange)="onFilterChange()" placeholder="Artikel-Nr." class="filter-input" />
                         </th>
-                        <th><input type="text" [(ngModel)]="filters.einheit" (ngModelChange)="onFilterChange()"
-                                placeholder="Einheit" class="filter-input" /></th>
-                        <th class="tiny-col"><input type="text" [(ngModel)]="filters.mengeEinheit"
-                                (ngModelChange)="onFilterChange()" placeholder="M/E" class="filter-input"
-                                title="Menge/Einheit" /></th>
-                        <th class="narrow-col"><input type="text" [(ngModel)]="filters.steuer"
-                                (ngModelChange)="onFilterChange()" placeholder="St" class="filter-input"
-                                title="Steuer" /></th>
-                        <th class="narrow-col"><input type="text" [(ngModel)]="filters.gesperrt"
-                                (ngModelChange)="onFilterChange()" placeholder="Gesp" class="filter-input"
-                                title="Gesperrt" /></th>
-                        <th class="narrow-col"><input type="text" [(ngModel)]="filters.bio"
-                                (ngModelChange)="onFilterChange()" placeholder="Bio" class="filter-input" title="Bio" />
+                        <th *ngIf="isColumnVisible('vintageyear')"><input type="text" [(ngModel)]="filters.jahrgang"
+                                (ngModelChange)="onFilterChange()" placeholder="Jahrgang" class="filter-input" /></th>
+                        <th *ngIf="isColumnVisible('charge')"><input type="text" [(ngModel)]="filters.mhd"
+                                (ngModelChange)="onFilterChange()" placeholder="Charge" class="filter-input" /></th>
+                        <th *ngIf="isColumnVisible('ist_kommiplatz')" class="narrow-col"><input type="text"
+                                [(ngModel)]="filters.kPlatz" (ngModelChange)="onFilterChange()" placeholder="K-P"
+                                class="filter-input" title="K-Platz" /></th>
+                        <th *ngIf="isColumnVisible('height')"><input type="text" [(ngModel)]="filters.hoehe"
+                                (ngModelChange)="onFilterChange()" placeholder="Höhe mm" class="filter-input" />
                         </th>
-                        <th class="narrow-col"><input type="text" [(ngModel)]="filters.hochProzent"
-                                (ngModelChange)="onFilterChange()" placeholder="H%" class="filter-input"
-                                title="Hoch%" /></th>
-                        <th class="narrow-col"><input type="text" [(ngModel)]="filters.bestellartikelplatz"
-                                (ngModelChange)="onFilterChange()" placeholder="BAP" class="filter-input"
-                                title="Bestellartikelplatz" /></th>
-                        <th><input type="text" [(ngModel)]="filters.paletten" (ngModelChange)="onFilterChange()"
-                                placeholder="Paletten" class="filter-input" /></th>
+                        <th *ngIf="isColumnVisible('width')"><input type="text" [(ngModel)]="filters.breite"
+                                (ngModelChange)="onFilterChange()" placeholder="Breite mm" class="filter-input" /></th>
+                        <th *ngIf="isColumnVisible('depth')"><input type="text" [(ngModel)]="filters.tiefe"
+                                (ngModelChange)="onFilterChange()" placeholder="Tiefe mm" class="filter-input" /></th>
+                        <th *ngIf="isColumnVisible('nve')"><input type="text" [(ngModel)]="filters.nve"
+                                (ngModelChange)="onFilterChange()" placeholder="NVE" class="filter-input" /></th>
+                        <th *ngIf="isColumnVisible('createdby')" class="mini-col"><input type="text"
+                                [(ngModel)]="filters.createdBy" (ngModelChange)="onFilterChange()"
+                                placeholder="Erst. von" class="filter-input" title="Erstellt von" /></th>
+                        <th *ngIf="isColumnVisible('createdat')" class="mini-col"><input type="text"
+                                [(ngModel)]="filters.createdAt" (ngModelChange)="onFilterChange()"
+                                placeholder="Erst. am" class="filter-input" title="Erstellt am" /></th>
+                        <th *ngIf="isColumnVisible('updatedby')" class="mini-col"><input type="text"
+                                [(ngModel)]="filters.updatedBy" (ngModelChange)="onFilterChange()"
+                                placeholder="Akt. von" class="filter-input" title="Aktualisiert von" /></th>
+                        <th *ngIf="isColumnVisible('updatedat')" class="mini-col"><input type="text"
+                                [(ngModel)]="filters.updatedAt" (ngModelChange)="onFilterChange()" placeholder="Akt. am"
+                                class="filter-input" title="Aktualisiert am" /></th>
+                        <th *ngIf="isColumnVisible('amountbase')"><input type="text" [(ngModel)]="filters.gesamtmenge"
+                                (ngModelChange)="onFilterChange()" placeholder="Ges.Menge" class="filter-input" /></th>
+                        <th *ngIf="isColumnVisible('amount')"><input type="text" [(ngModel)]="filters.menge"
+                                (ngModelChange)="onFilterChange()" placeholder="Menge" class="filter-input" />
+                        </th>
+                        <th *ngIf="isColumnVisible('unit')"><input type="text" [(ngModel)]="filters.einheit"
+                                (ngModelChange)="onFilterChange()" placeholder="Einheit" class="filter-input" /></th>
+                        <th *ngIf="isColumnVisible('amountunit')" class="tiny-col"><input type="text"
+                                [(ngModel)]="filters.mengeEinheit" (ngModelChange)="onFilterChange()" placeholder="M/E"
+                                class="filter-input" title="Menge/Einheit" /></th>
+                        <th *ngIf="isColumnVisible('tax')" class="narrow-col"><input type="text"
+                                [(ngModel)]="filters.steuer" (ngModelChange)="onFilterChange()" placeholder="St"
+                                class="filter-input" title="Steuer" /></th>
+                        <th *ngIf="isColumnVisible('locked')" class="narrow-col"><input type="text"
+                                [(ngModel)]="filters.gesperrt" (ngModelChange)="onFilterChange()" placeholder="Gesp"
+                                class="filter-input" title="Gesperrt" /></th>
+                        <th *ngIf="isColumnVisible('_bio')" class="narrow-col"><input type="text"
+                                [(ngModel)]="filters.bio" (ngModelChange)="onFilterChange()" placeholder="Bio"
+                                class="filter-input" title="Bio" />
+                        </th>
+                        <th *ngIf="isColumnVisible('liquor')" class="narrow-col"><input type="text"
+                                [(ngModel)]="filters.hochProzent" (ngModelChange)="onFilterChange()" placeholder="H%"
+                                class="filter-input" title="Hoch%" /></th>
+                        <th *ngIf="isColumnVisible('orderarticle')" class="narrow-col"><input type="text"
+                                [(ngModel)]="filters.bestellartikelplatz" (ngModelChange)="onFilterChange()"
+                                placeholder="BAP" class="filter-input" title="Bestellartikelplatz" /></th>
+                        <th *ngIf="isColumnVisible('pals')"><input type="text" [(ngModel)]="filters.paletten"
+                                (ngModelChange)="onFilterChange()" placeholder="Paletten" class="filter-input" /></th>
                     </tr>
                     <!-- Header Zeile -->
                     <tr>
                         <th class="action-col" style="width: 20px;"></th>
                         <th class="action-col" style="width: 20px;"></th>
                         <th class="action-col" style="width: 20px;"></th>
-                        <th>Regal-Nr.</th>
-                        <th>Filial Code</th>
-                        <th>Artikel-Nr.</th>
-                        <th>Jahrgang</th>
-                        <th>Charge</th>
-                        <th class="narrow-col" title="K-Platz">K-P</th>
-                        <th>Höhe mm</th>
-                        <th>Breite mm</th>
-                        <th>Tiefe mm</th>
-                        <th>NVE</th>
-                        <th>Ges.Menge</th>
-                        <th>Menge</th>
-                        <th>Einheit</th>
-                        <th class="tiny-col" title="Menge/Einheit">M/E</th>
-                        <th class="narrow-col" title="Steuer">St</th>
-                        <th class="narrow-col" title="Gesperrt">Gesp</th>
-                        <th class="narrow-col" title="Bio">Bio</th>
-                        <th class="narrow-col" title="Hoch%">H%</th>
-                        <th class="narrow-col" title="Bestellartikelplatz">BAP</th>
-                        <th>Paletten</th>
+                        <th *ngIf="isColumnVisible('regalnummer')">Regal-Nr.</th>
+                        <th *ngIf="isColumnVisible('filialcode')">Filial Code</th>
+                        <th *ngIf="isColumnVisible('artikelnummer')">Artikel-Nr.</th>
+                        <th *ngIf="isColumnVisible('vintageyear')">Jahrgang</th>
+                        <th *ngIf="isColumnVisible('charge')">Charge</th>
+                        <th *ngIf="isColumnVisible('ist_kommiplatz')" class="narrow-col" title="K-Platz">K-P</th>
+                        <th *ngIf="isColumnVisible('height')">Höhe mm</th>
+                        <th *ngIf="isColumnVisible('width')">Breite mm</th>
+                        <th *ngIf="isColumnVisible('depth')">Tiefe mm</th>
+                        <th *ngIf="isColumnVisible('nve')">NVE</th>
+                        <th *ngIf="isColumnVisible('createdby')" class="mini-col" title="Erstellt von">Erst. von</th>
+                        <th *ngIf="isColumnVisible('createdat')" class="mini-col" title="Erstellt am">Erst. am</th>
+                        <th *ngIf="isColumnVisible('updatedby')" class="mini-col" title="Aktualisiert von">Akt. von</th>
+                        <th *ngIf="isColumnVisible('updatedat')" class="mini-col" title="Aktualisiert am">Akt. am</th>
+                        <th *ngIf="isColumnVisible('amountbase')" class="mini-col" title="Gesamtmenge">Ges.Menge</th>
+                        <th *ngIf="isColumnVisible('amount')">Menge</th>
+                        <th *ngIf="isColumnVisible('unit')">Einheit</th>
+                        <th *ngIf="isColumnVisible('amountunit')" class="tiny-col" title="Menge/Einheit">M/E</th>
+                        <th *ngIf="isColumnVisible('tax')" class="narrow-col" title="Steuer">St</th>
+                        <th *ngIf="isColumnVisible('locked')" class="narrow-col" title="Gesperrt">Gesp</th>
+                        <th *ngIf="isColumnVisible('_bio')" class="narrow-col" title="Bio">Bio</th>
+                        <th *ngIf="isColumnVisible('liquor')" class="narrow-col" title="Hoch%">H%</th>
+                        <th *ngIf="isColumnVisible('orderarticle')" class="narrow-col" title="Bestellartikelplatz">BAP
+                        </th>
+                        <th *ngIf="isColumnVisible('pals')">Paletten</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -160,48 +180,54 @@
                                 <mat-icon>delete</mat-icon>
                             </button>
                         </td>
-                        <td>{{ slot.regalnummer }}</td>
-                        <td>{{ slot.filialcode }}</td>
-                        <td>{{ slot.artikelnummer }}</td>
-                        <td>{{ slot.vintageyear }}</td>
-                        <td>{{ slot.charge }}</td>
-                        <td class="narrow-col" [title]="slot.ist_kommiplatz ? 'Ja' : 'Nein'">
+                        <td *ngIf="isColumnVisible('regalnummer')">{{ slot.regalnummer }}</td>
+                        <td *ngIf="isColumnVisible('filialcode')">{{ slot.filialcode }}</td>
+                        <td *ngIf="isColumnVisible('artikelnummer')">{{ slot.artikelnummer }}</td>
+                        <td *ngIf="isColumnVisible('vintageyear')">{{ slot.vintageyear }}</td>
+                        <td *ngIf="isColumnVisible('charge')">{{ slot.charge }}</td>
+                        <td *ngIf="isColumnVisible('ist_kommiplatz')" class="narrow-col"
+                            [title]="slot.ist_kommiplatz ? 'Ja' : 'Nein'">
                             <mat-icon class="bool-icon" [ngClass]="slot.ist_kommiplatz ? 'yes' : 'no'">{{
                                 slot.ist_kommiplatz ? 'check' : 'close' }}</mat-icon>
                         </td>
-                        <td>{{ slot.height }}</td>
-                        <td>{{ slot.width }}</td>
-                        <td>{{ slot.depth }}</td>
-                        <td>{{ slot.nve }}</td>
-                        <td>{{ slot.amountbase }}</td>
-                        <td>{{ slot.amount }}</td>
-                        <td>{{ slot.unit }}</td>
-                        <td class="tiny-col">{{ slot.amountunit }}</td>
-                        <td class="narrow-col" [title]="slot.tax ? 'Ja' : 'Nein'">
+                        <td *ngIf="isColumnVisible('height')">{{ slot.height }}</td>
+                        <td *ngIf="isColumnVisible('width')">{{ slot.width }}</td>
+                        <td *ngIf="isColumnVisible('depth')">{{ slot.depth }}</td>
+                        <td *ngIf="isColumnVisible('nve')">{{ slot.nve }}</td>
+                        <td *ngIf="isColumnVisible('createdby')" class="mini-col">{{ slot.createdby }}</td>
+                        <td *ngIf="isColumnVisible('createdat')" class="mini-col">{{ slot.createdat }}</td>
+                        <td *ngIf="isColumnVisible('updatedby')" class="mini-col">{{ slot.updatedby }}</td>
+                        <td *ngIf="isColumnVisible('updatedat')" class="mini-col">{{ slot.updatedat }}</td>
+                        <td *ngIf="isColumnVisible('amountbase')" class="mini-col">{{ slot.amountbase }}</td>
+                        <td *ngIf="isColumnVisible('amount')">{{ slot.amount }}</td>
+                        <td *ngIf="isColumnVisible('unit')">{{ slot.unit }}</td>
+                        <td *ngIf="isColumnVisible('amountunit')" class="tiny-col">{{ slot.amountunit }}</td>
+                        <td *ngIf="isColumnVisible('tax')" class="narrow-col" [title]="slot.tax ? 'Ja' : 'Nein'">
                             <mat-icon class="bool-icon" [ngClass]="slot.tax ? 'yes' : 'no'">{{ slot.tax ? 'check' :
                                 'close' }}</mat-icon>
                         </td>
-                        <td class="narrow-col" [title]="slot.locked ? 'Ja' : 'Nein'">
+                        <td *ngIf="isColumnVisible('locked')" class="narrow-col" [title]="slot.locked ? 'Ja' : 'Nein'">
                             <mat-icon class="bool-icon" [ngClass]="slot.locked ? 'yes' : 'no'">{{ slot.locked ? 'check'
                                 : 'close' }}</mat-icon>
                         </td>
-                        <td class="narrow-col" [title]="slot._bio ? 'Ja' : 'Nein'">
+                        <td *ngIf="isColumnVisible('_bio')" class="narrow-col" [title]="slot._bio ? 'Ja' : 'Nein'">
                             <mat-icon class="bool-icon" [ngClass]="slot._bio ? 'yes' : 'no'">{{ slot._bio ? 'check' :
                                 'close' }}</mat-icon>
                         </td>
-                        <td class="narrow-col" [title]="slot.liquor ? 'Ja' : 'Nein'">
+                        <td *ngIf="isColumnVisible('liquor')" class="narrow-col" [title]="slot.liquor ? 'Ja' : 'Nein'">
                             <mat-icon class="bool-icon" [ngClass]="slot.liquor ? 'yes' : 'no'">{{ slot.liquor ? 'check'
                                 : 'close' }}</mat-icon>
                         </td>
-                        <td class="narrow-col" [title]="slot.orderarticle ? 'Ja' : 'Nein'">
+                        <td *ngIf="isColumnVisible('orderarticle')" class="narrow-col"
+                            [title]="slot.orderarticle ? 'Ja' : 'Nein'">
                             <mat-icon class="bool-icon" [ngClass]="slot.orderarticle ? 'yes' : 'no'">{{
                                 slot.orderarticle ? 'check' : 'close' }}</mat-icon>
                         </td>
-                        <td>{{ slot.pals }}</td>
+                        <td *ngIf="isColumnVisible('pals')">{{ slot.pals }}</td>
                     </tr>
                     <!-- Keine Daten Zeile -->
                     <tr *ngIf="displayedSlots.length === 0 && !isLoading">
-                        <td colspan="23" style="text-align: center; padding: 40px; color: #666;">
+                        <td colspan="27" style="text-align: center; padding: 40px; color: #666;">
                             <mat-icon style="font-size: 48px; width: 48px; height: 48px;">inbox</mat-icon>
                             <p>Keine Stellplätze gefunden</p>
                         </td>
@@ -475,6 +501,33 @@
         <div class="modal-footer">
             <button class="action-btn secondary" (click)="cancelEdit()">Abbrechen</button>
             <button class="action-btn primary" (click)="executeEdit()">Speichern</button>
+        </div>
+    </div>
+</div>
+
+<!-- Column Visibility Modal -->
+<div class="modal-overlay" *ngIf="showColumnModal" (click)="closeColumnModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Spalten ein-/ausblenden</h3>
+            <button class="modal-close" (click)="closeColumnModal()">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="column-toggle-actions">
+                <button class="action-btn primary" (click)="toggleAllColumns(true)">Alle einblenden</button>
+                <button class="action-btn secondary" (click)="toggleAllColumns(false)">Alle ausblenden</button>
+            </div>
+            <div class="column-list">
+                <label class="checkbox-label" *ngFor="let col of columns">
+                    <input type="checkbox" [(ngModel)]="col.visible" (change)="saveColumnSettings()" />
+                    {{ col.label }}
+                </label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="action-btn primary" (click)="closeColumnModal()">Schließen</button>
         </div>
     </div>
 </div>

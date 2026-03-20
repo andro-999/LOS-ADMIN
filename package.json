@@ -1,13 +1,13 @@
 {
   "name": "los-admin",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "start:prod": "ng serve --configuration production",
     "build": "ng build",
-    "build:dev": "ng build --configuration development --base-href /los-admin/ & explorer dist\\los-admin\\browser",
-    "build:prod": "ng build --configuration production --base-href /los-admin/ & explorer dist\\los-admin\\browser",
+    "build:dev": "ng build --configuration development --base-href /los-admin/ && explorer dist\\los-admin\\browser",
+    "build:prod": "ng build --configuration production --base-href /los-admin/ && explorer dist\\los-admin\\browser",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -23,6 +23,8 @@
     "@angular/platform-browser": "^18.2.0",
     "@angular/platform-browser-dynamic": "^18.2.0",
     "@angular/router": "^18.2.0",
+    "jspdf": "^4.2.0",
+    "jspdf-autotable": "^5.0.7",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.10"

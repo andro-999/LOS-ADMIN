@@ -233,6 +233,13 @@
           max-width: 35px;
           text-align: center;
         }
+
+        &.mini-col {
+          width: 65px;
+          min-width: 65px;
+          max-width: 65px;
+          text-align: center;
+        }
       }
     }
   }
@@ -576,4 +583,22 @@
   &:hover {
     background-color: #c82333;
   }
+}
+
+// Column Visibility Modal
+.column-toggle-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.column-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
 }
