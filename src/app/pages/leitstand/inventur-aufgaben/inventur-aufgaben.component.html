@@ -1,48 +1,57 @@
 <div class="inventur-container">
-    <h2>Inventur Aufgaben</h2>
+    <div class="header-row">
+        <h2>Inventur Aufgaben</h2>
+        <app-column-settings [columns]="inventurColumns" [storageKey]="'inventurColumnSettings'"
+            (columnsChange)="onColumnsChange($event)" (reset)="resetColumnOrder()">
+        </app-column-settings>
+    </div>
 
     <div class="table-container">
         <table>
-            <thead>
+            <thead cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="dropColumn($event)">
                 <tr>
-                    <th>Nr.</th>
-                    <th>Prozess-ID</th>
-                    <th>Regalbereich</th>
-                    <th>Lager</th>
-                    <th>Status</th>
-                    <th>Initiator</th>
-                    <th>Bearbeiter</th>
-                    <th>Erstellt am</th>
+                    <ng-container *ngFor="let col of inventurColumns">
+                        <th *ngIf="col.visible" cdkDrag [style.width]="col.width" [style.min-width]="col.width"
+                            [style.max-width]="col.width" class="draggable-header">
+                            {{ col.label }}
+                        </th>
+                    </ng-container>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngIf="isLoadingInventur">
-                    <td colspan="8" class="loading-state">
+                    <td [attr.colspan]="visibleColumnsCount" class="loading-state">
                         <mat-icon class="spin">sync</mat-icon>
                         <h3>Lade Inventur-Aufgaben...</h3>
                     </td>
                 </tr>
 
                 <tr *ngIf="!isLoadingInventur && inventurTasks.length === 0">
-                    <td colspan="8" class="empty-state">
+                    <td [attr.colspan]="visibleColumnsCount" class="empty-state">
                         <mat-icon>inventory_2</mat-icon>
                         <h3>Keine Inventur-Aufgaben vorhanden</h3>
                     </td>
                 </tr>
 
                 <tr *ngFor="let task of inventurTasks; let i = index" [class.even]="i % 2 === 0">
-                    <td>{{ i + 1 }}</td>
-                    <td class="pid">{{ task.pid }}</td>
-                    <td class="regal-area">{{ task.variables.regalArea || '-' }}</td>
-                    <td>{{ task.variables.fCode || '-' }}</td>
-                    <td>
-                        <span class="status-badge" [class.active]="task.pstate === 'active'">
-                            {{ task.pstate === 'active' ? 'Aktiv' : task.pstate }}
-                        </span>
-                    </td>
-                    <td>{{ task.variables.initiatorUserId || '-' }}</td>
-                    <td>{{ task.variables.executorUserId || '-' }}</td>
-                    <td>{{ (task.variables.createdAt || '-') | date:'yyyy-MM-dd HH:mm' }}</td>
+                    <ng-container *ngFor="let col of inventurColumns">
+                        <td *ngIf="col.id === 'nr' && col.visible">{{ i + 1 }}</td>
+                        <td *ngIf="col.id === 'pid' && col.visible" class="pid">{{ task.pid }}</td>
+                        <td *ngIf="col.id === 'regalArea' && col.visible" class="regal-area">{{ task.variables.regalArea
+                            || '-' }}</td>
+                        <td *ngIf="col.id === 'fCode' && col.visible">{{ task.variables.fCode || '-' }}</td>
+                        <td *ngIf="col.id === 'status' && col.visible">
+                            <span class="status-badge" [class.active]="task.pstate === 'active'">
+                                {{ task.pstate === 'active' ? 'Aktiv' : task.pstate }}
+                            </span>
+                        </td>
+                        <td *ngIf="col.id === 'initiatorUserId' && col.visible">{{ task.variables.initiatorUserId || '-'
+                            }}</td>
+                        <td *ngIf="col.id === 'executorUserId' && col.visible">{{ task.variables.executorUserId || '-'
+                            }}</td>
+                        <td *ngIf="col.id === 'createdAt' && col.visible">{{ (task.variables.createdAt || '-') |
+                            date:'yyyy-MM-dd HH:mm' }}</td>
+                    </ng-container>
                 </tr>
             </tbody>
         </table>

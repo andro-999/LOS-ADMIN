@@ -50,7 +50,7 @@ export class LeitstandComponent implements OnInit, OnDestroy {
 
   navButtons: NavButton[] = [];
   currentView: ViewType = 'kommi-auftraege';
-  
+
   bereichNavItems: BereichNavItem[] = [
     { id: 'kommi-auftraege', label: 'Kommi Aufträge' },
     { id: 'einlagerungsauftraege', label: 'Einlagerungs Aufträge' },
@@ -71,7 +71,7 @@ export class LeitstandComponent implements OnInit, OnDestroy {
     public router: Router,
     private route: ActivatedRoute,
     private navigationService: NavigationService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.currentView = 'kommi-auftraege';
@@ -88,7 +88,7 @@ export class LeitstandComponent implements OnInit, OnDestroy {
     this.loadNavigation();
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void { }
 
   loadNavigation(): void {
     this.navigationService.getNavButtons('/leitstand').subscribe(

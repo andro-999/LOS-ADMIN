@@ -171,11 +171,13 @@ export type AuftragStatus = 'offen' | 'gestartet' | 'erledigt';
 
 // Quickpick Log Interface
 export interface QuickpickLog {
+  AU_number?: string;
   belegnummer: string;
   artikelnummer: string;
   beschreibung: string;
   menge: number;
   quickpick: boolean;
+  lagerist_rueck?: string;
 }
 
 @Injectable({
@@ -265,6 +267,19 @@ export class LeitstandService {
     });
   }
 
+  assignLagerist(belegnummer: string, oldUserId: string, newUserId: string): Observable<{ success: boolean; msg?: string }> {
+    return this.http.get<{ success: boolean; msg?: string }>(
+      `${this.baseUrl}/change_executorUserId_komm`,
+      {
+        params: {
+          belegnummer,
+          old_userid: oldUserId || ' ',
+          new_userid: newUserId
+        },
+        headers: new HttpHeaders({ 'accept': '*/*' })
+      }
+    );
+  }
 
   getEinlagerungTasks(): Observable<EinlagerungTask[]> {
     return this.http.get<EinlagerungTasksResponse>(
@@ -327,11 +342,13 @@ export class LeitstandService {
                   existing.menge += 1;
                 } else {
                   grouped.set(key, {
+                    AU_number: auftrag.AU_number,
                     belegnummer: pos.belegnummer,
                     artikelnummer: pos.artikelnummer,
                     beschreibung: pos.beschreibung,
                     menge: 1,
-                    quickpick: true
+                    quickpick: true,
+                    lagerist_rueck: pos.lagerist_rueck || ''
                   });
                 }
               });

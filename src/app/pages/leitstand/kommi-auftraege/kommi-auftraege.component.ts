@@ -2,11 +2,12 @@ import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
-import { CdkDragDrop, moveItemInArray, DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { LeitstandService, Auftrag, Position, GroupedPosition } from '../leitstand.service';
 import { User, UserService } from '../../../services/user.service';
 import { NavigationService } from '../../../services/navigation.service';
 import { ColumnSettingsComponent, ColumnConfig } from '../../../components/column-settings/column-settings.component';
+import { ColumnOrderService } from '../../../services/column-order.service';
 
 export type KommiColumn = ColumnConfig;
 
@@ -64,7 +65,8 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
     constructor(
         private leitstandService: LeitstandService,
         private userService: UserService,
-        private navigationService: NavigationService
+        private navigationService: NavigationService,
+        private columnOrderService: ColumnOrderService
     ) { }
 
     ngOnInit(): void {
@@ -146,42 +148,20 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
 
     // Spalten-Management
     dropColumn(event: CdkDragDrop<string[]>): void {
-        const visibleColumns = this.kommiColumns.filter(c => c.visible);
-        const draggedColumn = visibleColumns[event.previousIndex];
-        const targetColumn = visibleColumns[event.currentIndex];
-        const realPreviousIndex = this.kommiColumns.findIndex(c => c.id === draggedColumn.id);
-        const realCurrentIndex = this.kommiColumns.findIndex(c => c.id === targetColumn.id);
-        moveItemInArray(this.kommiColumns, realPreviousIndex, realCurrentIndex);
+        this.columnOrderService.applyDrop(event, this.kommiColumns);
         this.saveColumnOrder();
     }
 
     private saveColumnOrder(): void {
-        localStorage.setItem('kommiColumnOrder', JSON.stringify(this.kommiColumns.map(c => c.id)));
+        this.columnOrderService.saveOrder('kommiColumnSettings', this.kommiColumns);
     }
 
     private loadColumnOrder(): void {
-        const saved = localStorage.getItem('kommiColumnOrder');
-        if (saved) {
-            try {
-                const order = JSON.parse(saved) as string[];
-                this.kommiColumns.sort((a, b) => {
-                    const indexA = order.indexOf(a.id);
-                    const indexB = order.indexOf(b.id);
-                    if (indexA === -1) return 1;
-                    if (indexB === -1) return -1;
-                    return indexA - indexB;
-                });
-            } catch (e) { }
-        }
+        this.columnOrderService.loadOrder('kommiColumnSettings', this.kommiColumns);
     }
 
     resetColumnOrder(): void {
-        const visibilityMap = new Map(this.kommiColumns.map(c => [c.id, c.visible]));
-        this.kommiColumns = DEFAULT_KOMMI_COLUMNS.map(col => ({
-            ...col,
-            visible: visibilityMap.get(col.id) ?? true
-        }));
-        localStorage.removeItem('kommiColumnOrder');
+        this.kommiColumns = this.columnOrderService.resetOrder('kommiColumnSettings', this.kommiColumns, DEFAULT_KOMMI_COLUMNS);
     }
 
     onColumnsChange(columns: KommiColumn[]): void {
@@ -329,11 +309,18 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
     }
 
     assignLagerist(belegnummer: string | undefined, lageristId: string): void {
-        if (!belegnummer || !lageristId) return;
+        if (!belegnummer) return;
 
         const auftrag = this.auftraege.find(a => a.belegnummer === belegnummer);
-        if (auftrag) {
-            auftrag.lagerist = lageristId;
-        }
+        const oldUserId = auftrag?.lagerist || '';
+
+        this.leitstandService.assignLagerist(belegnummer, oldUserId, lageristId).subscribe({
+            next: (response) => {
+                if (response.success && auftrag) {
+                    auftrag.lagerist = lageristId;
+                }
+            },
+            error: () => { }
+        });
     }
 }

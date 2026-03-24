@@ -1,53 +1,62 @@
 <div class="einlagerung-container">
-    <h2>Einlagerungs Aufträge</h2>
+    <div class="header-row">
+        <h2>Einlagerungs Aufträge</h2>
+        <app-column-settings [columns]="einlagerungColumns" [storageKey]="'einlagerungColumnSettings'"
+            (columnsChange)="onColumnsChange($event)" (reset)="resetColumnOrder()">
+        </app-column-settings>
+    </div>
 
     <div class="table-container">
         <table>
-            <thead>
+            <thead cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="dropColumn($event)">
                 <tr>
-                    <th>Nr.</th>
-                    <th>Entry-Nr.</th>
-                    <th>Artikel-Nr.</th>
-                    <th>Abholort</th>
-                    <th>Basis-Menge</th>
-                    <th>Lagerist</th>
+                    <ng-container *ngFor="let col of einlagerungColumns">
+                        <th *ngIf="col.visible" cdkDrag [style.width]="col.width" [style.min-width]="col.width"
+                            [style.max-width]="col.width" class="draggable-header">
+                            {{ col.label }}
+                        </th>
+                    </ng-container>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngIf="isLoadingEinlagerung">
-                    <td colspan="6" class="loading-state">
+                    <td [attr.colspan]="visibleColumnsCount" class="loading-state">
                         <mat-icon class="spin">sync</mat-icon>
                         <h3>Lade Einlagerungs-Aufgaben...</h3>
                     </td>
                 </tr>
 
                 <tr *ngIf="!isLoadingEinlagerung && einlagerungTasks.length === 0">
-                    <td colspan="6" class="empty-state">
+                    <td [attr.colspan]="visibleColumnsCount" class="empty-state">
                         <mat-icon>inventory</mat-icon>
                         <h3>Keine Einlagerungs-Aufgaben vorhanden</h3>
                     </td>
                 </tr>
 
                 <tr *ngFor="let task of einlagerungTasks; let i = index" [class.even]="i % 2 === 0">
-                    <td>{{ i + 1 }}</td>
-                    <td class="entry-nr">{{ task.entry_number }}</td>
-                    <td class="artikel-nr">{{ task.artikelnummer }}</td>
-                    <td>{{ task.abholort }}</td>
-                    <td>{{ task.basis_menge }}</td>
-                    <td>
-                        <select [ngModel]="task.lagerist || ''" (ngModelChange)="assignLagerist(task, $event)"
-                            class="lagerist-select">
-                            <option value="">Auswählen</option>
-                            <option *ngIf="task.lagerist && !isLageristInList(task.lagerist)" [ngValue]="task.lagerist"
-                                class="inactive">
-                                {{ task.lagerist }} (inaktiv)
-                            </option>
-                            <option *ngFor="let user of availableLageristen" [ngValue]="user.benutzer_id"
-                                [class.inactive]="!user.isActive">
-                                {{ user.benutzer_id + (!user.isActive ? ' (inaktiv)' : '') }}
-                            </option>
-                        </select>
-                    </td>
+                    <ng-container *ngFor="let col of einlagerungColumns">
+                        <td *ngIf="col.id === 'nr' && col.visible">{{ i + 1 }}</td>
+                        <td *ngIf="col.id === 'entry_number' && col.visible" class="entry-nr">{{ task.entry_number }}
+                        </td>
+                        <td *ngIf="col.id === 'artikelnummer' && col.visible" class="artikel-nr">{{ task.artikelnummer
+                            }}</td>
+                        <td *ngIf="col.id === 'abholort' && col.visible">{{ task.abholort }}</td>
+                        <td *ngIf="col.id === 'basis_menge' && col.visible">{{ task.basis_menge }}</td>
+                        <td *ngIf="col.id === 'lagerist' && col.visible">
+                            <select [ngModel]="task.lagerist || ''" (ngModelChange)="assignLagerist(task, $event)"
+                                class="lagerist-select">
+                                <option value="">Auswählen</option>
+                                <option *ngIf="task.lagerist && !isLageristInList(task.lagerist)"
+                                    [ngValue]="task.lagerist" class="inactive">
+                                    {{ task.lagerist }} (inaktiv)
+                                </option>
+                                <option *ngFor="let user of availableLageristen" [ngValue]="user.benutzer_id"
+                                    [class.inactive]="!user.isActive">
+                                    {{ user.benutzer_id + (!user.isActive ? ' (inaktiv)' : '') }}
+                                </option>
+                            </select>
+                        </td>
+                    </ng-container>
                 </tr>
             </tbody>
         </table>

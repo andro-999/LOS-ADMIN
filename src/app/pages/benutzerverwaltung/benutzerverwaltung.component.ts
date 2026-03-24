@@ -73,7 +73,10 @@ export class BenutzerverwaltungComponent implements OnInit {
         // Filter anwenden nach dem Laden
         this.filterUser();
         // Aktualisiere Navigation nach dem Laden
-        this.navigationService.refreshCounts();
+        const adminCount = this.users.filter(user =>
+          (user.rolle || '').toLowerCase().includes('admin')
+        ).length;
+        this.navigationService.updateUserCounts(this.users.length, adminCount);
       },
       error: (err) => {
         console.error('Fehler beim Laden der Benutzer:', err);

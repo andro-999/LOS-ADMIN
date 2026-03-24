@@ -1,62 +1,55 @@
 <div class="quickpick-container">
-    <h2>Quickpick Logs</h2>
+    <div class="header-row">
+        <h2>Quickpick Logs</h2>
+        <app-column-settings [columns]="quickpickColumns" [storageKey]="'quickpickColumnSettings'"
+            (columnsChange)="onColumnsChange($event)" (reset)="resetColumnOrder()">
+        </app-column-settings>
+    </div>
 
     <div class="table-container">
         <table>
-            <thead>
+            <thead cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="dropColumn($event)">
                 <tr>
-                    <th>Nr.</th>
-                    <th class="sortable" (click)="sortBy('belegnummer')">
-                        Auftrags Nr.
-                        <mat-icon *ngIf="sortColumn === 'belegnummer'" class="sort-icon">
-                            {{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
-                        </mat-icon>
-                    </th>
-                    <th class="sortable" (click)="sortBy('artikelnummer')">
-                        ArtikelNr.
-                        <mat-icon *ngIf="sortColumn === 'artikelnummer'" class="sort-icon">
-                            {{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
-                        </mat-icon>
-                    </th>
-                    <th class="sortable" (click)="sortBy('beschreibung')">
-                        Artikel Name
-                        <mat-icon *ngIf="sortColumn === 'beschreibung'" class="sort-icon">
-                            {{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
-                        </mat-icon>
-                    </th>
-                    <th class="sortable" (click)="sortBy('menge')">
-                        Menge
-                        <mat-icon *ngIf="sortColumn === 'menge'" class="sort-icon">
-                            {{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
-                        </mat-icon>
-                    </th>
-                    <th>Quickpick</th>
+                    <ng-container *ngFor="let col of quickpickColumns">
+                        <th *ngIf="col.visible" cdkDrag [style.width]="col.width" [style.min-width]="col.width"
+                            [style.max-width]="col.width" class="draggable-header" [class.sortable]="!!col.sortKey"
+                            (click)="col.sortKey && sortBy(col.sortKey)">
+                            {{ col.label }}
+                            <mat-icon *ngIf="col.sortKey && sortColumn === col.sortKey" class="sort-icon">
+                                {{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                            </mat-icon>
+                        </th>
+                    </ng-container>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngIf="isLoading">
-                    <td colspan="6" class="loading-state">
+                    <td [attr.colspan]="visibleColumnsCount" class="loading-state">
                         <mat-icon class="spin">sync</mat-icon>
                         <h3>Lade Quickpick-Logs...</h3>
                     </td>
                 </tr>
 
                 <tr *ngIf="!isLoading && quickpickLogs.length === 0">
-                    <td colspan="6" class="empty-state">
+                    <td [attr.colspan]="visibleColumnsCount" class="empty-state">
                         <mat-icon>list_alt</mat-icon>
                         <h3>Keine Quickpick-Logs vorhanden</h3>
                     </td>
                 </tr>
 
                 <tr *ngFor="let log of quickpickLogs; let i = index" [class.even]="i % 2 === 0">
-                    <td>{{ i + 1 }}</td>
-                    <td class="belegnummer">{{ log.belegnummer }}</td>
-                    <td class="artikelnummer">{{ log.artikelnummer }}</td>
-                    <td>{{ log.beschreibung }}</td>
-                    <td class="menge">{{ log.menge }}</td>
-                    <td class="quickpick-status">
-                        <mat-icon class="check-icon">check_circle</mat-icon>
-                    </td>
+                    <ng-container *ngFor="let col of quickpickColumns">
+                        <td *ngIf="col.id === 'nr' && col.visible">{{ i + 1 }}</td>
+                        <td *ngIf="col.id === 'AU_number' && col.visible" class="au-number">{{ log.AU_number }}</td>
+                        <td *ngIf="col.id === 'belegnummer' && col.visible" class="belegnummer">{{ log.belegnummer }}</td>
+                        <td *ngIf="col.id === 'artikelnummer' && col.visible" class="artikelnummer">{{ log.artikelnummer }}</td>
+                        <td *ngIf="col.id === 'beschreibung' && col.visible">{{ log.beschreibung }}</td>
+                        <td *ngIf="col.id === 'lagerist_rueck' && col.visible" class="lagerist">{{ log.lagerist_rueck }}</td>
+                        <td *ngIf="col.id === 'menge' && col.visible" class="menge">{{ log.menge }}</td>
+                        <td *ngIf="col.id === 'quickpick' && col.visible" class="quickpick-status">
+                            <mat-icon class="check-icon">check_circle</mat-icon>
+                        </td>
+                    </ng-container>
                 </tr>
             </tbody>
         </table>
@@ -64,9 +57,9 @@
 
     <div class="info-row">
         <span>Gesamt: {{ quickpickLogs.length }} Logs</span>
-        <!--button (click)="loadLogs()" class="btn-refresh">
+        <button (click)="loadLogs()" class="btn-refresh">
             <mat-icon>refresh</mat-icon>
             Aktualisieren
-        </button-->
+        </button>
     </div>
 </div>

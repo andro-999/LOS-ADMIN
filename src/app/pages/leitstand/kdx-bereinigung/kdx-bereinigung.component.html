@@ -1,5 +1,10 @@
 <div class="kdx-bereinigung-container">
-    <h2>KDX Bereinigung Aufgaben</h2>
+    <div class="header-row">
+        <h2>KDX Bereinigung Aufgaben</h2>
+        <app-column-settings [columns]="kdxColumns" [storageKey]="'kdxColumnSettings'"
+            (columnsChange)="onColumnsChange($event)" (reset)="resetColumnOrder()">
+        </app-column-settings>
+    </div>
 
     <div class="input-row">
         <div class="input-group">
@@ -18,49 +23,52 @@
 
     <div class="table-container">
         <table>
-            <thead>
+            <thead cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="dropColumn($event)">
                 <tr>
-                    <th>Nr.</th>
-                    <th>Regalnummer</th>
-                    <th>Besetzt</th>
-                    <th>Reserviert</th>
-                    <th>Freigeben</th>
+                    <ng-container *ngFor="let col of kdxColumns">
+                        <th *ngIf="col.visible" cdkDrag [style.width]="col.width" [style.min-width]="col.width"
+                            [style.max-width]="col.width" class="draggable-header">
+                            {{ col.label }}
+                        </th>
+                    </ng-container>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngIf="isLoadingKdxBoxen">
-                    <td colspan="5" class="loading-state">
+                    <td [attr.colspan]="visibleColumnsCount" class="loading-state">
                         <mat-icon class="spin">sync</mat-icon>
                         <h3>Lade KDX Boxen...</h3>
                     </td>
                 </tr>
 
                 <tr *ngIf="!isLoadingKdxBoxen && filteredKdxRegalplaetze.length === 0">
-                    <td colspan="5" class="empty-state">
+                    <td [attr.colspan]="visibleColumnsCount" class="empty-state">
                         <mat-icon>inventory_2</mat-icon>
                         <h3>Keine Regalplätze gefunden. Bitte Turm- und Tablarnummer eingeben.</h3>
                     </td>
                 </tr>
 
                 <tr *ngFor="let platz of filteredKdxRegalplaetze; let i = index" [class.even]="i % 2 === 0">
-                    <td>{{ i + 1 }}</td>
-                    <td class="regal-nr">{{ platz.regalNr }}</td>
-                    <td>
-                        <mat-icon *ngIf="platz.besetzt" class="status-occupied">check_circle</mat-icon>
-                        <mat-icon *ngIf="!platz.besetzt" class="status-free">radio_button_unchecked</mat-icon>
-                    </td>
-                    <td>
-                        <mat-icon *ngIf="platz.gesperrt" class="status-occupied">check_circle</mat-icon>
-                        <mat-icon *ngIf="!platz.gesperrt" class="status-free">radio_button_unchecked</mat-icon>
-                    </td>
-                    <td>
-                        <button *ngIf="platz.gesperrt" (click)="releaseRegalplatz(platz.regalNr)"
-                            [disabled]="platz.releasing" class="btn-release" [class.releasing]="platz.releasing">
-                            <mat-icon>{{ platz.releasing ? 'sync' : 'lock_open' }}</mat-icon>
-                            {{ platz.releasing ? 'Wird freigegeben...' : 'Freigeben' }}
-                        </button>
-                        <span *ngIf="!platz.gesperrt" class="free-label">Frei</span>
-                    </td>
+                    <ng-container *ngFor="let col of kdxColumns">
+                        <td *ngIf="col.id === 'nr' && col.visible">{{ i + 1 }}</td>
+                        <td *ngIf="col.id === 'regalNr' && col.visible" class="regal-nr">{{ platz.regalNr }}</td>
+                        <td *ngIf="col.id === 'besetzt' && col.visible">
+                            <mat-icon *ngIf="platz.besetzt" class="status-occupied">check_circle</mat-icon>
+                            <mat-icon *ngIf="!platz.besetzt" class="status-free">radio_button_unchecked</mat-icon>
+                        </td>
+                        <td *ngIf="col.id === 'gesperrt' && col.visible">
+                            <mat-icon *ngIf="platz.gesperrt" class="status-occupied">check_circle</mat-icon>
+                            <mat-icon *ngIf="!platz.gesperrt" class="status-free">radio_button_unchecked</mat-icon>
+                        </td>
+                        <td *ngIf="col.id === 'freigeben' && col.visible">
+                            <button *ngIf="platz.gesperrt" (click)="releaseRegalplatz(platz.regalNr)"
+                                [disabled]="platz.releasing" class="btn-release" [class.releasing]="platz.releasing">
+                                <mat-icon>{{ platz.releasing ? 'sync' : 'lock_open' }}</mat-icon>
+                                {{ platz.releasing ? 'Wird freigegeben...' : 'Freigeben' }}
+                            </button>
+                            <span *ngIf="!platz.gesperrt" class="free-label">Frei</span>
+                        </td>
+                    </ng-container>
                 </tr>
             </tbody>
         </table>

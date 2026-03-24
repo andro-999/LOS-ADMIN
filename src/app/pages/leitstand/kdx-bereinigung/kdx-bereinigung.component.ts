@@ -2,12 +2,25 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
+import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { LeitstandService, KdxRegalplatz } from '../leitstand.service';
+import { ColumnSettingsComponent, ColumnConfig } from '../../../components/column-settings/column-settings.component';
+import { ColumnOrderService } from '../../../services/column-order.service';
+
+type KdxColumn = ColumnConfig;
+
+const DEFAULT_KDX_COLUMNS: KdxColumn[] = [
+    { id: 'nr', label: 'Nr.', visible: true, width: '60px' },
+    { id: 'regalNr', label: 'Regalnummer', visible: true, width: '160px' },
+    { id: 'besetzt', label: 'Besetzt', visible: true, width: '100px' },
+    { id: 'gesperrt', label: 'Reserviert', visible: true, width: '120px' },
+    { id: 'freigeben', label: 'Freigeben', visible: true, width: '180px' }
+];
 
 @Component({
     selector: 'app-kdx-bereinigung',
     standalone: true,
-    imports: [CommonModule, FormsModule, MatIcon],
+    imports: [CommonModule, FormsModule, MatIcon, DragDropModule, ColumnSettingsComponent],
     templateUrl: './kdx-bereinigung.component.html',
     styleUrls: ['./kdx-bereinigung.component.scss']
 })
@@ -21,11 +34,45 @@ export class KdxBereinigungComponent implements OnInit {
     kdxRegalplaetze: (KdxRegalplatz & { releasing?: boolean })[] = [];
     filteredKdxRegalplaetze: (KdxRegalplatz & { releasing?: boolean })[] = [];
     isLoadingKdxBoxen: boolean = false;
+    kdxColumns: KdxColumn[] = DEFAULT_KDX_COLUMNS.map(col => ({ ...col }));
 
-    constructor(private leitstandService: LeitstandService) { }
+    get visibleColumnsCount(): number {
+        return this.kdxColumns.filter(c => c.visible).length;
+    }
+
+    constructor(
+        private leitstandService: LeitstandService,
+        private columnOrderService: ColumnOrderService
+    ) { }
 
     ngOnInit(): void {
+        this.loadColumnOrder();
         this.loadKdxBoxen();
+    }
+
+    dropColumn(event: CdkDragDrop<string[]>): void {
+        this.columnOrderService.applyDrop(event, this.kdxColumns);
+        this.saveColumnOrder();
+    }
+
+    onColumnsChange(columns: KdxColumn[]): void {
+        this.kdxColumns = columns;
+    }
+
+    resetColumnOrder(): void {
+        this.kdxColumns = this.columnOrderService.resetOrder(
+            'kdxColumnSettings',
+            this.kdxColumns,
+            DEFAULT_KDX_COLUMNS
+        );
+    }
+
+    private saveColumnOrder(): void {
+        this.columnOrderService.saveOrder('kdxColumnSettings', this.kdxColumns);
+    }
+
+    private loadColumnOrder(): void {
+        this.columnOrderService.loadOrder('kdxColumnSettings', this.kdxColumns);
     }
 
     loadKdxBoxen(): void {
