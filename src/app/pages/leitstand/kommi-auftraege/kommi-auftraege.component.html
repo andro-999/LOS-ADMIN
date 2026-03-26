@@ -85,7 +85,10 @@
                             <td *ngIf="col.id === 'packhilfen' && col.visible">{{ getPackhilfenAnzahl(auftrag) }}</td>
 
                             <!-- Nachschub -->
-                            <td *ngIf="col.id === 'nachschub' && col.visible">{{ getPackhilfenAnzahl(auftrag) }}</td>
+                            <td *ngIf="col.id === 'nachschub' && col.visible"
+                                [style.color]="getNachschubMenge(auftrag) > 0 ? '#dc3545' : ''">
+                                {{ getNachschubMenge(auftrag) || '-' }}
+                            </td>
 
                             <!-- Staplerkomm -->
                             <td *ngIf="col.id === 'staplerkomm' && col.visible">{{ getPackhilfenAnzahl(auftrag) }}</td>
@@ -127,6 +130,12 @@
                                     class="btn-unblock" [appDisabledWhenErledigt]="auftrag">
                                     Freigeben
                                 </button>
+                            </td>
+
+                            <!-- Gesperrt (Nachschub fehlt) -->
+                            <td *ngIf="col.id === 'gesperrt' && col.visible" [style.width]="col.width">
+                                <mat-icon *ngIf="isGesperrt(auftrag)" class="icon-gesperrt">cancel</mat-icon>
+                                <mat-icon *ngIf="!isGesperrt(auftrag)" class="icon-ok">check_circle</mat-icon>
                             </td>
 
                             <!-- Lagerist -->
@@ -190,6 +199,34 @@
                                         </tr>
                                     </tbody>
                                 </table>
+
+                                <!-- Fehlender Nachschub (Level 1) -->
+                                <ng-container
+                                    *ngIf="expandedLevel === 1 && getFehlendePosForAuftrag(auftrag).length > 0">
+                                    <div class="nachschub-header">
+                                        <mat-icon class="icon-gesperrt">warning</mat-icon>
+                                        Fehlender Nachschub
+                                    </div>
+                                    <table class="detail-table nachschub-table ">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 100px;">ArtikelNr.</th>
+                                                <th>Beschreibung</th>
+                                                <th style="width: 80px;">Fehlende Menge</th>
+                                                <th style="width: 80px;">Filialcode</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let fp of getFehlendePosForAuftrag(auftrag); let j = index"
+                                                [class.even]="j % 2 === 0" class="nachschub-row">
+                                                <td>{{ fp.artikelnummer }}</td>
+                                                <td>{{ fp.beschreibung }}</td>
+                                                <td>{{ fp.zu_liefern }}</td>
+                                                <td>{{ fp.filialcode || '-' }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </ng-container>
 
                                 <!-- Level 2: Vollständige Details -->
                                 <table *ngIf="expandedLevel === 2" class="detail-table level-2">

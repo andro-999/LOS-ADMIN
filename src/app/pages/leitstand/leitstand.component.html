@@ -32,6 +32,13 @@
                 <option value="erledigt">Erledigt</option>
             </select>
 
+            <select *ngIf="currentView === 'kommi-auftraege'" [(ngModel)]="selectedGesperrt"
+                (change)="onFilterChanged()" class="filter-select">
+                <option value="">Alle Positionen</option>
+                <option value="gesperrt">Gesperrt</option>
+                <option value="nicht-gesperrt">Nicht gesperrt</option>
+            </select>
+
             <!-- KDX Reserviert Filter -->
             <select *ngIf="currentView === 'kdx-bereinigung'" [(ngModel)]="kdxReserviertFilter"
                 (change)="onKdxFilterChanged()" class="filter-select kdx-filter">
@@ -44,7 +51,7 @@
                 <mat-icon>refresh</mat-icon>
             </button>
 
-            <button *ngIf="searchTerm || selectedPriority || selectedStatus || kdxReserviertFilter"
+            <button *ngIf="searchTerm || selectedPriority || selectedStatus || selectedGesperrt || kdxReserviertFilter"
                 (click)="clearFilters()" class="btn-clear">
                 <mat-icon>close</mat-icon>
             </button>
@@ -60,7 +67,7 @@
             <!-- Kommi Aufträge -->
             <app-kommi-auftraege *ngIf="currentView === 'kommi-auftraege'" #kommiComponent [searchTerm]="searchTerm"
                 [selectedPriority]="selectedPriority" [selectedStatus]="selectedStatus"
-                (auftraegeCountChanged)="onAuftraegeCountChanged($event)">
+                [selectedGesperrt]="selectedGesperrt" (auftraegeCountChanged)="onAuftraegeCountChanged($event)">
             </app-kommi-auftraege>
 
             <!-- Einlagerungs Aufträge -->

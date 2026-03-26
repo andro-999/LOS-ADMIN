@@ -64,6 +64,7 @@ export class LeitstandComponent implements OnInit, OnDestroy {
   searchTerm: string = '';
   selectedPriority: string = '';
   selectedStatus: string = '';
+  selectedGesperrt: string = '';
   kdxReserviertFilter: string = '';
   availablePriorities: number[] = [];
 
@@ -128,6 +129,7 @@ export class LeitstandComponent implements OnInit, OnDestroy {
       this.kommiComponent.searchTerm = this.searchTerm;
       this.kommiComponent.selectedPriority = this.selectedPriority;
       this.kommiComponent.selectedStatus = this.selectedStatus;
+      this.kommiComponent.selectedGesperrt = this.selectedGesperrt;
       this.kommiComponent.filterAuftraege();
     }
   }
@@ -144,6 +146,7 @@ export class LeitstandComponent implements OnInit, OnDestroy {
     this.searchTerm = '';
     this.selectedPriority = '';
     this.selectedStatus = '';
+    this.selectedGesperrt = '';
     this.kdxReserviertFilter = '';
     this.onFilterChanged();
     this.onKdxFilterChanged();

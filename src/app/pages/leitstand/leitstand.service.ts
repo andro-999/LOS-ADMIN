@@ -180,6 +180,22 @@ export interface QuickpickLog {
   lagerist_rueck?: string;
 }
 
+// Leere Kommi-Position (Nachschub nötig)
+export interface EmptyKommiPosition {
+  belegnummer: string;
+  artikelnummer: string;
+  beschreibung: string;
+  zu_liefern: number;
+  lagerbestand: number;
+  prioritaet: number;
+  filialcode: string;
+}
+
+interface EmptyKommiPositionsResponse {
+  data: { [belegnummer: string]: EmptyKommiPosition[] };
+  success: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -357,6 +373,16 @@ export class LeitstandService {
           return Array.from(grouped.values());
         })
       );
+  }
+
+  /**
+   * Lädt alle leeren Kommi-Positionen (Nachschub benötigt) gruppiert nach Belegnummer
+   */
+  getEmptyKommiPositions(): Observable<{ [belegnummer: string]: EmptyKommiPosition[] }> {
+    return this.http.get<EmptyKommiPositionsResponse>(
+      `${this.baseUrl}/get_all_empty_kommi_positions`,
+      { headers: new HttpHeaders({ 'accept': '*/*' }) }
+    ).pipe(map(response => response.data));
   }
 
   // ============ BUSINESS LOGIC METHODS ============

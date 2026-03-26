@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
-import { LeitstandService, Auftrag, Position, GroupedPosition } from '../leitstand.service';
+import { LeitstandService, Auftrag, Position, GroupedPosition, EmptyKommiPosition } from '../leitstand.service';
 import { User, UserService } from '../../../services/user.service';
 import { DisabledWhenErledigtDirective } from '../../../directives/disabled-when-erledigt.directive';
 import { NavigationService } from '../../../services/navigation.service';
@@ -30,7 +30,8 @@ const DEFAULT_KOMMI_COLUMNS: KommiColumn[] = [
     { id: 'status', label: 'Status', visible: true, width: '40px' },
     { id: 'prioritaet', label: 'Priorität', visible: true, width: '40px' },
     { id: 'loeschen', label: 'Löschen', visible: true, width: '40px' },
-    { id: 'blockieren', label: 'Blockieren', visible: true, width: '40px' }
+    { id: 'blockieren', label: 'Blockieren', visible: true, width: '40px' },
+    { id: 'gesperrt', label: 'Alle Positionen bereit', visible: true, width: '40px' }
 ];
 
 @Component({
@@ -44,6 +45,7 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
     @Input() searchTerm: string = '';
     @Input() selectedPriority: string = '';
     @Input() selectedStatus: string = '';
+    @Input() selectedGesperrt: string = '';
     @Output() auftraegeCountChanged = new EventEmitter<number>();
 
     auftraege: Auftrag[] = [];
@@ -53,6 +55,7 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
 
     kommiColumns: KommiColumn[] = DEFAULT_KOMMI_COLUMNS.map(col => ({ ...col }));
     prioOptions: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    emptyPositionsMap: { [belegnummer: string]: EmptyKommiPosition[] } = {};
 
     expandedAuftrag: string | null = null;
     expandedLevel: 1 | 2 = 1;
@@ -74,9 +77,30 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
         this.loadColumnOrder();
         this.loadAuftraege();
         this.loadLageristen();
+        this.loadEmptyPositions();
     }
 
     ngOnDestroy(): void { }
+
+    loadEmptyPositions(): void {
+        this.leitstandService.getEmptyKommiPositions().subscribe({
+            next: (map) => { this.emptyPositionsMap = map; },
+            error: () => { this.emptyPositionsMap = {}; }
+        });
+    }
+
+    isGesperrt(auftrag: Auftrag): boolean {
+        return (this.emptyPositionsMap[auftrag.belegnummer!]?.length ?? 0) > 0;
+    }
+
+    getFehlendePosForAuftrag(auftrag: Auftrag): EmptyKommiPosition[] {
+        return this.emptyPositionsMap[auftrag.belegnummer!] ?? [];
+    }
+
+    getNachschubMenge(auftrag: Auftrag): number {
+        return this.getFehlendePosForAuftrag(auftrag)
+            .reduce((sum, pos) => sum + (pos.zu_liefern ?? 0), 0);
+    }
 
     loadAuftraege(): void {
         this.leitstandService.getAuftraege('KOMM').subscribe({
@@ -133,7 +157,11 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
             const auftragStatus = this.getAuftragStatus(auftrag);
             const statusMatch = !this.selectedStatus || auftragStatus === this.selectedStatus;
 
-            return textMatch && priorityMatch && statusMatch;
+            const gesperrtMatch = !this.selectedGesperrt ||
+                (this.selectedGesperrt === 'gesperrt' && this.isGesperrt(auftrag)) ||
+                (this.selectedGesperrt === 'nicht-gesperrt' && !this.isGesperrt(auftrag));
+
+            return textMatch && priorityMatch && statusMatch && gesperrtMatch;
         });
     }
 
