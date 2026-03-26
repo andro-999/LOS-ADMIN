@@ -142,14 +142,25 @@ table {
   color: #999;
 }
 
+// Disabled state for completed orders (via DisabledWhenErledigtDirective)
+.disabled-erledigt {
+  opacity: 0.4;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+
 .btn-delete {
   background: none;
   border: none;
   cursor: pointer;
   color: #dc3545;
 
-  &:hover {
+  &:hover:not(:disabled) {
     color: #c82333;
+  }
+
+  &:disabled {
+    color: #ccc;
   }
 }
 
@@ -160,6 +171,10 @@ table {
   padding: 2px 5px;
   border-radius: 4px;
   cursor: pointer;
+
+  &:disabled {
+    background-color: #ccc;
+  }
 }
 
 .btn-unblock {
@@ -169,6 +184,18 @@ table {
   padding: 2px 5px;
   border-radius: 4px;
   cursor: pointer;
+
+  &:disabled {
+    background-color: #ccc;
+  }
+}
+
+.prio-select {
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background-color: #f5f5f5;
+  }
 }
 
 // Detail Row

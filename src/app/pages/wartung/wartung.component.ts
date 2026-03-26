@@ -33,6 +33,12 @@ export class WartungComponent {
     testErgebnis: string = '';
     testErfolg: boolean = false;
 
+    // Storagemodus
+    storageModus: boolean = false;
+    storageErgebnis: string = '';
+    storageErfolg: boolean = false;
+
+
     constructor(
         private router: Router,
         private authService: AuthService,
@@ -43,6 +49,7 @@ export class WartungComponent {
     ngOnInit(): void {
         this.loadNavigation();
         this.loadTestModusStatus();
+        // this.loadStorageModusStatus();
     }
 
     loadTestModusStatus(): void {
@@ -132,6 +139,34 @@ export class WartungComponent {
         // TODO: API-Aufruf für System-Diagnose
         this.testErgebnis = 'System-Diagnose abgeschlossen. Alle Komponenten funktionieren.';
         this.testErfolg = true;
+    }
+    storageVarA(): void {
+        console.log('Einlagerungsvariante A wird aktiviert...');
+        // TODO: API-Aufruf für Einlagerungsvariante A
+        this.storageErgebnis = 'Einlagerungsvariante A aktiviert.';
+        this.storageErfolg = true;
+    }
+
+    storageVarB(): void {
+        console.log('Einlagerungsvariante B wird aktiviert...');
+        // TODO: API-Aufruf für Einlagerungsvariante B
+        this.storageErgebnis = 'Einlagerungsvariante B aktiviert.';
+        this.storageErfolg = true;
+    }
+
+    storageOff(): void {
+        console.log('Einlagerung wird deaktiviert...');
+        // TODO: API-Aufruf für Einlagerungsvariante deaktivieren
+        this.storageErgebnis = 'Einlagerung wurde deaktiviert.';
+        this.storageErfolg = true;
+    }
+    storageOn(): void {
+        console.log('Einlagerung wird aktiviert...');
+        // TODO: API-Aufruf für Einlagerungsvariante aktivieren
+        this.storageErgebnis = 'Einlagerung wurde aktiviert.';
+        this.storageErfolg = true;
+
+
     }
 
     navigateToHome(): void {

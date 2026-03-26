@@ -333,7 +333,7 @@ export class LeitstandService {
 
           Object.values(response.data).forEach(auftrag => {
             auftrag.all_positions
-              .filter(pos => pos.gtin_scann === 0)
+              .filter(pos => pos.gtin_scann === 0 && pos.lagerist_rueck && pos.lagerist_rueck.trim() !== '')
               .forEach(pos => {
                 const key = `${pos.belegnummer}|${pos.artikelnummer}`;
                 const existing = grouped.get(key);

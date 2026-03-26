@@ -5,6 +5,7 @@ import { MatIcon } from '@angular/material/icon';
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { LeitstandService, Auftrag, Position, GroupedPosition } from '../leitstand.service';
 import { User, UserService } from '../../../services/user.service';
+import { DisabledWhenErledigtDirective } from '../../../directives/disabled-when-erledigt.directive';
 import { NavigationService } from '../../../services/navigation.service';
 import { ColumnSettingsComponent, ColumnConfig } from '../../../components/column-settings/column-settings.component';
 import { ColumnOrderService } from '../../../services/column-order.service';
@@ -35,7 +36,7 @@ const DEFAULT_KOMMI_COLUMNS: KommiColumn[] = [
 @Component({
     selector: 'app-kommi-auftraege',
     standalone: true,
-    imports: [CommonModule, FormsModule, MatIcon, DragDropModule, ColumnSettingsComponent],
+    imports: [CommonModule, FormsModule, MatIcon, DragDropModule, ColumnSettingsComponent, DisabledWhenErledigtDirective],
     templateUrl: './kommi-auftraege.component.html',
     styleUrls: ['./kommi-auftraege.component.scss']
 })
