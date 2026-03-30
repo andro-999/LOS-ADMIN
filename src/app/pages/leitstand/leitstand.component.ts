@@ -105,6 +105,7 @@ export class LeitstandComponent implements OnInit, OnDestroy {
     switch (this.currentView) {
       case 'kommi-auftraege':
         this.kommiComponent?.loadAuftraege();
+        this.kommiComponent?.loadEmptyPositions();
         break;
       case 'einlagerungsauftraege':
         this.einlagerungComponent?.loadEinlagerungTasks();
