@@ -9,6 +9,8 @@ import { DisabledWhenErledigtDirective } from '../../../directives/disabled-when
 import { NavigationService } from '../../../services/navigation.service';
 import { ColumnSettingsComponent, ColumnConfig } from '../../../components/column-settings/column-settings.component';
 import { ColumnOrderService } from '../../../services/column-order.service';
+import { Subscription } from 'rxjs';
+import { WartungService } from '../../../services/wartung.service';
 
 export type KommiColumn = ColumnConfig;
 
@@ -31,7 +33,8 @@ const DEFAULT_KOMMI_COLUMNS: KommiColumn[] = [
     { id: 'prioritaet', label: 'Priorität', visible: true, width: '40px' },
     { id: 'loeschen', label: 'Löschen', visible: true, width: '40px' },
     { id: 'blockieren', label: 'Blockieren', visible: true, width: '40px' },
-    { id: 'gesperrt', label: 'Alle Positionen bereit', visible: true, width: '40px' }
+    { id: 'gesperrt', label: 'Alle Positionen bereit', visible: true, width: '40px' },
+    { id: 'einlagerungsvariante', label: 'EinVar', title: 'Einlagerungsvariante', visible: true, width: '40px' }
 ];
 
 @Component({
@@ -62,6 +65,8 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
     selectedAuftrag: Auftrag | null = null;
     selectedRowIndex: number = 0;
 
+    private varianteSub?: Subscription;
+
     get visibleColumnsCount(): number {
         return this.kommiColumns.filter(c => c.visible).length;
     }
@@ -70,7 +75,8 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
         private leitstandService: LeitstandService,
         private userService: UserService,
         private navigationService: NavigationService,
-        private columnOrderService: ColumnOrderService
+        private columnOrderService: ColumnOrderService,
+        private wartungService: WartungService
     ) { }
 
     ngOnInit(): void {
@@ -78,9 +84,18 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
         this.loadAuftraege();
         this.loadLageristen();
         this.loadEmptyPositions();
+
+        this.varianteSub = this.wartungService.varianteChanged$.subscribe(({ belegnummer, variante }) => {
+            const auftrag = this.auftraege.find(a => a.belegnummer === belegnummer);
+            if (auftrag) {
+                auftrag.einlagerungslogik_variante = variante;
+            }
+        });
     }
 
-    ngOnDestroy(): void { }
+    ngOnDestroy(): void {
+        this.varianteSub?.unsubscribe();
+    }
 
     loadEmptyPositions(): void {
         this.leitstandService.getEmptyKommiPositions().subscribe({

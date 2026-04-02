@@ -6,8 +6,9 @@ import { HeaderComponent } from '../../components/header/header.component';
 import { FusszeileComponent } from '../../components/fusszeile/fusszeile.component';
 import { NavBlockComponent, NavButton } from '../../components/nav-block/nav-block.component';
 import { NavigationService } from '../../services/navigation.service';
-import { WartungService } from '../../services/wartung.service';
+import { WartungService, StorageStatusResponse, StorageActiveResponse } from '../../services/wartung.service';
 import { MatIcon } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-wartung',
@@ -17,7 +18,9 @@ import { MatIcon } from '@angular/material/icon';
         HeaderComponent,
         FusszeileComponent,
         NavBlockComponent,
-        MatIcon
+        MatIcon,
+        FormsModule
+
     ],
     templateUrl: './wartung.component.html',
     styleUrls: ['./wartung.component.scss']
@@ -37,19 +40,32 @@ export class WartungComponent {
     storageModus: boolean = false;
     storageErgebnis: string = '';
     storageErfolg: boolean = false;
-
+    storageBelegnummer: string = '';
+    storageIsActive: boolean = false;
 
     constructor(
         private router: Router,
         private authService: AuthService,
         private navigationService: NavigationService,
         private wartungService: WartungService
+
     ) { }
 
     ngOnInit(): void {
         this.loadNavigation();
         this.loadTestModusStatus();
-        // this.loadStorageModusStatus();
+        this.loadStorageStatus();
+    }
+
+    loadStorageStatus(): void {
+        this.wartungService.getStorageStatus().subscribe({
+            next: (response) => {
+                if (response.success) {
+                    this.storageIsActive = response.is_active;
+                }
+            },
+            error: () => { }
+        });
     }
 
     loadTestModusStatus(): void {
@@ -141,30 +157,77 @@ export class WartungComponent {
         this.testErfolg = true;
     }
     storageVarA(): void {
+        this.wartungService.changeStorePutLogic(this.storageBelegnummer, 1).subscribe({
+            next: (response) => {
+                this.storageErgebnis = response.msg;
+                this.storageErfolg = response.success;
+                if (response.success) {
+                    this.wartungService.varianteChanged.next({ belegnummer: this.storageBelegnummer, variante: 1 });
+                }
+            },
+            error: () => {
+                this.storageErgebnis = 'Fehler beim Aktivieren von Variante A.';
+                this.storageErfolg = false;
+            }
+        });
         console.log('Einlagerungsvariante A wird aktiviert...');
-        // TODO: API-Aufruf für Einlagerungsvariante A
-        this.storageErgebnis = 'Einlagerungsvariante A aktiviert.';
-        this.storageErfolg = true;
     }
 
     storageVarB(): void {
+        this.wartungService.changeStorePutLogic(this.storageBelegnummer, 2).subscribe({
+            next: (response) => {
+                this.storageErgebnis = response.msg;
+                this.storageErfolg = response.success;
+                if (response.success) {
+                    this.wartungService.varianteChanged.next({ belegnummer: this.storageBelegnummer, variante: 2 });  // ← fehlt
+                }
+            },
+            error: () => {
+                this.storageErgebnis = 'Fehler beim Aktivieren von Variante B.';
+                this.storageErfolg = false;
+            }
+        });
         console.log('Einlagerungsvariante B wird aktiviert...');
-        // TODO: API-Aufruf für Einlagerungsvariante B
-        this.storageErgebnis = 'Einlagerungsvariante B aktiviert.';
-        this.storageErfolg = true;
     }
 
+
+
+
     storageOff(): void {
+        this.wartungService.changeStorageStatus(false).subscribe({
+            next: (response) => {
+                this.storageErgebnis = response.msg;
+                this.storageErfolg = response.success;
+                if (response.success) this.storageIsActive = false;
+            },
+            error: () => {
+                this.storageErgebnis = 'Fehler beim Deaktivieren der Einlagerung.';
+                this.storageErfolg = false;
+            }
+        })
         console.log('Einlagerung wird deaktiviert...');
-        // TODO: API-Aufruf für Einlagerungsvariante deaktivieren
-        this.storageErgebnis = 'Einlagerung wurde deaktiviert.';
-        this.storageErfolg = true;
+        // // TODO: API-Aufruf für Einlagerungsvariante deaktivieren
+        // this.storageErgebnis = 'Einlagerung wurde deaktiviert.';
+        // this.storageErfolg = true;
     }
     storageOn(): void {
+        this.wartungService.changeStorageStatus(true).subscribe({
+            next: (response) => {
+                this.storageErgebnis = response.msg;
+                this.storageErfolg = response.success;
+                if (response.success) this.storageIsActive = true;
+
+            },
+            error: () => {
+                this.storageErgebnis = 'Fehler beim Aktivieren der Einlagerung.';
+                this.storageErfolg = false;
+            }
+        });
+
         console.log('Einlagerung wird aktiviert...');
         // TODO: API-Aufruf für Einlagerungsvariante aktivieren
-        this.storageErgebnis = 'Einlagerung wurde aktiviert.';
-        this.storageErfolg = true;
+        // this.storageErgebnis = 'Einlagerung wurde aktiviert.';
+        // this.storageErfolg = true;
 
 
     }

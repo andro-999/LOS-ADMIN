@@ -12,7 +12,8 @@
                 <tr>
                     <ng-container *ngFor="let col of kommiColumns">
                         <th *ngIf="col.visible" [attr.data-col]="col.id" cdkDrag class="draggable-header"
-                            [style.width]="col.width" [style.min-width]="col.width" [style.max-width]="col.width">
+                            [style.width]="col.width" [style.min-width]="col.width" [style.max-width]="col.width"
+                            [attr.title]="col.title || col.label">
                             <div class="drag-handle">{{ col.label }}</div>
                         </th>
                     </ng-container>
@@ -156,6 +157,11 @@
                                         {{ user.benutzer_id + (!user.isActive ? ' (inaktiv)' : '') }}
                                     </option>
                                 </select>
+                            </td>
+                            <!-- Einlagerungsvariante -->
+                            <td *ngIf="col.id === 'einlagerungsvariante' && col.visible" [style.width]="col.width">
+                                <span>{{ auftrag.einlagerungslogik_variante === 2 ? 'B' : 'A' }}</span>
+
                             </td>
                         </ng-container>
                     </tr>

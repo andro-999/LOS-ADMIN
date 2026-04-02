@@ -43,6 +43,7 @@ export interface Position {
   bruttoGewicht?: number;
   anzahl_vollpalette?: number;
   gtin_scann?: number; // 0 = Quickpick, 1 = normaler Scan
+  einlagerungslogik_variante?: number; // 1 = Variante A, 2 = Variante B
 
   // ... weitere Felder nach Bedarf
 }
@@ -85,6 +86,7 @@ export interface Auftrag {
   blocked?: boolean;
   tourcode?: string;
   bruttoGewicht?: number;
+  einlagerungslogik_variante?: number;
 }
 
 // Einlagerung Task Interfaces
@@ -156,6 +158,9 @@ export interface GroupedPosition {
   zu_liefern: number;
   start_rueck: number;
   end_rueck: number;
+  lagerist_rueck?: string;
+  erledigte_count?: number;
+  total_count?: number;
 }
 
 // Auftrag-Fortschritt Interface
@@ -254,6 +259,7 @@ export class LeitstandService {
               tourcode: data.tourcode || '',
               bruttoGewicht: data.bruttoGewicht || 0,
               anzahl_vollpalette: firstPosition.anzahl_vollpalette || 0,
+              einlagerungslogik_variante: firstPosition?.einlagerungslogik_variante ?? 1,
             } as Auftrag;
           });
         })
@@ -429,14 +435,11 @@ export class LeitstandService {
   }
 
   /**
-   * Berechnet Fortschritt einer einzelnen Position
+   * Berechnet Fortschritt einer einzelnen Position.
+   * Eine Position gilt als erledigt (100%), wenn lagerist_rueck gefüllt ist.
    */
   getPositionFortschritt(position: Position | GroupedPosition): string {
-    if (position.menge_rueck && position.zu_liefern) {
-      const prozent = Math.round((position.menge_rueck / position.zu_liefern) * 100);
-      return `${prozent}%`;
-    }
-    return position.menge_rueck > 0 ? '100%' : '0%';
+    return position.lagerist_rueck && position.lagerist_rueck.trim() !== '' ? '100%' : '0%';
   }
 
   /**
@@ -515,15 +518,18 @@ export class LeitstandService {
       return [];
     }
 
-    const grouped = new Map<string, GroupedPosition>();
+    const grouped = new Map<string, GroupedPosition & { _erledigte: number; _total: number }>();
 
     for (const pos of auftrag.positionen) {
       const key = pos.artikelnummer;
       const existing = grouped.get(key);
+      const posErledigt = pos.lagerist_rueck && pos.lagerist_rueck.trim() !== '' ? 1 : 0;
 
       if (existing) {
         existing.menge_rueck += pos.menge_rueck || 0;
         existing.zu_liefern += pos.zu_liefern || 0;
+        existing._erledigte += posErledigt;
+        existing._total += 1;
       } else {
         grouped.set(key, {
           artikelnummer: pos.artikelnummer,
@@ -533,9 +539,17 @@ export class LeitstandService {
           menge_rueck: pos.menge_rueck || 0,
           zu_liefern: pos.zu_liefern || 0,
           start_rueck: (pos as any).start_rueck || 0,
-          end_rueck: (pos as any).end_rueck || 0
+          end_rueck: (pos as any).end_rueck || 0,
+          _erledigte: posErledigt,
+          _total: 1
         });
       }
+    }
+
+    for (const gp of grouped.values()) {
+      gp.erledigte_count = gp._erledigte;
+      gp.total_count = gp._total;
+      gp.lagerist_rueck = gp._erledigte === gp._total ? 'erledigt' : '';
     }
 
     return Array.from(grouped.values());

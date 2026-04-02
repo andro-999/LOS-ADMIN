@@ -8,6 +8,7 @@ export interface ColumnConfig {
     label: string;
     visible: boolean;
     width?: string;
+    title?: string;
 }
 
 @Component({
