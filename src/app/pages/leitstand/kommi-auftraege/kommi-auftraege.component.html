@@ -1,9 +1,15 @@
 <div class="kommi-auftraege-container">
     <div class="header-row">
         <h2>Kommi Aufträge</h2>
-        <app-column-settings [columns]="kommiColumns" [storageKey]="'kommiColumnSettings'"
-            (columnsChange)="onColumnsChange($event)" (reset)="resetColumnOrder()">
-        </app-column-settings>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <app-column-settings [columns]="kommiColumns" [storageKey]="'kommiColumnSettings'"
+                (columnsChange)="onColumnsChange($event)" (reset)="resetColumnOrder()">
+            </app-column-settings>
+            <button (click)="toggleStorageStatus()" [style.background-color]="storageIsActive ? '#28a745' : '#dc3545'"
+                style="padding: 8px 16px; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; white-space: nowrap;">
+                {{ storageIsActive ? 'Einlagerung deaktivieren' : 'Einlagerung aktivieren' }}
+            </button>
+        </div>
     </div>
 
     <div class="table-container">
@@ -160,8 +166,12 @@
                             </td>
                             <!-- Einlagerungsvariante -->
                             <td *ngIf="col.id === 'einlagerungsvariante' && col.visible" [style.width]="col.width">
-                                <span>{{ auftrag.einlagerungslogik_variante === 2 ? 'B' : 'A' }}</span>
-
+                                <select [ngModel]="auftrag.einlagerungslogik_variante || 1"
+                                    (ngModelChange)="changeEinlagerungsVariante(auftrag, $event)"
+                                    (click)="$event.stopPropagation()">
+                                    <option [value]="1">A</option>
+                                    <option [value]="2">B</option>
+                                </select>
                             </td>
                         </ng-container>
                     </tr>

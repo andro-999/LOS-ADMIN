@@ -34,7 +34,7 @@ const DEFAULT_KOMMI_COLUMNS: KommiColumn[] = [
     { id: 'loeschen', label: 'Löschen', visible: true, width: '40px' },
     { id: 'blockieren', label: 'Blockieren', visible: true, width: '40px' },
     { id: 'gesperrt', label: 'Alle Positionen bereit', visible: true, width: '40px' },
-    { id: 'einlagerungsvariante', label: 'EinVar', title: 'Einlagerungsvariante', visible: true, width: '40px' }
+    { id: 'einlagerungsvariante', label: 'EinVar', title: 'Einlagerungsvariante', visible: true, width: '70px' }
 ];
 
 @Component({
@@ -65,6 +65,7 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
     selectedAuftrag: Auftrag | null = null;
     selectedRowIndex: number = 0;
 
+    storageIsActive: boolean = false;
     private varianteSub?: Subscription;
 
     get visibleColumnsCount(): number {
@@ -84,6 +85,7 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
         this.loadAuftraege();
         this.loadLageristen();
         this.loadEmptyPositions();
+        this.loadStorageStatus();
 
         this.varianteSub = this.wartungService.varianteChanged$.subscribe(({ belegnummer, variante }) => {
             const auftrag = this.auftraege.find(a => a.belegnummer === belegnummer);
@@ -362,6 +364,40 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
             next: (response) => {
                 if (response.success && auftrag) {
                     auftrag.lagerist = lageristId;
+                }
+            },
+            error: () => { }
+        });
+    }
+
+    loadStorageStatus(): void {
+        this.wartungService.getStorageStatus().subscribe({
+            next: (response) => {
+                if (response.success) {
+                    this.storageIsActive = response.is_active;
+                }
+            },
+            error: () => { }
+        });
+    }
+
+    toggleStorageStatus(): void {
+        this.wartungService.changeStorageStatus(!this.storageIsActive).subscribe({
+            next: (response) => {
+                if (response.success) {
+                    this.storageIsActive = !this.storageIsActive;
+                }
+            },
+            error: () => { }
+        });
+    }
+
+    changeEinlagerungsVariante(auftrag: Auftrag, variante: 1 | 2): void {
+        if (!auftrag.belegnummer) return;
+        this.wartungService.changeStorePutLogic(auftrag.belegnummer, variante).subscribe({
+            next: (response) => {
+                if (response.success) {
+                    auftrag.einlagerungslogik_variante = variante;
                 }
             },
             error: () => { }
