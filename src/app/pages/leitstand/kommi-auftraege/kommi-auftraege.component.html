@@ -168,7 +168,7 @@
                             <td *ngIf="col.id === 'einlagerungsvariante' && col.visible" [style.width]="col.width">
                                 <select [ngModel]="auftrag.einlagerungslogik_variante || 1"
                                     (ngModelChange)="changeEinlagerungsVariante(auftrag, $event)"
-                                    (click)="$event.stopPropagation()">
+                                    (click)="$event.stopPropagation()" [appDisabledWhenErledigt]="auftrag">
                                     <option [value]="1">A</option>
                                     <option [value]="2">B</option>
                                 </select>

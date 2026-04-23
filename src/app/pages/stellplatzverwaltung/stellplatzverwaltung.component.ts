@@ -64,7 +64,7 @@ export class StellplatzverwaltungComponent implements OnInit, OnDestroy {
   private filterChange$ = new Subject<void>();
 
   searchTerm: string = '';
-  selectedFilialCode: string = 'TOP'; // Standard FilialCode
+  selectedFilialCode: string = 'KDX'; // Standard FilialCode
 
   filters: StellplatzFilter = {
     regalNr: '',
@@ -193,7 +193,7 @@ export class StellplatzverwaltungComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe({
       next: (slots) => {
-        console.log('Slots geladen:', slots.length); // DEBUG
+        //console.log('Slots geladen:', slots.length); // DEBUG
         this.isLoading = false;
         this.loadingMessage = '';
         this.applyFilters();
@@ -224,6 +224,20 @@ export class StellplatzverwaltungComponent implements OnInit, OnDestroy {
       filialcode: this.filters.filialCode || undefined,
       artikelnummer: this.filters.artikelNr || undefined,
       vintageyear: this.filters.jahrgang || undefined,
+      charge: this.filters.mhd || undefined,
+      height: this.filters.hoehe || undefined,
+      width: this.filters.breite || undefined,
+      depth: this.filters.tiefe || undefined,
+      nve: this.filters.nve || undefined,
+      createdby: this.filters.createdBy || undefined,
+      createdat: this.filters.createdAt || undefined,
+      updatedby: this.filters.updatedBy || undefined,
+      updatedat: this.filters.updatedAt || undefined,
+      amountbase: this.filters.gesamtmenge || undefined,
+      amount: this.filters.menge || undefined,
+      unit: this.filters.einheit || undefined,
+      amountunit: this.filters.mengeEinheit || undefined,
+      pals: this.filters.paletten || undefined,
       ist_kommiplatz: this.parseBoolFilter(this.filters.kPlatz),
       locked: this.parseBoolFilter(this.filters.gesperrt),
       _bio: this.parseBoolFilter(this.filters.bio),
@@ -315,7 +329,7 @@ export class StellplatzverwaltungComponent implements OnInit, OnDestroy {
   }
 
   navigateToHome(): void {
-    this.router.navigate(['home']);
+    this.router.navigate(['/home']);
   }
 
   // Pagination Methoden
@@ -358,7 +372,7 @@ export class StellplatzverwaltungComponent implements OnInit, OnDestroy {
   getEmptySlot(): CreateSlotRequest {
     return {
       regalnummer: '',
-      filialcode: this.selectedFilialCode || 'TOP',
+      filialcode: this.selectedFilialCode || 'KDX',
       artikelnummer: '',
       vintageyear: '',
       charge: '',
@@ -384,7 +398,7 @@ export class StellplatzverwaltungComponent implements OnInit, OnDestroy {
   getEmptyEditSlot(): EditSlotRequest {
     return {
       regalnummer: '',
-      filialcode: this.selectedFilialCode || 'TOP',
+      filialcode: this.selectedFilialCode || 'KDX',
       artikelnummer: '',
       vintageyear: '',
       charge: '',
@@ -619,8 +633,13 @@ export class StellplatzverwaltungComponent implements OnInit, OnDestroy {
     const link = document.createElement('a');
     link.href = url;
     link.download = `stellplaetze_${this.selectedFilialCode}_${new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
-    window.URL.revokeObjectURL(url);
+    document.body.appendChild(link);
+    try {
+      link.click();
+    } finally {
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    }
   }
 
   /**

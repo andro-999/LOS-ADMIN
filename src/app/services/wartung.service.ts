@@ -18,6 +18,11 @@ export interface StorageActiveResponse {
     success: boolean;
     is_active: boolean;
 }
+
+export interface ChangeAllStorePutResponse {
+    msg: string;
+    success: boolean;
+}
 @Injectable({
     providedIn: 'root'
 })
@@ -65,6 +70,12 @@ export class WartungService {
     getStorageStatus(): Observable<StorageActiveResponse> {
         return this.http.get<StorageActiveResponse>(
             `${this.baseUrl}/get_storagestatus_during_orderpicking`
+        );
+    }
+
+    changeStorePutLogicForAll(variante: 'A' | 'B'): Observable<ChangeAllStorePutResponse> {
+        return this.http.get<ChangeAllStorePutResponse>(
+            `${this.baseUrl}/change_storeput_logic_for_all?neue_variante=${variante}`
         );
     }
 

@@ -130,23 +130,43 @@
 
                     <!-- Einlagerungs-Optionen -->
                     <div style="display: flex; flex-direction: column; margin-top: -10px; gap: 12px;">
-                        <div style="margin-bottom: 12px;">
-                            <label style="font-weight: 600; display: block; margin-bottom: 4px;">Belegnummer:</label>
-                            <input [(ngModel)]="storageBelegnummer" placeholder="z.B. LA0974388"
-                                style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;" />
+
+                        <!-- Globale Variante A setzen -->
+                        <div style="display: flex; gap: 8px;">
+                            <button (click)="changeAllToVariante('A')"
+                                style="padding: 7px 12px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 13px;">
+
+                                Alle Aufträge auf Variante A umschalten
+                            </button>
                         </div>
-                        <button class="storage-btn" (click)="storageVarA()"
-                            style="padding: 10px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px;">
-                            <mat-icon>A</mat-icon>
-                            Einlagerungsvariante A aktivieren: Es wird nach jeder Position eingelagert.
-                        </button>
-                        <button class="storage-btn" (click)="storageVarB()"
-                            style="padding: 10px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 8px;">
-                            <mat-icon>B</mat-icon>
-                            Einlagerungsvariante B aktivieren: Es wird eingelagert, wenn alle Positionen kommissioniert
-                            sind
-                            sind
-                        </button>
+                        <!-- Variantenverteilung -->
+                        <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 4px;">
+                            <div *ngIf="varianteACount > 0"
+                                style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 6px;">
+                                <span style="font-weight: 600; color: #2e7d32;">{{ varianteACount }} Aufträge mit
+                                    Variante A</span>
+                            </div>
+
+                            <button (click)="loadVarianteCounts()" title="Aktualisieren"
+                                style="padding: 6px 10px; background: #f0f0f0; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; display: flex; align-items: center;">
+                                <mat-icon style="font-size: 18px; width: 18px; height: 18px;">refresh</mat-icon>
+                            </button>
+                            <div *ngIf="varianteBCount > 0"
+                                style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: #fff3e0; border: 1px solid #ffcc80; border-radius: 6px;">
+                                <span style="font-weight: 600; color: #e65100;">{{ varianteBCount }} x B / Restmenge
+                                    wird nach dem Kommissionierung eingelagert</span>
+                            </div>
+                        </div>
+
+                        <!-- Globale Variante B setzen -->
+                        <div style="display: flex; gap: 8px;">
+
+                            <button (click)="changeAllToVariante('B')"
+                                style="padding: 7px 12px; background: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 13px;">
+                                Alle auf Variante B
+
+                            </button>
+                        </div>
                     </div>
                     <div
                         style="display: flex; flex-direction: row; margin-top: 80px; gap: 12px; align-items: flex-start;">

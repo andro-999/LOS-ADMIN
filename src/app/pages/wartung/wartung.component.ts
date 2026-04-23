@@ -7,6 +7,7 @@ import { FusszeileComponent } from '../../components/fusszeile/fusszeile.compone
 import { NavBlockComponent, NavButton } from '../../components/nav-block/nav-block.component';
 import { NavigationService } from '../../services/navigation.service';
 import { WartungService, StorageStatusResponse, StorageActiveResponse } from '../../services/wartung.service';
+import { LeitstandService } from '../leitstand/leitstand.service';
 import { MatIcon } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 
@@ -40,21 +41,23 @@ export class WartungComponent {
     storageModus: boolean = false;
     storageErgebnis: string = '';
     storageErfolg: boolean = false;
-    storageBelegnummer: string = '';
     storageIsActive: boolean = false;
+    varianteACount: number = 0;
+    varianteBCount: number = 0;
 
     constructor(
         private router: Router,
         private authService: AuthService,
         private navigationService: NavigationService,
-        private wartungService: WartungService
-
+        private wartungService: WartungService,
+        private leitstandService: LeitstandService
     ) { }
 
     ngOnInit(): void {
         this.loadNavigation();
         this.loadTestModusStatus();
         this.loadStorageStatus();
+        this.loadVarianteCounts();
     }
 
     loadStorageStatus(): void {
@@ -156,38 +159,31 @@ export class WartungComponent {
         this.testErgebnis = 'System-Diagnose abgeschlossen. Alle Komponenten funktionieren.';
         this.testErfolg = true;
     }
-    storageVarA(): void {
-        this.wartungService.changeStorePutLogic(this.storageBelegnummer, 1).subscribe({
-            next: (response) => {
-                this.storageErgebnis = response.msg;
-                this.storageErfolg = response.success;
-                if (response.success) {
-                    this.wartungService.varianteChanged.next({ belegnummer: this.storageBelegnummer, variante: 1 });
-                }
+    loadVarianteCounts(): void {
+        this.leitstandService.getAuftraege('KOMM').subscribe({
+            next: (auftraege) => {
+                const open = auftraege.filter(a => !a.erledigt);
+                this.varianteACount = open.filter(a => (a.einlagerungslogik_variante ?? 1) === 1).length;
+                this.varianteBCount = open.filter(a => a.einlagerungslogik_variante === 2).length;
             },
-            error: () => {
-                this.storageErgebnis = 'Fehler beim Aktivieren von Variante A.';
-                this.storageErfolg = false;
-            }
+            error: () => { }
         });
-        console.log('Einlagerungsvariante A wird aktiviert...');
     }
 
-    storageVarB(): void {
-        this.wartungService.changeStorePutLogic(this.storageBelegnummer, 2).subscribe({
+    changeAllToVariante(variante: 'A' | 'B'): void {
+        this.wartungService.changeStorePutLogicForAll(variante).subscribe({
             next: (response) => {
                 this.storageErgebnis = response.msg;
                 this.storageErfolg = response.success;
                 if (response.success) {
-                    this.wartungService.varianteChanged.next({ belegnummer: this.storageBelegnummer, variante: 2 });  // ← fehlt
+                    this.loadVarianteCounts();
                 }
             },
             error: () => {
-                this.storageErgebnis = 'Fehler beim Aktivieren von Variante B.';
+                this.storageErgebnis = `Fehler beim Setzen von Variante ${variante}.`;
                 this.storageErfolg = false;
             }
         });
-        console.log('Einlagerungsvariante B wird aktiviert...');
     }
 
 

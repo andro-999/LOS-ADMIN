@@ -103,6 +103,20 @@ export class SlotService {
             if (criteria.filialcode && !slot.filialcode.toLowerCase().includes(criteria.filialcode.toLowerCase())) return false;
             if (criteria.artikelnummer && !slot.artikelnummer.toLowerCase().includes(criteria.artikelnummer.toLowerCase())) return false;
             if (criteria.vintageyear && !slot.vintageyear.includes(criteria.vintageyear)) return false;
+            if (criteria.charge && !slot.charge.toLowerCase().includes(criteria.charge.toLowerCase())) return false;
+            if (criteria.height && !slot.height.toLowerCase().includes(criteria.height.toLowerCase())) return false;
+            if (criteria.width && !slot.width.toLowerCase().includes(criteria.width.toLowerCase())) return false;
+            if (criteria.depth && !slot.depth.toLowerCase().includes(criteria.depth.toLowerCase())) return false;
+            if (criteria.nve && !slot.nve.toLowerCase().includes(criteria.nve.toLowerCase())) return false;
+            if (criteria.createdby && !slot.createdby.toLowerCase().includes(criteria.createdby.toLowerCase())) return false;
+            if (criteria.createdat && !slot.createdat.includes(criteria.createdat)) return false;
+            if (criteria.updatedby && !slot.updatedby.toLowerCase().includes(criteria.updatedby.toLowerCase())) return false;
+            if (criteria.updatedat && !slot.updatedat.includes(criteria.updatedat)) return false;
+            if (criteria.amountbase && !String(slot.amountbase).includes(criteria.amountbase)) return false;
+            if (criteria.amount && !String(slot.amount).includes(criteria.amount)) return false;
+            if (criteria.unit && !slot.unit.toLowerCase().includes(criteria.unit.toLowerCase())) return false;
+            if (criteria.amountunit && !String(slot.amountunit).includes(criteria.amountunit)) return false;
+            if (criteria.pals && !slot.pals.toLowerCase().includes(criteria.pals.toLowerCase())) return false;
 
             // Boolean Filter
             if (criteria.ist_kommiplatz !== null && criteria.ist_kommiplatz !== undefined && slot.ist_kommiplatz !== criteria.ist_kommiplatz) return false;
