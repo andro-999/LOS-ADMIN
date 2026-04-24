@@ -1,6 +1,16 @@
 <div class="kommi-auftraege-container">
     <div class="header-row">
-        <h2>Kommi Aufträge</h2>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <h2 style="margin: 0;">Kommi Aufträge</h2>
+            <div style="display: flex; align-items: center; margin-left: 80px; gap: 4px;">
+                <span style="font-size: 13px; white-space: nowrap;">Lieferdatum bis</span>
+                <input type="date" placeholder="Datum eingeben..." [(ngModel)]="lieferdatumBis"
+                    (ngModelChange)="filterAuftraege()" class="search-input">
+                <span style="font-size: 13px; color: #666; margin-left: 25px; white-space: nowrap;">
+                    {{ filteredAuftraege.length }} Aufträge
+                </span>
+            </div>
+        </div>
         <div style="display: flex; align-items: center; gap: 8px;">
             <app-column-settings [columns]="kommiColumns" [storageKey]="'kommiColumnSettings'"
                 (columnsChange)="onColumnsChange($event)" (reset)="resetColumnOrder()">
@@ -83,7 +93,7 @@
                             </td>
 
                             <!-- Debitor -->
-                            <td *ngIf="col.id === 'debitor' && col.visible">{{ auftrag.liefer_an_name }}</td>
+                            <td *ngIf="col.id === 'debitor' && col.visible">{{ auftrag.kunde }}</td>
 
                             <!-- Palettenanzahl -->
                             <td *ngIf="col.id === 'palettenanzahl' && col.visible">{{ getPalettenAnzahl(auftrag) }}</td>
@@ -271,7 +281,7 @@
                                             <td>{{ pos.regalnummer || '-' }}</td>
                                             <td>{{ pos.filialcode || '-' }}</td>
                                             <td>{{ $any(pos).start_rueck || '-' }}</td>
-                                            <td>{{ $any(pos).end_rueck || '-' }}</td>
+                                            <td>{{ $any(pos).ende_rueck || '-' }}</td>
                                             <td>{{ pos.menge_rueck || 0 }}</td>
                                             <td>{{ pos.lagerist_rueck || '-' }}</td>
                                             <td class="progress-cell">

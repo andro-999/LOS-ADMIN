@@ -81,12 +81,13 @@ export interface Auftrag {
   menge?: number;
   menge_rueck?: number;
   zu_liefern?: number;
-  liefer_an_name?: string;
+  //liefer_an_name?: string;
   chargennummer?: string;
   blocked?: boolean;
   tourcode?: string;
   bruttoGewicht?: number;
   einlagerungslogik_variante?: number;
+  //verkauf_an_name?: string;
 }
 
 // Einlagerung Task Interfaces
@@ -157,7 +158,7 @@ export interface GroupedPosition {
   menge_rueck: number;
   zu_liefern: number;
   start_rueck: number;
-  end_rueck: number;
+  ende_rueck: number;
   lagerist_rueck?: string;
   erledigte_count?: number;
   total_count?: number;
@@ -258,7 +259,7 @@ export class LeitstandService {
               blocked: data.blocked_by_NAV === true,
               tourcode: data.tourcode || '',
               bruttoGewicht: data.bruttoGewicht || 0,
-              anzahl_vollpalette: firstPosition.anzahl_vollpalette || 0,
+              anzahl_vollpalette: firstPosition?.anzahl_vollpalette || 0,
               einlagerungslogik_variante: firstPosition?.einlagerungslogik_variante ?? 1,
             } as Auftrag;
           });
@@ -539,7 +540,7 @@ export class LeitstandService {
           menge_rueck: pos.menge_rueck || 0,
           zu_liefern: pos.zu_liefern || 0,
           start_rueck: (pos as any).start_rueck || 0,
-          end_rueck: (pos as any).end_rueck || 0,
+          ende_rueck: (pos as any).ende_rueck || 0,
           _erledigte: posErledigt,
           _total: 1
         });

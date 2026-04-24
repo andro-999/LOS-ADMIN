@@ -66,6 +66,7 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
     selectedRowIndex: number = 0;
 
     storageIsActive: boolean = false;
+    lieferdatumBis: string = '';
     private varianteSub?: Subscription;
 
     get visibleColumnsCount(): number {
@@ -178,7 +179,9 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
                 (this.selectedGesperrt === 'gesperrt' && this.isGesperrt(auftrag)) ||
                 (this.selectedGesperrt === 'nicht-gesperrt' && !this.isGesperrt(auftrag));
 
-            return textMatch && priorityMatch && statusMatch && gesperrtMatch;
+            const datumBisMatch = !this.lieferdatumBis || (auftrag.lieferdatum !== undefined && new Date(auftrag.lieferdatum).toISOString().split('T')[0] <= this.lieferdatumBis);
+
+            return textMatch && priorityMatch && statusMatch && gesperrtMatch && datumBisMatch;
         });
     }
 
