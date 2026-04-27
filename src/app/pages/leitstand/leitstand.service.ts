@@ -225,18 +225,13 @@ export class LeitstandService {
           return Object.entries(response.data).map(([belegnummer, data]) => {
             const firstPosition = data.all_positions[0];
 
-            // Lagerist ermitteln: erst lagerist, dann lagerist_rueck überschreibt
+            // Aktuellen Lageristen ermitteln: letzter nicht-leerer lagerist aus den Positionen.
+            // lagerist_rueck wird bewusst NICHT verwendet (historisch/Abschluss).
             let lageristResult = '';
-            for (const pos of data.all_positions) {
-              if (pos.lagerist && pos.lagerist.trim() !== '') {
-                lageristResult = pos.lagerist;
-                break;
-              }
-            }
-            // lagerist_rueck überschreibt (wer tatsächlich kommissioniert hat)
             for (let i = data.all_positions.length - 1; i >= 0; i--) {
-              if (data.all_positions[i].lagerist_rueck && data.all_positions[i].lagerist_rueck.trim() !== '') {
-                lageristResult = data.all_positions[i].lagerist_rueck;
+              const current = data.all_positions[i].lagerist;
+              if (current && current.trim() !== '') {
+                lageristResult = current;
                 break;
               }
             }
