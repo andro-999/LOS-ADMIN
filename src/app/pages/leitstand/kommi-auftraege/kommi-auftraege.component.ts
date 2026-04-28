@@ -8,6 +8,7 @@ import { User, UserService } from '../../../services/user.service';
 import { DisabledWhenErledigtDirective } from '../../../directives/disabled-when-erledigt.directive';
 import { NavigationService } from '../../../services/navigation.service';
 import { ColumnSettingsComponent, ColumnConfig } from '../../../components/column-settings/column-settings.component';
+import { DateInputComponent } from '../../../components/date-input/date-input.component';
 import { ColumnOrderService } from '../../../services/column-order.service';
 import { Subscription } from 'rxjs';
 import { WartungService } from '../../../services/wartung.service';
@@ -40,7 +41,7 @@ const DEFAULT_KOMMI_COLUMNS: KommiColumn[] = [
 @Component({
     selector: 'app-kommi-auftraege',
     standalone: true,
-    imports: [CommonModule, FormsModule, MatIcon, DragDropModule, ColumnSettingsComponent, DisabledWhenErledigtDirective],
+    imports: [CommonModule, FormsModule, MatIcon, DragDropModule, ColumnSettingsComponent, DisabledWhenErledigtDirective, DateInputComponent],
     templateUrl: './kommi-auftraege.component.html',
     styleUrls: ['./kommi-auftraege.component.scss']
 })

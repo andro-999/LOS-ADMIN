@@ -1,0 +1,58 @@
+:host {
+    display: inline-flex;
+}
+
+.date-input-wrapper {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+}
+
+.date-text-input {
+    border: none;
+    border-bottom: 1px solid #aaa;
+    outline: none;
+    background: transparent;
+    padding: 2px 4px;
+    font-size: 13px;
+    width: 90px;
+
+    &:focus {
+        border-bottom-color: #333;
+    }
+}
+
+.calendar-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    padding: 0 2px;
+    cursor: pointer;
+    color: #666;
+    line-height: 1;
+
+    mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+    }
+
+    &:hover {
+        color: #333;
+    }
+}
+
+.hidden-picker {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    border: none;
+    padding: 0;
+    left: 0;
+    bottom: 0;
+}

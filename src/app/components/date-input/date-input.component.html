@@ -1,0 +1,10 @@
+<div class="date-input-wrapper">
+    <input type="text" class="date-text-input" [value]="displayValue" (input)="onTextInput($event)"
+        (keydown.enter)="onEnter($event)" (blur)="onBlur()" placeholder="z.B. 01012027" maxlength="10"
+        autocomplete="off">
+    <button type="button" class="calendar-btn" (click)="openCalendar()" tabindex="-1" title="Kalender öffnen">
+        <mat-icon>calendar_today</mat-icon>
+    </button>
+    <input #hiddenPicker type="date" class="hidden-picker" [value]="internalValue" (change)="onCalendarChange($event)"
+        tabindex="-1">
+</div>

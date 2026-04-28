@@ -4,8 +4,7 @@
             <h2 style="margin: 0;">Kommi Aufträge</h2>
             <div style="display: flex; align-items: center; margin-left: 80px; gap: 4px;">
                 <span style="font-size: 13px; white-space: nowrap;">Lieferdatum bis</span>
-                <input type="date" placeholder="Datum eingeben..." [(ngModel)]="lieferdatumBis"
-                    (ngModelChange)="filterAuftraege()" class="search-input">
+                <app-date-input [(ngModel)]="lieferdatumBis" (ngModelChange)="filterAuftraege()"></app-date-input>
                 <span style="font-size: 13px; color: #666; margin-left: 25px; white-space: nowrap;">
                     {{ filteredAuftraege.length }} Aufträge
                 </span>
