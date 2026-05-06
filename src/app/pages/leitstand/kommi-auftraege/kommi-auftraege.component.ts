@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
@@ -79,7 +79,8 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
         private userService: UserService,
         private navigationService: NavigationService,
         private columnOrderService: ColumnOrderService,
-        private wartungService: WartungService
+        private wartungService: WartungService,
+        private cdr: ChangeDetectorRef
     ) { }
 
     ngOnInit(): void {
@@ -301,14 +302,26 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
         const belegnummer = auftrag.belegnummer;
         if (!belegnummer || auftrag.prioritaet === newPrio) return;
 
+        const oldPrio = auftrag.prioritaet;
+
         this.leitstandService.changePrio(belegnummer, newPrio).subscribe({
             next: (response) => {
                 if (response.success) {
                     auftrag.prioritaet = newPrio;
                     this.updateAvailablePriorities();
+                } else {
+                    auftrag.prioritaet = undefined;
+                    this.cdr.detectChanges();
+                    auftrag.prioritaet = oldPrio;
+                    this.cdr.detectChanges();
                 }
             },
-            error: () => { }
+            error: () => {
+                auftrag.prioritaet = undefined;
+                this.cdr.detectChanges();
+                auftrag.prioritaet = oldPrio;
+                this.cdr.detectChanges();
+            }
         });
     }
 

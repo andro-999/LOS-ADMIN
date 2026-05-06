@@ -1,3 +1,4 @@
+<!-- 01100001 01101110 01100100 01110010 01101111 -->
 <div class="kommi-auftraege-container">
     <div class="header-row">
         <div style="display: flex; align-items: center; gap: 12px;">
@@ -121,10 +122,10 @@
 
                             <!-- Priorität -->
                             <td *ngIf="col.id === 'prioritaet' && col.visible" [style.width]="col.width">
-                                <select (change)="changePrio(auftrag, +$any($event.target).value)" class="prio-select"
+                                <select [ngModel]="auftrag.prioritaet"
+                                    (change)="changePrio(auftrag, +$any($event.target).value)" class="prio-select"
                                     [appDisabledWhenErledigt]="auftrag">
-                                    <option *ngFor="let prio of prioOptions" [value]="prio"
-                                        [selected]="prio === auftrag.prioritaet">{{ prio }}</option>
+                                    <option *ngFor="let prio of prioOptions" [value]="prio">{{ prio }}</option>
                                 </select>
                             </td>
 
