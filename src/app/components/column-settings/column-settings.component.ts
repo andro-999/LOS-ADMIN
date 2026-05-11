@@ -9,6 +9,9 @@ export interface ColumnConfig {
     visible: boolean;
     width?: string;
     title?: string;
+    filterType?: 'text' | 'select' | 'date' | 'operator-number' | 'none';
+    filterOptions?: { value: string; label: string }[];
+    filterPlaceholder?: string;
 }
 
 @Component({

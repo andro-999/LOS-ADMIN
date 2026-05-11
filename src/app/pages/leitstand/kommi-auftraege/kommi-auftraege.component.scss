@@ -19,6 +19,43 @@
     margin: 0;
   }
 }
+.btn-header-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px;
+  cursor: pointer;
+  color: #555;
+
+  &:hover {
+    background: #f0f0f0;
+    border-color: #999;
+  }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.btn-clear {
+  color: #dc3545;
+  border-color: #dc3545;
+
+  &:hover {
+    background: #fff0f0;
+  }
+}
+
+.filter-row th {
+  background: #f5f7fa;
+  padding: 3px 4px;
+}
+
 .search-input {
   border: none;
   border-bottom: 1px solid #aaa;

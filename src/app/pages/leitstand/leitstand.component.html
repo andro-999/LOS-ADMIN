@@ -12,36 +12,14 @@
             </app-nav-block>
         </div>
 
-        <!-- Suchfeld nur für Kommi Aufträge -->
-        <div class="search-container" *ngIf="currentView === 'kommi-auftraege' || currentView === 'kdx-bereinigung'">
+        <!-- Suchfeld nur für KDX Bereinigung -->
+        <div class="search-container" *ngIf="currentView === 'kdx-bereinigung'">
             <mat-icon class="search-icon">search</mat-icon>
             <input type="text" [(ngModel)]="searchTerm" (input)="onFilterChanged()" placeholder="Suchen..."
                 class="search-input" />
 
-            <select *ngIf="currentView === 'kommi-auftraege'" [(ngModel)]="selectedPriority"
-                (change)="onFilterChanged()" class="filter-select">
-                <option value="">Alle Prio</option>
-                <option *ngFor="let prio of availablePriorities" [value]="prio">Prio {{ prio }}</option>
-            </select>
-
-            <select *ngIf="currentView === 'kommi-auftraege'" [(ngModel)]="selectedStatus" (change)="onFilterChanged()"
-                class="filter-select">
-                <option value="">Alle Status</option>
-                <option value="offen">Offen</option>
-                <option value="gestartet">Gestartet</option>
-                <option value="erledigt">Erledigt</option>
-            </select>
-
-            <select *ngIf="currentView === 'kommi-auftraege'" [(ngModel)]="selectedGesperrt"
-                (change)="onFilterChanged()" class="filter-select">
-                <option value="">Alle Positionen</option>
-                <option value="gesperrt">Gesperrt</option>
-                <option value="nicht-gesperrt">Nicht gesperrt</option>
-            </select>
-
             <!-- KDX Reserviert Filter -->
-            <select *ngIf="currentView === 'kdx-bereinigung'" [(ngModel)]="kdxReserviertFilter"
-                (change)="onKdxFilterChanged()" class="filter-select kdx-filter">
+            <select [(ngModel)]="kdxReserviertFilter" (change)="onKdxFilterChanged()" class="filter-select kdx-filter">
                 <option value="">Alle Plätze</option>
                 <option value="reserviert">Nur Reserviert</option>
                 <option value="frei">Nur Frei</option>
@@ -51,8 +29,7 @@
                 <mat-icon>refresh</mat-icon>
             </button>
 
-            <button *ngIf="searchTerm || selectedPriority || selectedStatus || selectedGesperrt || kdxReserviertFilter"
-                (click)="clearFilters()" class="btn-clear">
+            <button *ngIf="searchTerm || kdxReserviertFilter" (click)="clearFilters()" class="btn-clear">
                 <mat-icon>close</mat-icon>
             </button>
         </div>

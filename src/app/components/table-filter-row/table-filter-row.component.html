@@ -1,0 +1,28 @@
+<ng-container *ngFor="let col of columns">
+    <th *ngIf="col.visible && col.filterType === 'text'">
+        <input type="text" class="filter-input" [placeholder]="col.filterPlaceholder || ''"
+            [(ngModel)]="filters[col.id]" (ngModelChange)="onFilterChange()" />
+    </th>
+    <th *ngIf="col.visible && col.filterType === 'date'">
+        <input type="date" class="filter-input filter-input--date" [(ngModel)]="filters[col.id]"
+            (ngModelChange)="onFilterChange()" />
+    </th>
+    <th *ngIf="col.visible && col.filterType === 'select'">
+        <select class="filter-input" [(ngModel)]="filters[col.id]" (ngModelChange)="onFilterChange()">
+            <option *ngFor="let opt of col.filterOptions" [value]="opt.value">{{ opt.label }}</option>
+        </select>
+    </th>
+    <th *ngIf="col.visible && col.filterType === 'operator-number'">
+        <div class="operator-filter">
+            <select class="filter-input filter-input--op" [(ngModel)]="operatorValues[col.id].op"
+                (ngModelChange)="onOperatorNumberChange(col.id)">
+                <option value="<">&lt;</option>
+                <option value="=">=</option>
+                <option value=">">&gt;</option>
+            </select>
+            <input type="number" class="filter-input filter-input--num" [placeholder]="col.filterPlaceholder || ''"
+                [(ngModel)]="operatorValues[col.id].val" (ngModelChange)="onOperatorNumberChange(col.id)" />
+        </div>
+    </th>
+    <th *ngIf="col.visible && (col.filterType === 'none' || !col.filterType)"></th>
+</ng-container>

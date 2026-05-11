@@ -6,9 +6,17 @@
             <div style="display: flex; align-items: center; margin-left: 80px; gap: 4px;">
                 <span style="font-size: 13px; white-space: nowrap;">Lieferdatum bis</span>
                 <app-date-input [(ngModel)]="lieferdatumBis" (ngModelChange)="filterAuftraege()"></app-date-input>
-                <span style="font-size: 13px; color: #666; margin-left: 25px; white-space: nowrap;">
+
+                <span style="font-size: 13px; color: #666; margin-left: 10px; white-space: nowrap;">
                     {{ filteredAuftraege.length }} Aufträge
                 </span>
+
+                <button (click)="refreshData()" class="btn-header-icon" title="Daten neu laden">
+                    <mat-icon>refresh</mat-icon>
+                </button>
+                <button (click)="clearAllFilters()" class="btn-header-icon btn-clear" title="Alle Filter zurücksetzen">
+                    <mat-icon>filter_alt_off</mat-icon>
+                </button>
             </div>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -25,6 +33,9 @@
     <div class="table-container">
         <table>
             <thead cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="dropColumn($event)">
+                <tr app-table-filter-row [columns]="kommiColumns" [filters]="columnFilters"
+                    (filtersChange)="onColumnFiltersChange($event)" class="filter-row">
+                </tr>
                 <tr>
                     <ng-container *ngFor="let col of kommiColumns">
                         <th *ngIf="col.visible" [attr.data-col]="col.id" cdkDrag class="draggable-header"

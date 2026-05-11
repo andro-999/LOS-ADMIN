@@ -8,6 +8,7 @@ import { User, UserService } from '../../../services/user.service';
 import { DisabledWhenErledigtDirective } from '../../../directives/disabled-when-erledigt.directive';
 import { NavigationService } from '../../../services/navigation.service';
 import { ColumnSettingsComponent, ColumnConfig } from '../../../components/column-settings/column-settings.component';
+import { TableFilterRowComponent } from '../../../components/table-filter-row/table-filter-row.component';
 import { DateInputComponent } from '../../../components/date-input/date-input.component';
 import { ColumnOrderService } from '../../../services/column-order.service';
 import { Subscription } from 'rxjs';
@@ -16,32 +17,57 @@ import { WartungService } from '../../../services/wartung.service';
 export type KommiColumn = ColumnConfig;
 
 const DEFAULT_KOMMI_COLUMNS: KommiColumn[] = [
-    { id: 'nr', label: 'Nr.', visible: true, width: '20px' },
-    { id: 'auftragsnummer', label: 'Source Nr.', visible: true, width: '50px' },
-    { id: 'belegnummer', label: 'Document Nr.', visible: true, width: '70px' },
-    { id: 'tournummer', label: 'Tourcode', visible: true, width: '50px' },
-    { id: 'bruttogewicht', label: 'Bruttogewicht', visible: true, width: '100px' },
-    { id: 'lieferdatum', label: 'Lieferdatum', visible: true, width: '100px' },
-    { id: 'menge', label: 'Menge', visible: true, width: '80px' },
-    { id: 'pickMenge', label: 'Pick Menge', visible: true, width: '80px' },
-    { id: 'debitor', label: 'Name', visible: true, width: '500px' },
-    { id: 'palettenanzahl', label: 'Paletten', visible: true, width: '50px' },
-    { id: 'packhilfen', label: 'Packhilfen', visible: true, width: '50px' },
-    { id: 'nachschub', label: 'Nachschub', visible: true, width: '50px' },
-    { id: 'staplerkomm', label: 'Stapler komm', visible: true, width: '50px' },
-    { id: 'lagerist', label: 'Lagerist', visible: true, width: '100px' },
-    { id: 'status', label: 'Status', visible: true, width: '40px' },
-    { id: 'prioritaet', label: 'Priorität', visible: true, width: '40px' },
-    { id: 'loeschen', label: 'Löschen', visible: true, width: '40px' },
-    { id: 'blockieren', label: 'Blockieren', visible: true, width: '40px' },
-    { id: 'gesperrt', label: 'Alle Positionen bereit', visible: true, width: '40px' },
-    { id: 'einlagerungsvariante', label: 'EinVar', title: 'Einlagerungsvariante', visible: true, width: '70px' }
+    { id: 'nr', label: 'Nr.', visible: true, width: '20px', filterType: 'none' },
+    { id: 'auftragsnummer', label: 'Source Nr.', visible: true, width: '50px', filterType: 'text', filterPlaceholder: 'Source Nr.' },
+    { id: 'belegnummer', label: 'Document Nr.', visible: true, width: '70px', filterType: 'text', filterPlaceholder: 'Doc. Nr.' },
+    { id: 'tournummer', label: 'Tourcode', visible: true, width: '50px', filterType: 'text', filterPlaceholder: 'Tour' },
+    { id: 'bruttogewicht', label: 'Bruttogewicht', visible: true, width: '100px', filterType: 'operator-number', filterPlaceholder: 'kg' },
+    { id: 'lieferdatum', label: 'Lieferdatum', visible: true, width: '100px', filterType: 'text', filterPlaceholder: 'z.B. 120526' },
+    { id: 'menge', label: 'Menge', visible: true, width: '80px', filterType: 'text', filterPlaceholder: 'Menge' },
+    { id: 'pickMenge', label: 'Pick Menge', visible: true, width: '80px', filterType: 'text', filterPlaceholder: 'Pick' },
+    { id: 'debitor', label: 'Name', visible: true, width: '500px', filterType: 'text', filterPlaceholder: 'Name' },
+    { id: 'palettenanzahl', label: 'Paletten', visible: true, width: '50px', filterType: 'none' },
+    { id: 'packhilfen', label: 'Packhilfen', visible: true, width: '50px', filterType: 'none' },
+    { id: 'nachschub', label: 'Nachschub', visible: true, width: '50px', filterType: 'text', filterPlaceholder: 'Menge' },
+    { id: 'staplerkomm', label: 'Stapler komm', visible: true, width: '50px', filterType: 'none' },
+    { id: 'lagerist', label: 'Lagerist', visible: true, width: '100px', filterType: 'text', filterPlaceholder: 'Lagerist' },
+    {
+        id: 'status', label: 'Status', visible: true, width: '40px', filterType: 'select',
+        filterOptions: [
+            { value: '', label: 'Alle' },
+            { value: 'offen', label: 'Offen' },
+            { value: 'gestartet', label: 'Gestartet' },
+            { value: 'erledigt', label: 'Erledigt' }
+        ]
+    },
+    {
+        id: 'prioritaet', label: 'Priorität', visible: true, width: '40px', filterType: 'select',
+        filterOptions: [{ value: '', label: 'Alle' }]
+    },
+    { id: 'loeschen', label: 'Löschen', visible: true, width: '40px', filterType: 'none' },
+    { id: 'blockieren', label: 'Blockieren', visible: true, width: '40px', filterType: 'none' },
+    {
+        id: 'gesperrt', label: 'Alle Positionen bereit', visible: true, width: '40px', filterType: 'select',
+        filterOptions: [
+            { value: '', label: 'Alle' },
+            { value: 'gesperrt', label: 'Gesperrt' },
+            { value: 'nicht-gesperrt', label: 'Bereit' }
+        ]
+    },
+    {
+        id: 'einlagerungsvariante', label: 'EinVar', title: 'Einlagerungsvariante', visible: true, width: '70px', filterType: 'select',
+        filterOptions: [
+            { value: '', label: 'Alle' },
+            { value: '1', label: 'A' },
+            { value: '2', label: 'B' }
+        ]
+    }
 ];
 
 @Component({
     selector: 'app-kommi-auftraege',
     standalone: true,
-    imports: [CommonModule, FormsModule, MatIcon, DragDropModule, ColumnSettingsComponent, DisabledWhenErledigtDirective, DateInputComponent],
+    imports: [CommonModule, FormsModule, MatIcon, DragDropModule, ColumnSettingsComponent, DisabledWhenErledigtDirective, DateInputComponent, TableFilterRowComponent],
     templateUrl: './kommi-auftraege.component.html',
     styleUrls: ['./kommi-auftraege.component.scss']
 })
@@ -68,6 +94,11 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
 
     storageIsActive: boolean = false;
     lieferdatumBis: string = '';
+    columnFilters: { [key: string]: string } = {
+        auftragsnummer: '', belegnummer: '', tournummer: '', bruttogewicht: '',
+        lieferdatum: '', menge: '', pickMenge: '', debitor: '', nachschub: '',
+        lagerist: '', status: '', prioritaet: '', gesperrt: '', einlagerungsvariante: ''
+    };
     private varianteSub?: Subscription;
 
     get visibleColumnsCount(): number {
@@ -154,37 +185,107 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
     }
 
     filterAuftraege(): void {
-        const searchLower = this.searchTerm.toLowerCase().trim();
+        const f = this.columnFilters;
 
         this.filteredAuftraege = this.auftraege.filter(auftrag => {
-            let lieferdatumStr = '';
-            if (auftrag.lieferdatum) {
-                const date = new Date(auftrag.lieferdatum);
-                lieferdatumStr = date.toISOString().split('T')[0];
+            const lieferdatumStr = auftrag.lieferdatum
+                ? new Date(auftrag.lieferdatum).toISOString().split('T')[0]
+                : '';
+
+            // Header-Filter: Lieferdatum bis (Bereich)
+            if (this.lieferdatumBis && lieferdatumStr > this.lieferdatumBis) return false;
+
+            // Spaltenfilter: Lieferdatum exakt (Tag) – flexible Texteingabe wie DateInputComponent
+            if (f['lieferdatum']) {
+                const parsed = this.parseDateInput(f['lieferdatum']);
+                if (parsed && lieferdatumStr !== parsed) return false;
             }
 
-            const textMatch = !searchLower || (
-                auftrag.belegnummer?.toLowerCase().includes(searchLower) ||
-                auftrag.auftragsnummer?.toLowerCase().includes(searchLower) ||
-                auftrag.kunde?.toLowerCase().includes(searchLower) ||
-                lieferdatumStr.includes(searchLower) ||
-                (auftrag.plz && auftrag.plz.toLowerCase().includes(searchLower))
-            );
+            // Text-Spaltenfilter
+            if (f['auftragsnummer'] && !auftrag.auftragsnummer?.toLowerCase().includes(f['auftragsnummer'].toLowerCase())) return false;
+            if (f['belegnummer'] && !auftrag.belegnummer?.toLowerCase().includes(f['belegnummer'].toLowerCase())) return false;
+            if (f['tournummer'] && !auftrag.tourcode?.toLowerCase().includes(f['tournummer'].toLowerCase())) return false;
+            if (f['bruttogewicht']) {
+                const idx = f['bruttogewicht'].indexOf(':');
+                if (idx !== -1) {
+                    const op = f['bruttogewicht'].substring(0, idx);
+                    const filterVal = parseFloat(f['bruttogewicht'].substring(idx + 1));
+                    if (!isNaN(filterVal) && auftrag.bruttoGewicht != null) {
+                        // bruttoGewicht kann als deutsches Zahlenformat vorliegen (z.B. "3,000" = 3.0)
+                        const raw = typeof auftrag.bruttoGewicht === 'number'
+                            ? auftrag.bruttoGewicht
+                            : parseFloat(String(auftrag.bruttoGewicht).replace(',', '.'));
+                        // Wenn Wert nicht parsierbar → Zeile nicht ausschließen
+                        if (!isNaN(raw)) {
+                            if (op === '<' && !(raw < filterVal)) return false;
+                            if (op === '=' && !(raw === filterVal)) return false;
+                            if (op === '>' && !(raw > filterVal)) return false;
+                        }
+                    }
+                }
+            }
+            if (f['debitor'] && !auftrag.kunde?.toLowerCase().includes(f['debitor'].toLowerCase())) return false;
+            if (f['lagerist'] && !auftrag.lagerist?.toLowerCase().includes(f['lagerist'].toLowerCase())) return false;
+            if (f['menge'] && !this.getAuftragMenge(auftrag).toString().includes(f['menge'])) return false;
+            if (f['pickMenge'] && !this.getAuftragPickMenge(auftrag).toString().includes(f['pickMenge'])) return false;
+            if (f['nachschub'] && !this.getNachschubMenge(auftrag).toString().includes(f['nachschub'])) return false;
 
-            const priorityMatch = !this.selectedPriority ||
-                auftrag.prioritaet?.toString() === this.selectedPriority;
+            // Select-Spaltenfilter
+            if (f['status'] && this.getAuftragStatus(auftrag) !== f['status']) return false;
+            if (f['prioritaet'] && auftrag.prioritaet?.toString() !== f['prioritaet']) return false;
+            if (f['gesperrt']) {
+                const gesperrt = this.isGesperrt(auftrag);
+                if (f['gesperrt'] === 'gesperrt' && !gesperrt) return false;
+                if (f['gesperrt'] === 'nicht-gesperrt' && gesperrt) return false;
+            }
+            if (f['einlagerungsvariante'] && (auftrag.einlagerungslogik_variante ?? 1).toString() !== f['einlagerungsvariante']) return false;
 
-            const auftragStatus = this.getAuftragStatus(auftrag);
-            const statusMatch = !this.selectedStatus || auftragStatus === this.selectedStatus;
-
-            const gesperrtMatch = !this.selectedGesperrt ||
-                (this.selectedGesperrt === 'gesperrt' && this.isGesperrt(auftrag)) ||
-                (this.selectedGesperrt === 'nicht-gesperrt' && !this.isGesperrt(auftrag));
-
-            const datumBisMatch = !this.lieferdatumBis || (auftrag.lieferdatum !== undefined && new Date(auftrag.lieferdatum).toISOString().split('T')[0] <= this.lieferdatumBis);
-
-            return textMatch && priorityMatch && statusMatch && gesperrtMatch && datumBisMatch;
+            return true;
         });
+    }
+
+    onColumnFiltersChange(filters: { [key: string]: string }): void {
+        this.columnFilters = filters;
+        this.filterAuftraege();
+    }
+
+    clearAllFilters(): void {
+        this.lieferdatumBis = '';
+        Object.keys(this.columnFilters).forEach(k => this.columnFilters[k] = '');
+        this.filterAuftraege();
+    }
+
+    refreshData(): void {
+        this.loadAuftraege();
+        this.loadEmptyPositions();
+    }
+
+    /** Parst flexible Datumseingabe in YYYY-MM-DD (gleiche Logik wie DateInputComponent).
+     *  Unterstützt: 120526 (DDMMYY), 12052026 (DDMMYYYY), 1205 (DDMM = aktuelles Jahr) */
+    private parseDateInput(raw: string): string | null {
+        if (!raw || raw.trim() === '') return null;
+        const digits = raw.replace(/\D/g, '');
+        let day: number, month: number, year: number;
+        if (digits.length === 8) {
+            day = parseInt(digits.substring(0, 2), 10);
+            month = parseInt(digits.substring(2, 4), 10);
+            year = parseInt(digits.substring(4, 8), 10);
+        } else if (digits.length === 6) {
+            day = parseInt(digits.substring(0, 2), 10);
+            month = parseInt(digits.substring(2, 4), 10);
+            const yy = parseInt(digits.substring(4, 6), 10);
+            year = yy < 50 ? 2000 + yy : 1900 + yy;
+        } else if (digits.length === 4) {
+            day = parseInt(digits.substring(0, 2), 10);
+            month = parseInt(digits.substring(2, 4), 10);
+            year = new Date().getFullYear();
+        } else {
+            return null;
+        }
+        if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+        const date = new Date(year, month - 1, day);
+        if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return null;
+        return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     }
 
     updateAvailablePriorities(): void {
@@ -195,6 +296,15 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
             }
         });
         this.availablePriorities = Array.from(priorities).sort((a, b) => a - b);
+
+        // Priorität-Spaltenfilter dynamisch mit vorhandenen Werten befüllen
+        const prioCol = this.kommiColumns.find(c => c.id === 'prioritaet');
+        if (prioCol) {
+            prioCol.filterOptions = [
+                { value: '', label: 'Alle' },
+                ...this.availablePriorities.map(p => ({ value: String(p), label: String(p) }))
+            ];
+        }
     }
 
     // Spalten-Management
