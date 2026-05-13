@@ -20,8 +20,9 @@
                 <option value="=">=</option>
                 <option value=">">&gt;</option>
             </select>
-            <input type="number" class="filter-input filter-input--num" [placeholder]="col.filterPlaceholder || ''"
-                [(ngModel)]="operatorValues[col.id].val" (ngModelChange)="onOperatorNumberChange(col.id)" />
+            <input type="text" inputmode="decimal" class="filter-input filter-input--num"
+                [placeholder]="col.filterPlaceholder || ''" [(ngModel)]="operatorValues[col.id].val"
+                (ngModelChange)="onOperatorNumberChange(col.id)" />
         </div>
     </th>
     <th *ngIf="col.visible && (col.filterType === 'none' || !col.filterType)"></th>

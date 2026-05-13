@@ -47,7 +47,7 @@ const DEFAULT_KOMMI_COLUMNS: KommiColumn[] = [
     { id: 'loeschen', label: 'Löschen', visible: true, width: '40px', filterType: 'none' },
     { id: 'blockieren', label: 'Blockieren', visible: true, width: '40px', filterType: 'none' },
     {
-        id: 'gesperrt', label: 'Alle Positionen bereit', visible: true, width: '40px', filterType: 'select',
+        id: 'gesperrt', label: 'PosBer', title: 'Alle Positionen bereit', visible: true, width: '40px', filterType: 'select',
         filterOptions: [
             { value: '', label: 'Alle' },
             { value: 'gesperrt', label: 'Gesperrt' },
@@ -209,16 +209,15 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
                 const idx = f['bruttogewicht'].indexOf(':');
                 if (idx !== -1) {
                     const op = f['bruttogewicht'].substring(0, idx);
-                    const filterVal = parseFloat(f['bruttogewicht'].substring(idx + 1));
+                    // Komma als Dezimaltrennzeichen akzeptieren (Eingabe UND Datenwert)
+                    const filterVal = parseFloat(f['bruttogewicht'].substring(idx + 1).replace(',', '.'));
                     if (!isNaN(filterVal) && auftrag.bruttoGewicht != null) {
-                        // bruttoGewicht kann als deutsches Zahlenformat vorliegen (z.B. "3,000" = 3.0)
                         const raw = typeof auftrag.bruttoGewicht === 'number'
                             ? auftrag.bruttoGewicht
                             : parseFloat(String(auftrag.bruttoGewicht).replace(',', '.'));
-                        // Wenn Wert nicht parsierbar → Zeile nicht ausschließen
                         if (!isNaN(raw)) {
                             if (op === '<' && !(raw < filterVal)) return false;
-                            if (op === '=' && !(raw === filterVal)) return false;
+                            if (op === '=' && !(Math.abs(raw - filterVal) < 0.0001)) return false;
                             if (op === '>' && !(raw > filterVal)) return false;
                         }
                     }
@@ -251,7 +250,13 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
 
     clearAllFilters(): void {
         this.lieferdatumBis = '';
-        Object.keys(this.columnFilters).forEach(k => this.columnFilters[k] = '');
+        // Neue Objekt-Referenz erzwingen, damit ngOnChanges im TableFilterRowComponent feuert
+        // und der interne operatorValues-State (Operator + Wert) zurückgesetzt wird.
+        this.columnFilters = {
+            auftragsnummer: '', belegnummer: '', tournummer: '', bruttogewicht: '',
+            lieferdatum: '', menge: '', pickMenge: '', debitor: '', nachschub: '',
+            lagerist: '', status: '', prioritaet: '', gesperrt: '', einlagerungsvariante: ''
+        };
         this.filterAuftraege();
     }
 

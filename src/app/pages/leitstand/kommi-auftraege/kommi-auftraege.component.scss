@@ -77,11 +77,11 @@
   min-height: 0;
 }
 
-table {
+.table-container > table{
   width: 100%;
   border-collapse: collapse;
 
-  thead {
+  > thead {
     position: sticky;
     top: 0;
     background: white;
@@ -91,11 +91,19 @@ table {
     tr {
       border-bottom: 2px solid #ddd;
     }
+    tr:last-child th {
+        background-color: #038696;
+        color: white;
+        border-right: 1px solid #ddd;
+        &:last-child {
+            border-right: none;
+        }
+    }
 
     th {
       padding: 8px;
       text-align: left;
-      font-weight: 600;
+      font-weight: 400;
     }
   }
 
@@ -334,7 +342,7 @@ table {
 
 .detail-table {
   border-collapse: collapse;
-  background: white;
+  background: rgb(245, 243, 243);//white;
   border-radius: 4px;
 
   &.level-1 {
@@ -348,7 +356,7 @@ table {
   thead {
     tr {
       border-bottom: 2px solid #ddd;
-      background: #fafafa;
+      background:  rgb(204, 200, 200);//#fafafa;
     }
 
     th {
