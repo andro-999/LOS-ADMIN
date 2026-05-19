@@ -280,6 +280,7 @@
                                             <th>Menge Rück</th>
                                             <th>Lagerist Rück</th>
                                             <th title="Position Fortschritt">P/F</th>
+                                            <th title="Position löschen">PoLö</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -300,6 +301,14 @@
                                                     [style.color]="getPositionFortschritt(pos) === '100%' ? '#4caf50' : '#ff9800'">
                                                     {{ getPositionFortschritt(pos) }}
                                                 </span>
+                                            </td>
+                                            <td>
+                                                <button class="btn-delete"
+                                                    (click)="deletePosition(auftrag, pos, $event)"
+                                                    [disabled]="getPositionFortschritt(pos) !== '0%'"
+                                                    title="Position löschen">
+                                                    <mat-icon>delete</mat-icon>
+                                                </button>
                                             </td>
                                         </tr>
                                     </tbody>

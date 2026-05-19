@@ -211,7 +211,7 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
                     const op = f['bruttogewicht'].substring(0, idx);
                     // Komma als Dezimaltrennzeichen akzeptieren (Eingabe UND Datenwert)
                     const filterVal = parseFloat(f['bruttogewicht'].substring(idx + 1).replace(',', '.'));
-                    if (!isNaN(filterVal) && auftrag.bruttoGewicht != null) {
+                    if (!isNaN(filterVal) && auftrag.bruttoGewicht) {
                         const raw = typeof auftrag.bruttoGewicht === 'number'
                             ? auftrag.bruttoGewicht
                             : parseFloat(String(auftrag.bruttoGewicht).replace(',', '.'));
@@ -484,6 +484,24 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
                 error: () => { }
             });
         }
+    }
+
+    deletePosition(auftrag: Auftrag, pos: Position, event: Event): void {
+        event.stopPropagation();
+        if (!auftrag.belegnummer) return;
+        if (!confirm(`Position ${pos.zeilennummer} (${pos.artikelnummer}) wirklich löschen?`)) return;
+        this.leitstandService.deletePartOfKommiTask(auftrag.belegnummer, pos.zeilennummer.toString()).subscribe({
+            next: (response) => {
+                if (response.success) {
+                    auftrag.positionen = auftrag.positionen?.filter(p => p.zeilennummer !== pos.zeilennummer);
+                } else {
+                    alert(`Position kann nicht gelöscht werden:\n${response.msg || response.error || 'Unbekannter Fehler'}`);
+                }
+            },
+            error: (err) => {
+                alert(`Position kann nicht gelöscht werden:\n${err?.message || 'Server-Fehler'}`);
+            }
+        });
     }
 
     assignLagerist(belegnummer: string | undefined, lageristId: string): void {

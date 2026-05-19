@@ -43,7 +43,7 @@ export class TableFilterRowComponent implements OnChanges {
 
     onOperatorNumberChange(colId: string): void {
         const { op, val } = this.operatorValues[colId];
-        this.filters[colId] = val ? `${op}:${val}` : '';
+        this.filters[colId] = `${op}:${val}`;
         this.filtersChange.emit({ ...this.filters });
     }
 }
