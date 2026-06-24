@@ -6,7 +6,7 @@ import { LeitstandService, QuickpickLog } from '../leitstand.service';
 import { ColumnSettingsComponent, ColumnConfig } from '../../../components/column-settings/column-settings.component';
 import { ColumnOrderService } from '../../../services/column-order.service';
 
-type SortColumn = 'AU_number' | 'belegnummer' | 'artikelnummer' | 'beschreibung' | 'lagerist_rueck' | 'menge';
+type SortColumn = 'AU_number' | 'belegnummer' | 'artikelnummer' | 'beschreibung' | 'lagerist_rueck' | 'menge' | 'lastTimestamp';
 type SortDirection = 'asc' | 'desc';
 type QuickpickColumn = ColumnConfig & { sortKey?: SortColumn };
 
@@ -18,6 +18,7 @@ const DEFAULT_QUICKPICK_COLUMNS: QuickpickColumn[] = [
     { id: 'beschreibung', label: 'Artikel Name', visible: true, width: '220px', sortKey: 'beschreibung' },
     { id: 'lagerist_rueck', label: 'Lagerist', visible: true, width: '130px', sortKey: 'lagerist_rueck' },
     { id: 'menge', label: 'Menge', visible: true, width: '90px', sortKey: 'menge' },
+    { id: 'zeitstempel', label: 'Zeitstempel', visible: true, width: '150px', sortKey: 'lastTimestamp' },
     { id: 'quickpick', label: 'Quickpick', visible: true, width: '100px' }
 ];
 
@@ -34,6 +35,7 @@ export class QuickpickLogsComponent implements OnInit {
     sortColumn: SortColumn = 'AU_number';
     sortDirection: SortDirection = 'asc';
     quickpickColumns: QuickpickColumn[] = DEFAULT_QUICKPICK_COLUMNS.map(col => ({ ...col }));
+    expandedLogKey: string | null = null;  // Track expanded log: belegnummer|artikelnummer
 
     get visibleColumnsCount(): number {
         return this.quickpickColumns.filter(c => c.visible).length;
@@ -99,10 +101,34 @@ export class QuickpickLogsComponent implements OnInit {
         this.sortLogs();
     }
 
+    toggleLogExpand(log: QuickpickLog, event: Event): void {
+        event.stopPropagation();
+        const key = `${log.belegnummer}|${log.artikelnummer}`;
+        this.expandedLogKey = this.expandedLogKey === key ? null : key;
+    }
+
+    isLogExpanded(log: QuickpickLog): boolean {
+        const key = `${log.belegnummer}|${log.artikelnummer}`;
+        return this.expandedLogKey === key;
+    }
+
+    hasMultipleLageristen(log: QuickpickLog): boolean {
+        const distinct = new Set(log.pickDetails.map(p => p.lagerist_rueck));
+        return distinct.size > 1;
+    }
+
     private sortLogs(): void {
         this.quickpickLogs.sort((a, b) => {
-            let valueA = a[this.sortColumn] || '';
-            let valueB = b[this.sortColumn] || '';
+            let valueA: any = '';
+            let valueB: any = '';
+
+            if (this.sortColumn === 'lastTimestamp') {
+                valueA = a.lastTimestamp || '';
+                valueB = b.lastTimestamp || '';
+            } else {
+                valueA = a[this.sortColumn] || '';
+                valueB = b[this.sortColumn] || '';
+            }
 
             if (typeof valueA === 'string') {
                 valueA = valueA.toLowerCase();

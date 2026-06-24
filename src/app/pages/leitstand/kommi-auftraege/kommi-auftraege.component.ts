@@ -31,6 +31,7 @@ const DEFAULT_KOMMI_COLUMNS: KommiColumn[] = [
     { id: 'nachschub', label: 'Nachschub', visible: true, width: '50px', filterType: 'text', filterPlaceholder: 'Menge' },
     { id: 'staplerkomm', label: 'Stapler komm', visible: true, width: '50px', filterType: 'none' },
     { id: 'lagerist', label: 'Lagerist', visible: true, width: '100px', filterType: 'text', filterPlaceholder: 'Lagerist' },
+    { id: 'lagerist_geaendert', label: 'LG', title: 'Lagerist geändert', visible: true, width: '3ch', filterType: 'none' },
     {
         id: 'status', label: 'Status', visible: true, width: '40px', filterType: 'select',
         filterOptions: [
@@ -87,6 +88,8 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
     prioOptions: number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     emptyPositionsMap: { [belegnummer: string]: EmptyKommiPosition[] } = {};
 
+    private lageristGeaendertMap: { [belegnummer: string]: number } = JSON.parse(localStorage.getItem('lageristGeaendertMap') || '{}');
+    private lageristCache: { [belegnummer: string]: string } = JSON.parse(localStorage.getItem('lageristCache') || '{}');
     expandedAuftrag: string | null = null;
     expandedLevel: 1 | 2 = 1;
     selectedAuftrag: Auftrag | null = null;
@@ -116,6 +119,8 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.loadColumnOrder();
+        // Cache an Service übergeben, damit er beim Laden konsultiert wird
+        this.leitstandService.setLageristCache(this.lageristCache);
         this.loadAuftraege();
         this.loadLageristen();
         this.loadEmptyPositions();
@@ -157,7 +162,10 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
         this.leitstandService.getAuftraege('KOMM').subscribe({
             next: (auftraege: Auftrag[]) => {
                 this.auftraege = auftraege
-                    .map((auftrag, index) => ({ ...auftrag, id: index + 1 }))
+                    .map((auftrag, index) => ({
+                        ...auftrag, id: index + 1,
+                        lagerist_geaendert: this.lageristGeaendertMap[auftrag.belegnummer || ''] ?? 0
+                    }))
                     .sort((a, b) => (a.belegnummer || '').localeCompare(b.belegnummer || ''));
 
                 this.filteredAuftraege = [...this.auftraege];
@@ -514,6 +522,16 @@ export class KommiAuftraegeComponent implements OnInit, OnDestroy {
             next: (response) => {
                 if (response.success && auftrag) {
                     auftrag.lagerist = lageristId;
+
+                    // Cache aktualisieren: neue Zuweisung speichern (auch wenn leer)
+                    this.lageristCache[belegnummer] = lageristId;
+                    localStorage.setItem('lageristCache', JSON.stringify(this.lageristCache));
+                    // Cache auch an Service übergeben für nächste Reload
+                    this.leitstandService.setLageristCache(this.lageristCache);
+
+                    auftrag.lagerist_geaendert = (auftrag.lagerist_geaendert ?? 0) + 1;
+                    this.lageristGeaendertMap[belegnummer] = auftrag.lagerist_geaendert;
+                    localStorage.setItem('lageristGeaendertMap', JSON.stringify(this.lageristGeaendertMap));
                 }
             },
             error: () => { }

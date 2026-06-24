@@ -177,13 +177,17 @@
                                     <option value="">Auswählen</option>
                                     <option *ngIf="auftrag.lagerist && !isLageristInList(auftrag.lagerist)"
                                         [ngValue]="auftrag.lagerist" class="inactive">
-                                        {{ auftrag.lagerist }} (inaktiv)
+                                        {{ auftrag.lagerist }}
                                     </option>
                                     <option *ngFor="let user of availableLageristen" [ngValue]="user.benutzer_id"
                                         [class.inactive]="!user.isActive">
                                         {{ user.benutzer_id + (!user.isActive ? ' (inaktiv)' : '') }}
                                     </option>
                                 </select>
+                            </td>
+                            <!-- Lagerist geändert -->
+                            <td *ngIf="col.id === 'lagerist_geaendert' && col.visible" [style.width]="col.width">
+                                {{ auftrag.lagerist_geaendert ?? 0 }}
                             </td>
                             <!-- Einlagerungsvariante -->
                             <td *ngIf="col.id === 'einlagerungsvariante' && col.visible" [style.width]="col.width">

@@ -37,7 +37,7 @@ export interface Position {
   liefer_an_plz_code: string;
   menge_rueck: number;
   start_rueck?: string;
-  ende_rueck?: string;
+  end_rueck?: string;
   chargennummer: string;
   tourcode?: string;
   bruttoGewicht?: number;
@@ -88,6 +88,7 @@ export interface Auftrag {
   bruttoGewicht?: number;
   einlagerungslogik_variante?: number;
   //verkauf_an_name?: string;
+  lagerist_geaendert?: number;
 }
 
 // Einlagerung Task Interfaces
@@ -158,7 +159,7 @@ export interface GroupedPosition {
   menge_rueck: number;
   zu_liefern: number;
   start_rueck: number;
-  ende_rueck: number;
+  end_rueck: number;
   lagerist_rueck?: string;
   erledigte_count?: number;
   total_count?: number;
@@ -176,6 +177,12 @@ export interface AuftragFortschritt {
 export type AuftragStatus = 'offen' | 'gestartet' | 'erledigt';
 
 // Quickpick Log Interface
+export interface QuickpickLogDetail {
+  lagerist_rueck: string;
+  start_rueck?: string;
+  end_rueck?: string;
+}
+
 export interface QuickpickLog {
   AU_number?: string;
   belegnummer: string;
@@ -184,6 +191,9 @@ export interface QuickpickLog {
   menge: number;
   quickpick: boolean;
   lagerist_rueck?: string;
+  firstTimestamp?: string;  // Erster Pick-Zeitstempel (end_rueck)
+  lastTimestamp?: string;   // Letzter Pick-Zeitstempel (end_rueck)
+  pickDetails: QuickpickLogDetail[];  // Einzelne Picks mit Zeit und Lagerist
 }
 
 // Leere Kommi-Position (Nachschub nötig)
@@ -210,7 +220,17 @@ export class LeitstandService {
   private sinBotUrl = `${environment.apiUrl}/single_bottle_kommi`;
   private einlagerungUrl = `${environment.apiUrl}/einlagerung_kdx`;
 
+  // Client-seitiger Cache für Lagerist-Zuordnungen (von Component gepflegt)
+  private lageristCache: { [belegnummer: string]: string } = {};
+
   constructor(private http: HttpClient) { }
+
+  /**
+   * Setzt den Lagerist-Cache (wird von der Component aufgerufen)
+   */
+  setLageristCache(cache: { [belegnummer: string]: string }): void {
+    this.lageristCache = { ...cache };
+  }
 
   deletePartOfKommiTask(belegnummer: string, zeilennummer: string): Observable<DeletePartResponse> {
     return this.http.get<DeletePartResponse>(
@@ -225,14 +245,21 @@ export class LeitstandService {
           return Object.entries(response.data).map(([belegnummer, data]) => {
             const firstPosition = data.all_positions[0];
 
-            // Aktuellen Lageristen ermitteln: letzter nicht-leerer lagerist aus den Positionen.
-            // lagerist_rueck wird bewusst NICHT verwendet (historisch/Abschluss).
+            // Lagerist aus Cache abfragen (Client-seitig gepflegt von der Component).
+            // Falls nicht im Cache: nicht-leerer lagerist aus den Positionen nehmen.
             let lageristResult = '';
-            for (let i = data.all_positions.length - 1; i >= 0; i--) {
-              const current = data.all_positions[i].lagerist;
-              if (current && current.trim() !== '') {
-                lageristResult = current;
-                break;
+
+            // Zuerst Cache prüfen: wenn Cache existiert, diesen verwenden (auch wenn leer)
+            if (belegnummer in this.lageristCache) {
+              lageristResult = this.lageristCache[belegnummer];
+            } else {
+              // Fallback: letzter nicht-leerer lagerist aus Positionen (nur wenn Cache nicht existiert)
+              for (let i = data.all_positions.length - 1; i >= 0; i--) {
+                const current = data.all_positions[i].lagerist;
+                if (current && current.trim() !== '') {
+                  lageristResult = current;
+                  break;
+                }
               }
             }
 
@@ -341,6 +368,7 @@ export class LeitstandService {
 
   /**
    * Lädt alle Quickpick-Logs (Positionen wo gtin_scann === 0), gruppiert nach Auftrag+Artikel
+   * Sammelt für jede Gruppe alle einzelnen Picks mit Lagerist und Zeitstempel
    */
   getQuickpickLogs(): Observable<QuickpickLog[]> {
     return this.http.get<AuftraegeApiResponse>(`${this.baseUrl}/get_all_kommiTasks?task_type=KOMM`)
@@ -356,8 +384,22 @@ export class LeitstandService {
                 const key = `${pos.belegnummer}|${pos.artikelnummer}`;
                 const existing = grouped.get(key);
 
+                const pickDetail: QuickpickLogDetail = {
+                  lagerist_rueck: pos.lagerist_rueck || '',
+                  start_rueck: pos.start_rueck,
+                  end_rueck: pos.end_rueck
+                };
+
                 if (existing) {
                   existing.menge += 1;
+                  existing.pickDetails.push(pickDetail);
+                  // Update timestamps
+                  if (pos.end_rueck) {
+                    existing.lastTimestamp = pos.end_rueck;
+                    if (!existing.firstTimestamp) {
+                      existing.firstTimestamp = pos.end_rueck;
+                    }
+                  }
                 } else {
                   grouped.set(key, {
                     AU_number: auftrag.AU_number,
@@ -366,7 +408,10 @@ export class LeitstandService {
                     beschreibung: pos.beschreibung,
                     menge: 1,
                     quickpick: true,
-                    lagerist_rueck: pos.lagerist_rueck || ''
+                    lagerist_rueck: pos.lagerist_rueck || '',
+                    firstTimestamp: pos.end_rueck,
+                    lastTimestamp: pos.end_rueck,
+                    pickDetails: [pickDetail]
                   });
                 }
               });
@@ -535,7 +580,7 @@ export class LeitstandService {
           menge_rueck: pos.menge_rueck || 0,
           zu_liefern: pos.zu_liefern || 0,
           start_rueck: (pos as any).start_rueck || 0,
-          ende_rueck: (pos as any).ende_rueck || 0,
+          end_rueck: (pos as any).end_rueck || 0,
           _erledigte: posErledigt,
           _total: 1
         });

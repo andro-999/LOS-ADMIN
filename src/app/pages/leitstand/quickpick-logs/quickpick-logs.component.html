@@ -1,6 +1,14 @@
+<!-- 01100001 01101110 01100100 01110010 01101111 -->
 <div class="quickpick-container">
     <div class="header-row">
-        <h2>Quickpick Logs</h2>
+
+        <div class="header-left">
+            <h2>Quickpick Logs</h2>
+            <button (click)="loadLogs()" class="btn-refresh">
+                <mat-icon>refresh</mat-icon>
+                Aktualisieren
+            </button>
+        </div>
         <app-column-settings [columns]="quickpickColumns" [storageKey]="'quickpickColumnSettings'"
             (columnsChange)="onColumnsChange($event)" (reset)="resetColumnOrder()">
         </app-column-settings>
@@ -37,29 +45,85 @@
                     </td>
                 </tr>
 
-                <tr *ngFor="let log of quickpickLogs; let i = index" [class.even]="i % 2 === 0">
-                    <ng-container *ngFor="let col of quickpickColumns">
-                        <td *ngIf="col.id === 'nr' && col.visible">{{ i + 1 }}</td>
-                        <td *ngIf="col.id === 'AU_number' && col.visible" class="au-number">{{ log.AU_number }}</td>
-                        <td *ngIf="col.id === 'belegnummer' && col.visible" class="belegnummer">{{ log.belegnummer }}</td>
-                        <td *ngIf="col.id === 'artikelnummer' && col.visible" class="artikelnummer">{{ log.artikelnummer }}</td>
-                        <td *ngIf="col.id === 'beschreibung' && col.visible">{{ log.beschreibung }}</td>
-                        <td *ngIf="col.id === 'lagerist_rueck' && col.visible" class="lagerist">{{ log.lagerist_rueck }}</td>
-                        <td *ngIf="col.id === 'menge' && col.visible" class="menge">{{ log.menge }}</td>
-                        <td *ngIf="col.id === 'quickpick' && col.visible" class="quickpick-status">
-                            <mat-icon class="check-icon">check_circle</mat-icon>
+                <ng-container *ngFor="let log of quickpickLogs; let i = index">
+                    <tr [class.even]="i % 2 === 0">
+                        <ng-container *ngFor="let col of quickpickColumns">
+                            <td *ngIf="col.id === 'nr' && col.visible">{{ i + 1 }}</td>
+                            <td *ngIf="col.id === 'AU_number' && col.visible" class="au-number">{{ log.AU_number }}</td>
+                            <td *ngIf="col.id === 'belegnummer' && col.visible" class="belegnummer">
+                                <!--a *ngIf="log.menge > 1" (click)="toggleLogExpand(log, $event)" class="expand-link">
+                                    <mat-icon class="expand-icon">
+                                        {{ isLogExpanded(log) ? 'expand_less' : 'expand_more' }}
+                                    </mat-icon-->
+                                {{ log.belegnummer }}
+                                <!--/a>
+                                <span *ngIf="log.menge === 1">{{ log.belegnummer }}</span-->
+                            </td>
+                            <td *ngIf="col.id === 'artikelnummer' && col.visible" class="artikelnummer">{{
+                                log.artikelnummer }}</td>
+                            <td *ngIf="col.id === 'beschreibung' && col.visible">{{ log.beschreibung }}</td>
+                            <td *ngIf="col.id === 'lagerist_rueck' && col.visible" class="lagerist"
+                                [class.lagerist-multi]="hasMultipleLageristen(log)">{{
+                                log.lagerist_rueck }}</td>
+                            <td *ngIf="col.id === 'menge' && col.visible" class="menge">{{ log.menge }}</td>
+                            <td *ngIf="col.id === 'zeitstempel' && col.visible" class="zeitstempel">
+                                <span *ngIf="log.menge === 1" class="time-with-toggle-space">
+                                    <mat-icon class="expand-icon placeholder-icon">expand_more</mat-icon>
+                                    <span class="time-value">{{ log.lastTimestamp | date:'dd.MM.yyyy HH:mm' }}</span>
+                                </span>
+
+                                <a *ngIf="log.menge > 1" (click)="toggleLogExpand(log, $event)"
+                                    class="expand-link time-with-toggle-space">
+                                    <mat-icon class="expand-icon">{{ isLogExpanded(log) ? 'expand_less' : 'expand_more'
+                                        }}</mat-icon>
+                                    <span class="time-value">{{ log.lastTimestamp | date:'dd.MM.yyyy HH:mm' }}</span>
+                                </a>
+                            </td>
+                            <td *ngIf="col.id === 'quickpick' && col.visible" class="quickpick-status">
+                                <mat-icon class="check-icon">check_circle</mat-icon>
+                            </td>
+                        </ng-container>
+                    </tr>
+
+                    <!-- Aufklappbare Detail-Zeile -->
+                    <tr *ngIf="isLogExpanded(log) && log.menge > 1" class="detail-row">
+                        <td [attr.colspan]="visibleColumnsCount">
+                            <div class="detail-content">
+                                <div class="detail-header">
+                                    <span class="detail-title">Einzelne Picks - {{ log.belegnummer }} / {{
+                                        log.AU_number}} / Artikel: {{
+                                        log.artikelnummer }}</span>
+                                </div>
+                                <table class="detail-table" role="table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 80px;">Nr.</th>
+                                            <th style="width: 130px;">Lagerist</th>
+                                            <th style="width: 150px;">Zeitstempel</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let pick of log.pickDetails; let j = index"
+                                            [class.even]="j % 2 === 0">
+                                            <td>{{ j + 1 }}</td>
+                                            <td>{{ pick.lagerist_rueck }}</td>
+                                            <td>{{ pick.end_rueck | date:'dd.MM.yyyy HH:mm' }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </td>
-                    </ng-container>
-                </tr>
+                    </tr>
+                </ng-container>
             </tbody>
         </table>
     </div>
 
     <div class="info-row">
         <span>Gesamt: {{ quickpickLogs.length }} Logs</span>
-        <button (click)="loadLogs()" class="btn-refresh">
+        <!--button (click)="loadLogs()" class="btn-refresh">
             <mat-icon>refresh</mat-icon>
             Aktualisieren
-        </button>
+        </button-->
     </div>
 </div>

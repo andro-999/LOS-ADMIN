@@ -159,3 +159,183 @@ table {
     height: 18px;
   }
 }
+
+// Expand-Link für aufklappbare Zeilen
+.expand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  color: #0066cc;
+  text-decoration: none;
+  user-select: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  .expand-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+}
+
+// Detail-Zeile (aufklappbar)
+.detail-row {
+  background-color: #f9f9f9 !important;
+
+  td {
+    padding: 12px 4px !important;
+    border-bottom: 2px solid #ddd !important;
+  }
+}
+
+.detail-content {
+  padding: 8px 0;
+
+  .detail-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
+
+    .detail-title {
+      font-weight: 400;
+      font-size: 18px;
+      color:  #333;
+      flex-grow: 1;
+    }
+  }
+
+  .detail-table {
+    width: auto;
+    border-collapse: collapse;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+
+    thead {
+      background-color: #f5f5f5;
+      position: static;
+      box-shadow: none;
+
+      tr {
+        border-bottom: 1px solid #ddd;
+      }
+
+      th {
+        padding: 8px 4px;
+        text-align: left;
+        font-weight: 500;
+        font-size: 16px;
+        color: #333;
+        background-color: #f5f5f5;
+      }
+    }
+
+    tbody {
+      tr {
+        border-bottom: 1px solid #eee;
+
+        &.even {
+          background-color: #fafafa;
+        }
+
+        &:hover {
+          background-color: #f0f0f0;
+        }
+      }
+
+      td {
+        padding: 8px 4px;
+        text-align: left;
+        font-size: 13px;
+      }
+    }
+  }
+}
+
+// Zeitstempel-Spalte
+.zeitstempel {
+  text-align: right;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  
+.time-with-toggle-space {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+
+  .placeholder-icon {
+    visibility: hidden;
+  }
+  .time-value {
+    font-weight: 600;
+    color: #0066cc;
+  }
+
+  .time-range {
+    font-weight: 500;
+    color: #0099ff;
+  }
+}
+
+.lagerist {
+  color: #666;
+}
+
+.lagerist-multi {
+  color: #0066cc;
+  font-weight: 600;
+}
+
+
+.detail-dropdown {
+  position: absolute;
+  top: 100%;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.dropdown-lagerist {
+  left: 0;
+  min-width: 130px;
+}
+
+.dropdown-zeitstempel {
+  right: 0;
+  min-width: 180px;
+}
+
+.dropdown-item {
+  padding: 8px 12px;
+  font-size: 13px;
+  border-bottom: 1px solid #eee;
+  
+  &:hover {
+    background-color: #f5f5f5;
+  }
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
